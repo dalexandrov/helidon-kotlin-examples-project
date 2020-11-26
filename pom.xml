@@ -62,6 +62,7 @@
 
     <modules>
         <module>quickstarts</module>
+        <module>employee-app</module>
     </modules>
 
     <dependencyManagement>
