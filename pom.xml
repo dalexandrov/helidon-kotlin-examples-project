@@ -66,6 +66,7 @@
         <module>health</module>
         <module>webclient</module>
         <module>cors</module>
+        <module>media</module>
     </modules>
 
     <dependencyManagement>
