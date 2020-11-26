@@ -63,6 +63,9 @@
     <modules>
         <module>quickstarts</module>
         <module>employee-app</module>
+        <module>health</module>
+        <module>webclient</module>
+        <module>cors</module>
     </modules>
 
     <dependencyManagement>
