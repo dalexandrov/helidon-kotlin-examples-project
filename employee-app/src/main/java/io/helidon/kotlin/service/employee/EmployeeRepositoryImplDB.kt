@@ -69,7 +69,7 @@ internal class EmployeeRepositoryImplDB(config: Config) : EmployeeRepository {
                     .addParam(employee.department)
                     .execute()
         } // let's always return the employee once the insert finishes
-                .thenApply { count: Long? -> employee }
+                .thenApply { employee }
     }
 
     override fun deleteById(id: String?): CompletionStage<Long?> {

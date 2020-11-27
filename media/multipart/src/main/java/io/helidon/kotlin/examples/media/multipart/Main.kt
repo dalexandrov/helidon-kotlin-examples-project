@@ -29,9 +29,9 @@ object Main {
      *
      * @return the new instance
      */
-    fun createRouting(): Routing {
+    private fun createRouting(): Routing {
         return Routing.builder()
-                .any("/", Handler { req: ServerRequest?, res: ServerResponse ->
+                .any("/", Handler { _: ServerRequest?, res: ServerResponse ->
                     res.status(Http.Status.MOVED_PERMANENTLY_301)
                     res.headers().put(Http.Header.LOCATION, "/ui")
                     res.send()

@@ -50,7 +50,6 @@ open class GreetResource
  * Using constructor injection to get a configuration property.
  * By default this gets the value from META-INF/microprofile-config
  *
- * @param greetingConfig the configured greeting message
  */ @Inject constructor(
         /**
          * The greeting message provider.

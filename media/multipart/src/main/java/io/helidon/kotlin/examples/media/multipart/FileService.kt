@@ -40,11 +40,11 @@ class FileService internal constructor() : Service {
     private val jsonFactory: JsonBuilderFactory = Json.createBuilderFactory(Map.of<String, Any?>())
     private val storage: Path
     override fun update(rules: Routing.Rules) {
-        rules["/", Handler { req: ServerRequest, res: ServerResponse -> list(req, res) }]["/{fname}", Handler { req: ServerRequest, res: ServerResponse -> download(req, res) }]
+        rules["/", Handler { _: ServerRequest, res: ServerResponse -> list(res) }]["/{fname}", Handler { req: ServerRequest, res: ServerResponse -> download(req, res) }]
                 .post("/", Handler { req: ServerRequest, res: ServerResponse -> upload(req, res) })
     }
 
-    private fun list(req: ServerRequest, res: ServerResponse) {
+    private fun list(res: ServerResponse) {
         val arrayBuilder = jsonFactory.createArrayBuilder()
         listFiles(storage).forEach { s: String? -> arrayBuilder.add(s) }
         res.send(jsonFactory.createObjectBuilder().add("files", arrayBuilder).build())
@@ -104,7 +104,7 @@ class FileService internal constructor() : Service {
                         val channel = newByteChannel(storage, part.filename())
                         Multi.create(part.content())
                                 .forEach { chunk: DataChunk -> writeChunk(channel, chunk) }
-                                .thenAccept { it: Void? -> closeChannel(channel) }
+                                .thenAccept { closeChannel(channel) }
                     }
                 }
     }

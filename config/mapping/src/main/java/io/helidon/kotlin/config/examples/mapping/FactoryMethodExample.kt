@@ -60,7 +60,7 @@ object FactoryMethodExample {
          */
         class DefaultBasicRangeSupplier : Supplier<List<Int>> {
             override fun get(): List<Int> {
-                return java.util.List.of(-10, 10)
+                return listOf(-10, 10)
             }
         }
 

@@ -87,7 +87,7 @@ class EmployeeRepositoryImpl : EmployeeRepository {
                 .findFirst()
                 .map { o: Employee -> eList.indexOf(o) }
                 .map { o: Int? -> eList.remove(o) }
-                .map { it: Boolean? -> 1L }
+                .map { 1L }
                 .orElse(0L))
     }
 
@@ -102,7 +102,7 @@ class EmployeeRepositoryImpl : EmployeeRepository {
         try {
             EmployeeRepositoryImpl::class.java.getResourceAsStream("/employees.json").use { jsonFile ->
                 val employees = jsonb.fromJson(jsonFile, Array<Employee>::class.java)
-                eList.addAll(Arrays.asList(*employees))
+                eList.addAll(listOf(*employees))
             }
         } catch (e: IOException) {
             // TODO Auto-generated catch block

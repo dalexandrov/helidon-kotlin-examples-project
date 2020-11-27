@@ -16,12 +16,10 @@
 package io.helidon.kotlin.service.employee
 
 import io.helidon.config.Config
-import io.helidon.kotlin.service.employee.Employee
 import io.helidon.kotlin.service.employee.Employee.Companion.of
 import io.helidon.kotlin.service.employee.EmployeeRepository.Companion.create
 import io.helidon.webserver.*
 import java.util.*
-import java.util.function.Consumer
 import java.util.logging.Logger
 
 /**
@@ -33,14 +31,17 @@ import java.util.logging.Logger
  * http://localhost:8080/employees/{id} The message is returned as a JSON object
  */
 class EmployeeService internal constructor(config: Config) : Service {
-    private var employees: EmployeeRepository
+    private var employees: EmployeeRepository = create(config["app.drivertype"]
+            .asString()
+            .orElse("Array"),
+            config)
 
     /**
      * A service registers itself by updating the routine rules.
      * @param rules the routing rules.
      */
     override fun update(rules: Routing.Rules) {
-        rules["/", Handler { request: ServerRequest, response: ServerResponse -> getAll(request, response) }]["/lastname/{name}", Handler { request: ServerRequest, response: ServerResponse -> getByLastName(request, response) }]["/department/{name}", Handler { request: ServerRequest, response: ServerResponse -> getByDepartment(request, response) }]["/title/{name}", Handler { request: ServerRequest, response: ServerResponse -> getByTitle(request, response) }]
+        rules["/", Handler { _: ServerRequest, response: ServerResponse -> getAll(response) }]["/lastname/{name}", Handler { request: ServerRequest, response: ServerResponse -> getByLastName(request, response) }]["/department/{name}", Handler { request: ServerRequest, response: ServerResponse -> getByDepartment(request, response) }]["/title/{name}", Handler { request: ServerRequest, response: ServerResponse -> getByTitle(request, response) }]
                 .post("/", Handler { request: ServerRequest, response: ServerResponse -> save(request, response) })["/{id}", Handler { request: ServerRequest, response: ServerResponse -> getEmployeeById(request, response) }]
                 .put("/{id}", Handler { request: ServerRequest, response: ServerResponse -> this.update(request, response) })
                 .delete("/{id}", Handler { request: ServerRequest, response: ServerResponse -> delete(request, response) })
@@ -48,10 +49,9 @@ class EmployeeService internal constructor(config: Config) : Service {
 
     /**
      * Gets all the employees.
-     * @param request  the server request
      * @param response the server response
      */
-    private fun getAll(request: ServerRequest, response: ServerResponse) {
+    private fun getAll(response: ServerResponse) {
         LOGGER.fine("getAll")
         employees
                 .all
@@ -69,7 +69,7 @@ class EmployeeService internal constructor(config: Config) : Service {
         val name = request.path().param("name")
         // Invalid query strings handled in isValidQueryStr. Keeping DRY
         if (isValidQueryStr(response, name)) {
-            employees!!.getByLastName(name)
+            employees.getByLastName(name)
                     .thenAccept { t: List<Employee?>? -> response.send(t) }
                     .exceptionally { throwable: Throwable? -> response.send(throwable) }
         }
@@ -84,7 +84,7 @@ class EmployeeService internal constructor(config: Config) : Service {
         LOGGER.fine("getByTitle")
         val title = request.path().param("name")
         if (isValidQueryStr(response, title)) {
-            employees!!.getByTitle(title)
+            employees.getByTitle(title)
                     .thenAccept { t: List<Employee?>? -> response.send(t) }
                     .exceptionally { throwable: Throwable? -> response.send(throwable) }
         }
@@ -99,7 +99,7 @@ class EmployeeService internal constructor(config: Config) : Service {
         LOGGER.fine("getByDepartment")
         val department = request.path().param("name")
         if (isValidQueryStr(response, department)) {
-            employees!!.getByDepartment(department)
+            employees.getByDepartment(department)
                     .thenAccept { t: List<Employee?>? -> response.send(t) }
                     .exceptionally { throwable: Throwable? -> response.send(throwable) }
         }
@@ -115,8 +115,8 @@ class EmployeeService internal constructor(config: Config) : Service {
         val id = request.path().param("id")
         // If invalid, response handled in isValidId. Keeping DRY
         if (isValidQueryStr(response, id)) {
-            employees!!.getById(id)
-                    .thenAccept { it: Optional<Employee?>? ->
+            employees.getById(id)
+                    .thenAccept {
                         if (it!!.isPresent) {
                             // found
                             response.send(it.get())
@@ -148,8 +148,8 @@ class EmployeeService internal constructor(config: Config) : Service {
                             e.title,
                             e.department)
                 }
-                .thenCompose { employee: Employee? -> employees!!.save(employee) }
-                .thenAccept { it: Employee? -> response.status(201).send() }
+                .thenCompose { employee: Employee? -> employees.save(employee) }
+                .thenAccept { response.status(201).send() }
                 .exceptionally { throwable: Throwable? -> response.send(throwable) }
     }
 
@@ -164,7 +164,7 @@ class EmployeeService internal constructor(config: Config) : Service {
         if (isValidQueryStr(response, id)) {
             request.content()
                     .`as`(Employee::class.java)
-                    .thenCompose { e: Employee? -> employees!!.update(e, id) }
+                    .thenCompose { e: Employee? -> employees.update(e, id) }
                     .thenAccept { count: Long? ->
                         if (count == 0L) {
                             response.status(404).send()
@@ -185,14 +185,14 @@ class EmployeeService internal constructor(config: Config) : Service {
         LOGGER.fine("delete")
         val id = request.path().param("id")
         if (isValidQueryStr(response, id)) {
-            employees!!.deleteById(id)
-                    .thenAccept(Consumer { count: Long? ->
+            employees.deleteById(id)
+                    .thenAccept { count: Long? ->
                         if (count == 0L) {
                             response.status(404).send()
                         } else {
                             response.status(204).send()
                         }
-                    })
+                    }
                     .exceptionally { throwable: Throwable? -> response.send(throwable) }
         }
     }
@@ -218,10 +218,4 @@ class EmployeeService internal constructor(config: Config) : Service {
         private val LOGGER = Logger.getLogger(EmployeeService::class.java.name)
     }
 
-    init {
-        employees = create(config["app.drivertype"]
-                .asString()
-                .orElse("Array"),
-                config)
-    }
 }

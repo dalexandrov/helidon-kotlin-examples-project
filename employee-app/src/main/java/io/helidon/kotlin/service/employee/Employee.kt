@@ -29,7 +29,7 @@ class Employee
  * @param lastName The employee lastName.
  * @param email The employee email.
  * @param phone The employee phone.
- * @param birthDate The employee birthDatee.
+ * @param birthDate The employee birthDate.
  * @param title The employee title.
  * @param department The employee department.
  */ private constructor(
@@ -86,7 +86,7 @@ class Employee
          * @param lastName The employee lastName.
          * @param email The employee email.
          * @param phone The employee phone.
-         * @param birthDate The employee birthDatee.
+         * @param birthDate The employee birthDate.
          * @param title The employee title.
          * @param department The employee department.
          * @return A new employee object

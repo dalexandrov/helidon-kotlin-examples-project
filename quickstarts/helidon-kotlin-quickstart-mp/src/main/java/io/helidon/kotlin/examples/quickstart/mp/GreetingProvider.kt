@@ -37,8 +37,6 @@ open class GreetingProvider @Inject constructor(@ConfigProperty(name = "app.gree
 
     /**
      * Create a new greeting provider, reading the message from configuration.
-     *
-     * @param message greeting to use
      */
     init {
         this.message.set(message)

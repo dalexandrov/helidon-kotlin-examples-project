@@ -47,17 +47,15 @@ class GreetService internal constructor(config: Config) : Service {
      * @param rules the routing rules.
      */
     override fun update(rules: Routing.Rules) {
-        rules["/", Handler { request: ServerRequest, response: ServerResponse -> getDefaultMessageHandler(request, response) }]["/{name}", Handler { request: ServerRequest, response: ServerResponse -> getMessageHandler(request, response) }]
+        rules["/", Handler { _: ServerRequest, response: ServerResponse -> getDefaultMessageHandler(response) }]["/{name}", Handler { request: ServerRequest, response: ServerResponse -> getMessageHandler(request, response) }]
                 .put("/greeting", Handler { request: ServerRequest, response: ServerResponse -> updateGreetingHandler(request, response) })
     }
 
     /**
      * Return a worldly greeting message.
-     * @param request the server request
      * @param response the server response
      */
-    private fun getDefaultMessageHandler(request: ServerRequest,
-                                         response: ServerResponse) {
+    private fun getDefaultMessageHandler(response: ServerResponse) {
         sendResponse(response, "World")
     }
 
@@ -102,7 +100,6 @@ class GreetService internal constructor(config: Config) : Service {
 
     companion object {
         private val JSON_BF = Json.createBuilderFactory(emptyMap<String, Any>())
-        private val JSON_RF = Json.createReaderFactory(emptyMap<String, Any>())
     }
 
     init {

@@ -42,7 +42,7 @@ object Main {
                 })
                 .build()
         val routing = Routing.builder()
-                .register(health)["/hello", Handler { req: ServerRequest?, res: ServerResponse -> res.send("Hello World!") }]
+                .register(health)["/hello", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") }]
                 .build()
         val ws = WebServer.create(routing)
         ws.start()

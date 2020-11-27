@@ -50,17 +50,15 @@ class GreetService internal constructor(config: Config) : Service {
      * @param rules the routing rules.
      */
     override fun update(rules: Routing.Rules) {
-        rules["/", Handler { request: ServerRequest, response: ServerResponse -> getDefaultMessageHandler(request, response) }]["/{name}", Handler { request: ServerRequest, response: ServerResponse -> getMessageHandler(request, response) }]
+        rules["/", Handler { _: ServerRequest, response: ServerResponse -> getDefaultMessageHandler(response) }]["/{name}", Handler { request: ServerRequest, response: ServerResponse -> getMessageHandler(request, response) }]
                 .put("/greeting", Handler { request: ServerRequest, response: ServerResponse -> updateGreetingHandler(request, response) })
     }
 
     /**
      * Return a worldly greeting message.
-     * @param request the server request
      * @param response the server response
      */
-    private fun getDefaultMessageHandler(request: ServerRequest,
-                                         response: ServerResponse) {
+    private fun getDefaultMessageHandler(response: ServerResponse) {
         sendResponse(response, "World")
     }
 
@@ -105,13 +103,13 @@ class GreetService internal constructor(config: Config) : Service {
                                       response: ServerResponse) {
         request.content().`as`(JsonObject::class.java)
                 .thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
-                .exceptionally { ex: Throwable -> processErrors(ex, request, response) }
+                .exceptionally { ex: Throwable -> processErrors(ex, response) }
     }
 
     companion object {
         private val JSON = Json.createBuilderFactory(emptyMap<String, Any>())
         private val LOGGER = Logger.getLogger(GreetService::class.java.name)
-        private fun <T> processErrors(ex: Throwable, request: ServerRequest, response: ServerResponse): T? {
+        private fun <T> processErrors(ex: Throwable, response: ServerResponse): T? {
             if (ex.cause is JsonException) {
                 LOGGER.log(Level.FINE, "Invalid JSON", ex)
                 val jsonErrorObject = JSON.createObjectBuilder()

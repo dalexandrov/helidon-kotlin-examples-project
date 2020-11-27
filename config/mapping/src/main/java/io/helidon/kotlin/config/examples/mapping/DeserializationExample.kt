@@ -59,7 +59,6 @@ object DeserializationExample {
          * [Value] is used just to specify default value
          * in case configuration does not contain appropriate value.
          *
-         * @param greeting greeting value
          */
         @set:Value(withDefault = "Hi")
         var greeting: String? = null
@@ -73,7 +72,6 @@ object DeserializationExample {
          * Original string value is mapped to target int using appropriate
          * [ConfigMapper][io.helidon.config.ConfigMappers].
          *
-         * @param pageSize page size
          */
         @set:Value(key = "page-size", withDefault = "10")
         var pageSize = 0
@@ -86,7 +84,6 @@ object DeserializationExample {
          * in case configuration does not contain appropriate value.
          * Supplier already returns default value in target type of a property.
          *
-         * @param basicRange basic range
          */
         @set:Value(key = "basic-range", withDefaultSupplier = DefaultBasicRangeSupplier::class)
         var basicRange: List<Int>? = null
@@ -102,7 +99,7 @@ object DeserializationExample {
          */
         class DefaultBasicRangeSupplier : Supplier<List<Int>> {
             override fun get(): List<Int> {
-                return java.util.List.of(-10, 10)
+                return listOf(-10, 10)
             }
         }
     }
