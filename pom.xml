@@ -65,10 +65,10 @@
         <module>employee-app</module>
         <module>health</module>
         <module>webclient</module>
-        <module>cors</module>
         <module>media</module>
         <module>cors</module>
         <module>openapi</module>
+        <module>webserver</module>
     </modules>
 
     <dependencyManagement>
