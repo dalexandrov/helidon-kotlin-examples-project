@@ -72,6 +72,7 @@
         <module>translator-app</module>
         <module>todo-app</module>
         <module>dbclient</module>
+        <module>microprofile</module>
     </modules>
 
     <dependencyManagement>
