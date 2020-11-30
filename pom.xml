@@ -71,6 +71,7 @@
         <module>webserver</module>
         <module>translator-app</module>
         <module>todo-app</module>
+        <module>dbclient</module>
     </modules>
 
     <dependencyManagement>
