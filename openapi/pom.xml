@@ -27,10 +27,10 @@
     </parent>
     <groupId>io.helidon.kotlin.examples</groupId>
     <artifactId>helidon-kotlin-examples-openapi</artifactId>
-    <name>Helidon Examples OpenAPI</name>
+    <name>Helidon Examples OpenAPI in Kotlin</name>
 
     <description>
-        Basic illustration of OpenAPI support in Helidon SE
+        Basic illustration of OpenAPI support in Helidon SE written in Kotlin
     </description>
 
     <properties>

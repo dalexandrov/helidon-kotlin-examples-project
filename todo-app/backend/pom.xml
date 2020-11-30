@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2017, 2020 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2018, 2020 Oracle and/or its affiliates. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,58 +22,66 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.helidon.kotlin.examples.webserver</groupId>
-        <artifactId>helidon-kotlin-examples-webserver-project</artifactId>
+        <groupId>io.helidon.kotlin.examples</groupId>
+        <artifactId>helidon-kotlin-examples-project</artifactId>
         <version>2.1.0</version>
     </parent>
-    <groupId>io.helidon.kotlin.examples.webgitbserver</groupId>
-    <artifactId>helidon-kotlin-examples-webserver-basics</artifactId>
-    <name>Helidon WebServer Examples Basics in Kotlin</name>
+    <groupId>io.helidon.kotlin.examples.todos</groupId>
+    <artifactId>helidon-kotlin-examples-todo-backend</artifactId>
+    <name>Helidon Examples TODO Demo Backend in Kotlin</name>
 
     <description>
-        Examples of elementary use of the Web Server written in Kotlin
+        Back-end part of the application uses Helidon MP written in Kotlin
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.basics.Main</mainClass>
+        <mainClass>io.helidon.kotlin.demo.todos.backend.Main</mainClass>
+        <version.lib.cassandra>3.4.0</version.lib.cassandra>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.datastax.cassandra</groupId>
+                <artifactId>cassandra-driver-core</artifactId>
+                <version>${version.lib.cassandra}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>io.helidon.webserver</groupId>
-            <artifactId>helidon-webserver</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.helidon.webserver</groupId>
-            <artifactId>helidon-webserver-jersey</artifactId>
+            <groupId>io.helidon.microprofile.bundles</groupId>
+            <artifactId>helidon-microprofile</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.helidon.media</groupId>
-            <artifactId>helidon-media-jsonp</artifactId>
+            <groupId>io.helidon.microprofile</groupId>
+            <artifactId>helidon-microprofile-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.helidon.security.providers</groupId>
+            <artifactId>helidon-security-providers-google-login</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.microprofile.tracing</groupId>
+            <artifactId>helidon-microprofile-tracing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.tracing</groupId>
+            <artifactId>helidon-tracing-zipkin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+        </dependency>
+        <!-- needed by cassandra -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.helidon.webserver</groupId>
-            <artifactId>helidon-webserver-test-support</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -85,6 +93,15 @@
                 <executions>
                     <execution>
                         <id>copy-libs</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jboss.jandex</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
                     </execution>
                 </executions>
             </plugin>

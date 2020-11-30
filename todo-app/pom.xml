@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2017, 2020 Oracle and/or its affiliates.
+    Copyright (c) 2018, 2020 Oracle and/or its affiliates. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -26,22 +26,19 @@
         <artifactId>helidon-kotlin-examples-project</artifactId>
         <version>2.1.0</version>
     </parent>
-    <groupId>io.helidon.kotlin.examples.webserver</groupId>
-    <artifactId>helidon-kotlin-examples-webserver-project</artifactId>
-    <name>Helidon WebServer Examples in Kotlin</name>
+
+    <groupId>io.helidon.kotlin.examples.todos</groupId>
+    <artifactId>kotlin-example-todo-app-project</artifactId>
     <packaging>pom</packaging>
+    <version>2.1.0</version>
+    <name>Helidon Examples TODO Demo in Kotlin</name>
+
+    <description>
+        TODO demo application written in Kotlin
+    </description>
 
     <modules>
-        <module>basics</module>
-        <module>tutorial</module>
-        <module>comment-aas</module>
-        <module>static-content</module>
-        <module>jersey</module>
-        <module>opentracing</module>
-        <module>streaming</module>
-        <module>websocket</module>
-        <module>tls</module>
-        <module>mutual-tls</module>
-        <module>fault-tolerance</module>
+        <module>frontend</module>
+        <module>backend</module>
     </modules>
 </project>

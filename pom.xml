@@ -69,6 +69,8 @@
         <module>cors</module>
         <module>openapi</module>
         <module>webserver</module>
+        <module>translator-app</module>
+        <module>todo-app</module>
     </modules>
 
     <dependencyManagement>
