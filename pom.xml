@@ -73,6 +73,7 @@
         <module>todo-app</module>
         <module>dbclient</module>
         <module>microprofile</module>
+        <module>security</module>
     </modules>
 
     <dependencyManagement>
