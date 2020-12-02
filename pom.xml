@@ -74,6 +74,7 @@
         <module>dbclient</module>
         <module>microprofile</module>
         <module>security</module>
+        <module>integrations</module>
     </modules>
 
     <dependencyManagement>
@@ -90,7 +91,10 @@
                 <artifactId>kotlin-maven-noarg</artifactId>
                 <version>${kotlin.version}</version>
             </dependency>
+
         </dependencies>
+
+
     </dependencyManagement>
 
 
@@ -105,11 +109,6 @@
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 
@@ -158,7 +157,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>io.helidon.build-tools</groupId>
                 <artifactId>helidon-maven-plugin</artifactId>
