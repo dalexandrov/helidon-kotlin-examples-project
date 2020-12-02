@@ -24,13 +24,15 @@ import org.junit.jupiter.api.BeforeAll
  * Test of hello world example.
  */
 class JerseyBuilderMainTest : JerseyMainTest() {
+    override val port: Int
+        protected get() = httpServer.port()
 
     companion object {
         @BeforeAll
         @JvmStatic
         @Throws(Throwable::class)
         fun initClass() {
-            main(emptyArray())
+            main(null)
         }
 
         @AfterAll
@@ -40,7 +42,4 @@ class JerseyBuilderMainTest : JerseyMainTest() {
             stopServer(httpServer)
         }
     }
-
-    override val port: Int
-        get() = JerseyConfigMain.httpServer.port()
 }

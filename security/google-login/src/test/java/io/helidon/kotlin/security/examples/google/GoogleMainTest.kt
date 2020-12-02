@@ -50,6 +50,7 @@ abstract class GoogleMainTest {
     abstract fun port(): Int
 
     companion object {
+        @JvmStatic
         private lateinit var client: WebClient
 
         @BeforeAll
@@ -58,7 +59,6 @@ abstract class GoogleMainTest {
             client = WebClient.create()
         }
 
-        @AfterAll
         @JvmStatic
         @Throws(InterruptedException::class)
         fun stopServer(server: WebServer?) {

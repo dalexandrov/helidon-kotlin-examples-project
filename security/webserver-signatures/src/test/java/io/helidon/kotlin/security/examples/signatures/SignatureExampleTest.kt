@@ -22,7 +22,6 @@ import io.helidon.webclient.security.WebClientSecurity
 import io.helidon.webserver.WebServer
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
@@ -36,15 +35,14 @@ import java.util.function.Consumer
 abstract class SignatureExampleTest {
     abstract val service1Port: Int
     abstract val service2Port: Int
-
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun testService1Hmac() {
         testProtected("http://localhost:$service1Port/service1",
                 "jack",
                 "password",
-                mutableSetOf("user", "admin"),
-                mutableSetOf(),
+                java.util.Set.of("user", "admin"),
+                java.util.Set.of(),
                 "Service1 - HMAC signature")
     }
 
@@ -54,8 +52,8 @@ abstract class SignatureExampleTest {
         testProtected("http://localhost:$service1Port/service1-rsa",
                 "jack",
                 "password",
-                mutableSetOf("user", "admin"),
-                mutableSetOf(),
+                java.util.Set.of("user", "admin"),
+                java.util.Set.of(),
                 "Service1 - RSA signature")
     }
 
@@ -71,7 +69,7 @@ abstract class SignatureExampleTest {
                 .property(HttpBasicAuthProvider.EP_PROPERTY_OUTBOUND_USER, username)
                 .property(HttpBasicAuthProvider.EP_PROPERTY_OUTBOUND_PASSWORD, password)
                 .request(String::class.java)
-                .thenAccept {
+                .thenAccept { it: String ->
                     // check login
                     MatcherAssert.assertThat(it, CoreMatchers.containsString("id='$username'"))
                     // check roles
@@ -85,7 +83,6 @@ abstract class SignatureExampleTest {
 
     companion object {
         private lateinit var client: WebClient
-
         @BeforeAll
         @JvmStatic
         fun classInit() {
@@ -97,13 +94,12 @@ abstract class SignatureExampleTest {
                     .build()
         }
 
-        @AfterAll
         @JvmStatic
         @Throws(InterruptedException::class)
         fun stopServer(server: WebServer) {
             val cdl = CountDownLatch(1)
             val t = System.nanoTime()
-            server.shutdown().thenAccept {
+            server.shutdown().thenAccept { webServer: WebServer? ->
                 val time = System.nanoTime() - t
                 println("Server shutdown in " + TimeUnit.NANOSECONDS.toMillis(time) + " ms")
                 cdl.countDown()

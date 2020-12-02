@@ -41,7 +41,7 @@ object SignatureExampleConfigMain {
      * @param args ignored
      */
     @JvmStatic
-    fun main(args: Array<String>) {
+    fun main(args: Array<String>?) {
         // to allow us to set host header explicitly
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true")
 

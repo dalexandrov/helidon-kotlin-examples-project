@@ -149,6 +149,7 @@ abstract class BasicExampleTest {
     }
 
     companion object {
+        @JvmStatic
         private lateinit var client: WebClient
         @BeforeAll
         @JvmStatic
@@ -163,7 +164,6 @@ abstract class BasicExampleTest {
                     .build()
         }
 
-        @AfterAll
         @JvmStatic
         fun stopServer(server: WebServer) {
             val t = System.nanoTime()

@@ -47,13 +47,13 @@ abstract class JerseyMainTest {
         testProtected(baseUri() + "/protected",
                 "jack",
                 "password",
-                mutableSetOf("user", "admin"),
-                mutableSetOf())
+                java.util.Set.of("user", "admin"),
+                java.util.Set.of())
         testProtected(baseUri() + "/protected",
                 "jill",
                 "password",
-                mutableSetOf("user"),
-                mutableSetOf("admin"))
+                java.util.Set.of("user"),
+                java.util.Set.of("admin"))
     }
 
     @Test
@@ -73,8 +73,8 @@ abstract class JerseyMainTest {
         testProtected(baseUri() + "/outbound",
                 "jill",
                 "password",
-                mutableSetOf("user"),
-                mutableSetOf("admin"))
+                java.util.Set.of("user"),
+                java.util.Set.of("admin"))
     }
 
     protected abstract val port: Int
@@ -84,7 +84,7 @@ abstract class JerseyMainTest {
 
     private fun callProtected(uri: String, username: String, password: String): Response {
         // here we call the endpoint
-        return authFeatureClient.target(uri)
+        return authFeatureClient!!.target(uri)
                 .request()
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_USERNAME, username)
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_PASSWORD, password)
@@ -115,8 +115,12 @@ abstract class JerseyMainTest {
     }
 
     companion object {
+        @JvmStatic
         private lateinit var client: Client
+
+        @JvmStatic
         private lateinit var authFeatureClient: Client
+
         @BeforeAll
         @JvmStatic
         fun classInit() {
@@ -129,7 +133,7 @@ abstract class JerseyMainTest {
         @JvmStatic
         fun classDestroy() {
             client.close()
-            authFeatureClient.close()
+            authFeatureClient!!.close()
         }
 
         @JvmStatic
@@ -140,7 +144,7 @@ abstract class JerseyMainTest {
             }
             val cdl = CountDownLatch(1)
             val t = System.nanoTime()
-            server.shutdown().thenAccept {
+            server.shutdown().thenAccept { webServer: WebServer? ->
                 val time = System.nanoTime() - t
                 println("Server shutdown in " + TimeUnit.NANOSECONDS.toMillis(time) + " ms")
                 cdl.countDown()

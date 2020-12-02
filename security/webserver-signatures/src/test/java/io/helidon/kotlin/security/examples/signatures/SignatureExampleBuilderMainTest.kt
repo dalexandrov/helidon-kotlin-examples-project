@@ -25,18 +25,18 @@ import org.junit.jupiter.api.BeforeAll
  * Unit test for [SignatureExampleBuilderMain].
  */
 class SignatureExampleBuilderMainTest : SignatureExampleTest() {
-
-
     companion object {
-        private var svc1Port = 0
-        private var svc2Port = 0
+        var service1Port = 0
+            private set
+        var service2Port = 0
+            private set
 
         @BeforeAll
         @JvmStatic
         fun initClass() {
-            main(emptyArray())
-            svc1Port = service1Server.port()
-            svc2Port = service2Server.port()
+            main(null)
+            service1Port = service1Server.port()
+            service2Port = service2Server.port()
         }
 
         @AfterAll
@@ -49,7 +49,7 @@ class SignatureExampleBuilderMainTest : SignatureExampleTest() {
     }
 
     override val service1Port: Int
-        get() = service1Port
+        get() = SignatureExampleBuilderMainTest.Companion.service1Port
     override val service2Port: Int
-        get() = service2Port
+        get() = SignatureExampleBuilderMainTest.Companion.service2Port
 }

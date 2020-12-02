@@ -33,6 +33,7 @@ import javax.ws.rs.ext.ExceptionMapper
  */
 object JerseyProgrammaticMain {
     @Volatile
+    @JvmStatic
     lateinit var httpServer: WebServer
         private set
 
@@ -62,7 +63,7 @@ object JerseyProgrammaticMain {
      * @param args empty is OK
      */
     @JvmStatic
-    fun main(args: Array<String>) {
+    fun main(args: Array<String>?) {
         val routing = Routing.builder()
                 .register("/rest", buildJersey())
         httpServer = JerseyUtil.startIt(routing, 8080)

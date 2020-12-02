@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeAll
 class BasicExampleBuilderTest : BasicExampleTest() {
 
     companion object {
+        @JvmStatic
         private lateinit var server: WebServer
 
         @BeforeAll

@@ -36,6 +36,7 @@ object JerseyBuilderMain {
     private val USERS: MutableMap<String, SecureUserStore.User> = HashMap()
 
     @Volatile
+    @JvmStatic
     lateinit var httpServer: WebServer
         private set
 
@@ -94,7 +95,7 @@ object JerseyBuilderMain {
      */
     @JvmStatic
     @Throws(Throwable::class)
-    fun main(args: Array<String>) {
+    fun main(args: Array<String>?) {
         val routing = Routing.builder()
                 .register("/rest", buildJersey())
         httpServer = JerseyUtil.startIt(routing, 8080)
