@@ -28,7 +28,6 @@
     </parent>
     <groupId>io.helidon.kotlin.examples.security</groupId>
     <artifactId>helidon-kotlin-examples-security-project</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Security Examples in Kotlin</name>
     <packaging>pom</packaging>
 

@@ -27,7 +27,6 @@
         <version>2.1.0</version>
     </parent>
     <artifactId>helidon-kotlin-examples-translator-backend</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Examples Translator Backend in Kotlin</name>
 
     <description>

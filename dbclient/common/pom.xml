@@ -26,7 +26,6 @@
     </parent>
 
     <artifactId>helidon-kotlin-examples-dbclient-common</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Examples DB Client Common in Kotlin</name>
 
     <dependencies>

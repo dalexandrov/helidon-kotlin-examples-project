@@ -26,7 +26,7 @@
         <artifactId>helidon-kotlin-examples-integrations-neo4j-project</artifactId>
         <version>2.1.0</version>
     </parent>
-    <groupId>io.helidon.kotlin.examples.integrations.neo4j</groupId>
+
     <artifactId>helidon-kotlin-integrations-neo4j-mp</artifactId>
     <name>Helidon Neo4j MP integration Example in Kotlin</name>
 

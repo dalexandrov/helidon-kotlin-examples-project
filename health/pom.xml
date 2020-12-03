@@ -26,7 +26,6 @@
     </parent>
     <groupId>io.helidon.kotlin.examples.health</groupId>
     <artifactId>helidon-kotlin-examples-health-project</artifactId>
-    <version>${helidon.version}</version>
     <packaging>pom</packaging>
     <name>Helidon Health Examples in Kotlin</name>
 

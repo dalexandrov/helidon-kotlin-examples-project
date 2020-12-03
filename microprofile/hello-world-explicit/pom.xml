@@ -29,7 +29,6 @@
 
     <groupId>io.helidon.kotlin.examples.microprofile.hello.world.explicid</groupId>
     <artifactId>helidon-kotlin-examples-microprofile-hello-world-explicit</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Microprofile Examples Explicit Hello World in Kotlin</name>
 
     <description>

@@ -29,7 +29,6 @@
 
     <groupId>io.helidon.kotlin.examples.microprofile</groupId>
     <artifactId>helidon-kotlin-examples-microprofile-security-idcs</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Microprofile Examples IDCS Security in Kotlin</name>
 
     <description>

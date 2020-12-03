@@ -28,7 +28,6 @@
     </parent>
     <groupId>io.helidon.kotlin.examples.integrations.neo4j</groupId>
     <artifactId>helidon-kotlin-integrations-neo4j-se</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
     <name>Helidon Integrations Neo4j SE Example in Kotlin</name>
 
     <properties>

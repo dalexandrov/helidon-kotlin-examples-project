@@ -29,7 +29,6 @@
 
     <groupId>io.helidon.kotlin.examples.dbclient</groupId>
     <artifactId>helidon-kotlin-examples-dbclient-project</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Examples DB Client in Kotlin</name>
 
     <description>

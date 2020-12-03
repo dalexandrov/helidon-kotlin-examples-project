@@ -7,11 +7,11 @@ configuration written in Kotlin.
 
 The example highlights two approaches to change notification:
 
-1. [`ChangesSubscriberExample.kt`](src/main/java/io/helidon/kotlin/config/examples/changes/ChangesSubscriberExample.kt):
+1. [`ChangesSubscriberExample.kt`](src/main/kotlin/io/helidon/kotlin/config/examples/changes/ChangesSubscriberExample.kt):
 uses `Config.changes` to register an application-specific `Flow.Subscriber` with a 
 config-provided `Flow.Publisher` to be notified of changes to the underlying 
 configuration source as they occur
-2. [`OnChangeExample.kt`](src/main/java/io/helidon/kotlin/config/examples/changes/OnChangeExample.kt):
+2. [`OnChangeExample.kt`](src/main/kotlin/io/helidon/kotlin/config/examples/changes/OnChangeExample.kt):
 uses `Config.onChange`, passing either a method reference (a lambda expression
 would also work) which the config system invokes when the config source changes
 )
@@ -21,7 +21,7 @@ would also work) which the config system invokes when the config source changes
 A third example illustrates a different solution. 
 Recall that once your application obtains a `Config` instance, its config values 
 do not change. The 
-[`AsSupplierExample.kt`](src/main/java/io/helidon/kotlin/config/examples/changes/AsSupplierExample.kt)
+[`AsSupplierExample.kt`](src/main/kotlin/io/helidon/kotlin/config/examples/changes/AsSupplierExample.kt)
 example shows how your application can get a config _supplier_ that always reports 
 the latest config value for a key, including any changes made after your
 application obtained the `Config` object. Although this approach does not notify

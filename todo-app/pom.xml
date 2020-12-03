@@ -30,7 +30,6 @@
     <groupId>io.helidon.kotlin.examples.todos</groupId>
     <artifactId>kotlin-example-todo-app-project</artifactId>
     <packaging>pom</packaging>
-    <version>${helidon.version}</version>
     <name>Helidon Examples TODO Demo in Kotlin</name>
 
     <description>

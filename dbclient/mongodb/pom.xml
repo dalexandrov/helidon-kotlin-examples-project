@@ -28,7 +28,6 @@
 
     <groupId>io.helidon.kotlin.examples.dbclient.mongodb</groupId>
     <artifactId>helidon-examples-dbclient-mongodb</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Examples DB Client MongoDB in Kotlin</name>
 
     <properties>

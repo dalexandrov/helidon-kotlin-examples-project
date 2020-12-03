@@ -28,7 +28,6 @@
     </parent>
 
     <artifactId>helidon-kotlin-examples-translator-frontend</artifactId>
-    <version>${helidon.version}</version>
     <name>Helidon Examples Translator Frontend in Kotlin</name>
 
     <description>
