@@ -18,8 +18,7 @@ package io.helidon.kotlin.security.examples.abac
 import io.helidon.security.*
 import io.helidon.security.spi.AuthenticationProvider
 import io.helidon.security.spi.SynchronousProvider
-import java.lang.annotation.*
-import java.lang.annotation.RetentionPolicy.*
+import java.lang.annotation.Inherited
 import java.util.*
 import java.util.Set
 import java.util.function.Consumer
@@ -39,7 +38,7 @@ class AtnProvider : SynchronousProvider(), AuthenticationProvider {
                     .filterAnnotations(Authentications::class.java, EndpointConfig.AnnotationScope.METHOD)
             val authentications: MutableList<Authentication> = LinkedList()
             authenticationAnnots.forEach(Consumer { atn: Authentications -> authentications.addAll(listOf(*atn.value)) })
-            if (!authentications.isEmpty()) {
+            if (authentications.isNotEmpty()) {
                 for (authentication in authentications) {
                     if (authentication.type == SubjectType.USER) {
                         user = buildSubject(authentication)
@@ -77,7 +76,7 @@ class AtnProvider : SynchronousProvider(), AuthenticationProvider {
      */
     @Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-    @Documented
+    @MustBeDocumented
     @Inherited
     //@Repeatable(Authentications::class)
     annotation class Authentication(
@@ -109,7 +108,7 @@ class AtnProvider : SynchronousProvider(), AuthenticationProvider {
      */
     @Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-    @Documented
+    @MustBeDocumented
     @Inherited
     annotation class Authentications(
             /**

@@ -67,11 +67,11 @@ internal class MainTest {
     }
 
     private fun getConnectionString(path: String): String {
-        return "http://localhost:" + server!!.port() + path
+        return "http://localhost:" + server.port() + path
     }
 
     companion object {
-        private var server: Server? = null
+        private lateinit var server: Server
         @BeforeAll
         @JvmStatic
         @Throws(Exception::class)

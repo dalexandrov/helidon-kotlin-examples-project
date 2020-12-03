@@ -27,7 +27,7 @@ import javax.ws.rs.Path
 @Path("rest")
 class MessageQueueResource {
     @Inject
-    private var messageQueue: MessageQueue? = null
+    private lateinit var messageQueue: MessageQueue
 
     /**
      * Resource to push string into queue.
@@ -38,7 +38,7 @@ class MessageQueueResource {
     @Consumes("text/plain")
     fun push(s: String) {
         LOGGER.info("push called '$s'")
-        messageQueue!!.push(s)
+        messageQueue.push(s)
     }
 
     companion object {

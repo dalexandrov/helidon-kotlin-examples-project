@@ -38,12 +38,15 @@ abstract class AbstractPokemonService
  * @param dbClient DB client to use for database operations
  */ protected constructor(private val dbClient: DbClient) : Service {
     override fun update(rules: Routing.Rules) {
-        rules["/", Handler { request: ServerRequest, response: ServerResponse -> listPokemons(request, response) }] // create new
-                .put("/", Handler.create(Pokemon::class.java) { request: ServerRequest, response: ServerResponse, pokemon: Pokemon -> insertPokemon(response, pokemon) }) // update existing
+        rules["/", Handler { _: ServerRequest, response: ServerResponse -> listPokemons(response) }] // create new
+                .put("/", Handler.create(Pokemon::class.java) { _: ServerRequest, response: ServerResponse, pokemon: Pokemon -> insertPokemon(response, pokemon) }) // update existing
                 .post("/{name}/type/{type}", Handler { request: ServerRequest, response: ServerResponse -> insertPokemonSimple(request, response) }) // delete all
                 .delete("/", Handler { request: ServerRequest?, response: ServerResponse? -> deleteAllPokemons(request, response) })["/{name}", Handler { request: ServerRequest, response: ServerResponse -> getPokemon(request, response) }] // delete one
                 .delete("/{name}", Handler { request: ServerRequest, response: ServerResponse -> deletePokemon(request, response) }) // example of transactional API (local transaction only!)
-                .put("/transactional", Handler.create(Pokemon::class.java) { request: ServerRequest, response: ServerResponse, pokemon: Pokemon -> transactional(request, response, pokemon) }) // update one (TODO this is intentionally wrong - should use JSON request, just to make it simple we use path)
+                .put("/transactional", Handler.create(Pokemon::class.java) { _: ServerRequest, response: ServerResponse, pokemon: Pokemon -> transactional(
+                    response,
+                    pokemon
+                ) }) // update one (TODO this is intentionally wrong - should use JSON request, just to make it simple we use path)
                 .put("/{name}/type/{type}", Handler { request: ServerRequest, response: ServerResponse -> updatePokemonType(request, response) })
     }
 
@@ -110,7 +113,7 @@ abstract class AbstractPokemonService
         val pokemonName = request.path().param("name")
         dbClient.execute { exec: DbExecute -> exec.namedGet("select-one", pokemonName) }
                 .thenAccept { opt: Optional<DbRow> ->
-                    opt.ifPresentOrElse({ it: DbRow -> sendRow(it, response) }
+                    opt.ifPresentOrElse({ sendRow(it, response) }
                     ) {
                         sendNotFound(response, "Pokemon "
                                 + pokemonName
@@ -123,12 +126,11 @@ abstract class AbstractPokemonService
     /**
      * Return JsonArray with all stored pokemons or pokemons with matching attributes.
      *
-     * @param request  the server request
      * @param response the server response
      */
-    private fun listPokemons(request: ServerRequest, response: ServerResponse) {
+    private fun listPokemons(response: ServerResponse) {
         val rows = dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all") }
-                .map { it: DbRow -> it.`as`(JsonObject::class.java) }
+                .map { it.`as`(JsonObject::class.java) }
         response.send(rows, JsonObject::class.java)
     }
 
@@ -136,7 +138,6 @@ abstract class AbstractPokemonService
      * Update a pokemon.
      * Uses a transaction.
      *
-     * @param request  the server request
      * @param response the server response
      */
     private fun updatePokemonType(request: ServerRequest, response: ServerResponse) {
@@ -153,14 +154,14 @@ abstract class AbstractPokemonService
                 .exceptionally { throwable: Throwable -> sendError(throwable, response) }
     }
 
-    private fun transactional(request: ServerRequest, response: ServerResponse, pokemon: Pokemon) {
+    private fun transactional(response: ServerResponse, pokemon: Pokemon) {
         dbClient.inTransaction { tx: DbTransaction ->
             tx
                     .createNamedGet("select-for-update")
                     .namedParam(pokemon)
                     .execute()
                     .flatMapSingle { maybeRow: Optional<DbRow?> ->
-                        maybeRow.map { dbRow: DbRow? ->
+                        maybeRow.map {
                             tx.createNamedUpdate("update")
                                     .namedParam(pokemon).execute()
                         }
@@ -188,7 +189,7 @@ abstract class AbstractPokemonService
      * @param response the server response
      * @param message entity content
      */
-    protected fun sendNotFound(response: ServerResponse, message: String) {
+    private fun sendNotFound(response: ServerResponse, message: String) {
         response.status(Http.Status.NOT_FOUND_404)
         response.send(message)
     }
@@ -199,7 +200,7 @@ abstract class AbstractPokemonService
      * @param row row as read from the database
      * @param response server response
      */
-    protected fun sendRow(row: DbRow, response: ServerResponse) {
+    private fun sendRow(row: DbRow, response: ServerResponse) {
         response.send(row.`as`(JsonObject::class.java))
     }
 

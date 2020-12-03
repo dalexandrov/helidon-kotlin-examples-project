@@ -62,7 +62,7 @@ class MainTest {
     @Test
     @Throws(Exception::class)
     fun testAnonymousGreetWithCors() {
-        val builder = webClient!!.get()
+        val builder = webClient.get()
         var headers: Headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -83,7 +83,7 @@ class MainTest {
     fun testGreetingChangeWithCors() {
 
         // Send the pre-flight request and check the response.
-        var builder = webClient!!.options()
+        var builder = webClient.options()
         var headers: Headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -104,7 +104,7 @@ class MainTest {
                 + " should contain '*' but does not; " + allowOrigins)
 
         // Send the follow-up request.
-        builder = webClient!!.put()
+        builder = webClient.put()
         headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -123,7 +123,7 @@ class MainTest {
     @Test
     @Throws(Exception::class)
     fun testNamedGreetWithCors() {
-        val builder = webClient!!.get()
+        val builder = webClient.get()
         var headers: Headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -141,7 +141,7 @@ class MainTest {
     @Test
     @Throws(Exception::class)
     fun testGreetingChangeWithCorsAndOtherOrigin() {
-        val builder = webClient!!.put()
+        val builder = webClient.put()
         val headers: Headers = builder.headers()
         headers.add("Origin", "http://other.com")
         headers.add("Host", "here.com")
@@ -152,8 +152,8 @@ class MainTest {
     }
 
     companion object {
-        private var webServer: WebServer? = null
-        private var webClient: WebClient? = null
+        private lateinit var webServer: WebServer
+        private lateinit var webClient: WebClient
 
         @BeforeAll
         @JvmStatic
@@ -166,12 +166,12 @@ class MainTest {
                     .toCompletableFuture()
                     .get()
             WebClient.builder()
-                    .baseUri("http://localhost:" + webServer!!.port())
+                    .baseUri("http://localhost:" + webServer.port())
                     .addMediaSupport(JsonpSupport.create())
                     .build().also { webClient = it }
             val timeout: Long = 2000 // 2 seconds should be enough to start the server
             val now = System.currentTimeMillis()
-            while (!webServer!!.isRunning) {
+            while (!webServer.isRunning) {
                 Thread.sleep(100)
                 if (System.currentTimeMillis() - now > timeout) {
                     Assertions.fail<Any>("Failed to start webserver")
@@ -183,15 +183,13 @@ class MainTest {
         @JvmStatic
         @Throws(Exception::class)
         fun stop() {
-            if (webServer != null) {
-                webServer!!.shutdown()
-                        .toCompletableFuture()[10, TimeUnit.SECONDS]
-            }
+            webServer.shutdown()
+                    .toCompletableFuture()[10, TimeUnit.SECONDS]
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
         private fun getResponse(path: String): WebClientResponse {
-            return getResponse(path, webClient!!.get())
+            return getResponse(path, webClient.get())
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
@@ -205,7 +203,7 @@ class MainTest {
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
-        private fun putResponse(path: String, payload: GreetingMessage, builder: WebClientRequestBuilder = webClient!!.put()): WebClientResponse {
+        private fun putResponse(path: String, payload: GreetingMessage, builder: WebClientRequestBuilder = webClient.put()): WebClientResponse {
             return builder
                     .accept(MediaType.APPLICATION_JSON)
                     .path(path)

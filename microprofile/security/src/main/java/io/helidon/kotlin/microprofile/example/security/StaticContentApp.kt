@@ -26,7 +26,7 @@ import javax.ws.rs.core.Application
 @ApplicationPath("/static")
 open class StaticContentApp : Application() {
     override fun getClasses(): Set<Class<*>> {
-        return java.util.Set.of<Class<*>>(
+        return mutableSetOf<Class<*>>(
                 HelloWorldResource::class.java
         )
     }

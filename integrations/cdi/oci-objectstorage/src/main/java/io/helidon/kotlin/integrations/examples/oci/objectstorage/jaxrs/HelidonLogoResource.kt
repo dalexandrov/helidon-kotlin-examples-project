@@ -105,7 +105,6 @@ open class HelidonLogoResource @Inject constructor(client: ObjectStorage?,
      *
      * @param namespaceName the name of an OCI object storage namespace that will be used; must not be `null`
      *
-     * @exception NullPointerException if either parameter is `null`
      */
     init {
         this.namespaceName = Objects.requireNonNull(namespaceName)

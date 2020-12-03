@@ -87,7 +87,7 @@ object SignatureExampleConfigMain {
 
         // build routing (security is loaded from config)
         return Routing.builder() // helper method to load both security and web server security from configuration
-                .register(WebSecurity.create(config["security"]))["/service1", Handler { req: ServerRequest?, res: ServerResponse? -> SignatureExampleUtil.processService1Request(req, res, "/service2", service2Server!!.port()) }]["/service1-rsa", Handler { req: ServerRequest?, res: ServerResponse? -> SignatureExampleUtil.processService1Request(req, res, "/service2-rsa", service2Server!!.port()) }]
+                .register(WebSecurity.create(config["security"]))["/service1", Handler { req: ServerRequest, res: ServerResponse -> SignatureExampleUtil.processService1Request(req, res, "/service2", service2Server.port()) }]["/service1-rsa", Handler { req: ServerRequest, res: ServerResponse -> SignatureExampleUtil.processService1Request(req, res, "/service2-rsa", service2Server.port()) }]
                 .build()
     }
 

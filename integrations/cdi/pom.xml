@@ -29,7 +29,7 @@
     <groupId>io.helidon.kotlin.examples.integrations.cdi</groupId>
     <artifactId>helidon-kotlin-examples-integrations-cdi-project</artifactId>
     <packaging>pom</packaging>
-    <name>Helidon CDI Extensions Examples</name>
+    <name>Helidon CDI Extensions Examples in Kotlin</name>
 
     <modules>
         <module>datasource-hikaricp</module>

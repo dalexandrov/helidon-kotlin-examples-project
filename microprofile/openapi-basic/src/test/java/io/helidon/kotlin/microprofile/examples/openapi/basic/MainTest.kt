@@ -80,7 +80,7 @@ internal class MainTest {
     }
 
     private fun getConnectionString(path: String): String {
-        return "http://localhost:" + server!!.port() + path
+        return "http://localhost:" + server.port() + path
     }
 
     private fun escape(path: String): String {
@@ -88,7 +88,7 @@ internal class MainTest {
     }
 
     companion object {
-        private var server: Server? = null
+        private lateinit var server: Server
         @BeforeAll
         @JvmStatic
         @Throws(Exception::class)

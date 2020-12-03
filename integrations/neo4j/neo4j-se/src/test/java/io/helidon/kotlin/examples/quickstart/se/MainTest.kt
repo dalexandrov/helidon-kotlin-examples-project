@@ -15,21 +15,6 @@
  */
 package io.helidon.kotlin.examples.quickstart.se
 
-import io.helidon.kotlin.examples.integrations.neo4j.se.Main.startServer
-import io.helidon.media.jsonp.JsonpSupport
-import io.helidon.webclient.WebClient
-import io.helidon.webclient.WebClientResponse
-import io.helidon.webserver.WebServer
-import org.junit.Ignore
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import org.neo4j.driver.AuthTokens
-import org.neo4j.driver.GraphDatabase
-import org.neo4j.driver.Transaction
-import org.testcontainers.containers.Neo4jContainer
-import java.util.concurrent.TimeUnit
-import javax.json.JsonArray
-
 /**
  * Main test class for Neo4j Helidon SE quickstarter.
  */

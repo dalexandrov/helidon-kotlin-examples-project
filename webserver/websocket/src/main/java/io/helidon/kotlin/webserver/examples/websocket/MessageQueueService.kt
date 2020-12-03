@@ -29,10 +29,10 @@ class MessageQueueService : Service {
 
     private fun handlePost(request: ServerRequest, response: ServerResponse) {
         request.content()
-                .`as`(String::class.java)
-                .thenAccept { it: String? ->
-                    messageQueue.push(it!!)
-                    response.status(204).send()
-                }
+            .`as`(String::class.java)
+            .thenAccept {
+                messageQueue.push(it!!)
+                response.status(204).send()
+            }
     }
 }

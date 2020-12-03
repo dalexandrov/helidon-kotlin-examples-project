@@ -95,7 +95,7 @@ open class AnotherResource {
                 + ", detached=" + detached
                 + ", microprofileConfig=" + mpConfig
                 + ", helidonConfig=" + helidonConfig
-                + ", intsArray=" + Arrays.toString(intsArray)
+                + ", intsArray=" + intsArray.contentToString()
                 + '}')
     }
 }

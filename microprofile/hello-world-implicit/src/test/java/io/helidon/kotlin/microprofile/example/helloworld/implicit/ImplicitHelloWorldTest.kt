@@ -35,7 +35,7 @@ internal class ImplicitHelloWorldTest {
     @Test
     fun testJsonResource() {
         val jsonObject = ClientBuilder.newClient()
-                .target("http://localhost:" + server!!.port() + "/helloworld/unit")
+                .target("http://localhost:" + server.port() + "/helloworld/unit")
                 .request()
                 .get(JsonObject::class.java)
         Assertions.assertAll("JSON fields must match expected injection values",
@@ -47,7 +47,7 @@ internal class ImplicitHelloWorldTest {
     }
 
     companion object {
-        private var server: Server? = null
+        private lateinit var server: Server
         @BeforeAll
         @JvmStatic
         fun initClass() {

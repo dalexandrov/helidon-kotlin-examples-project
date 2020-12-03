@@ -22,7 +22,6 @@ import io.helidon.security.spi.OutboundSecurityProvider
 import io.helidon.security.spi.SynchronousProvider
 import java.nio.charset.StandardCharsets
 import java.util.*
-import java.util.List
 
 /**
  * Sample provider.
@@ -47,10 +46,10 @@ internal class MyProvider : SynchronousProvider(), AuthenticationProvider, Autho
                     val principal = Principal.create(name)
                     val roleGrant = Role.create("theRole")
                     val subject = Subject.builder()
-                            .principal(principal)
-                            .addGrant(roleGrant)
-                            .addPrivateCredential(MyPrivateCreds::class.java, MyPrivateCreds(name, pwd.toCharArray()))
-                            .build()
+                        .principal(principal)
+                        .addGrant(roleGrant)
+                        .addPrivateCredential(MyPrivateCreds::class.java, MyPrivateCreds(name, pwd.toCharArray()))
+                        .build()
                     return AuthenticationResponse.success(subject)
                 }
             }
@@ -60,37 +59,41 @@ internal class MyProvider : SynchronousProvider(), AuthenticationProvider, Autho
 
     override fun syncAuthorize(providerRequest: ProviderRequest): AuthorizationResponse {
         return if ("CustomResourceType"
-                == providerRequest.env().abacAttribute("resourceType").orElseThrow {
-                    IllegalArgumentException(
-                            "Resource type is a required parameter")
-                }) {
+            == providerRequest.env().abacAttribute("resourceType").orElseThrow {
+                IllegalArgumentException(
+                    "Resource type is a required parameter"
+                )
+            }
+        ) {
             //supported resource
             providerRequest.securityContext()
-                    .user()
-                    .map { obj: Subject -> obj.principal() }
-                    .map { obj: Principal -> obj.name }
-                    .map { anObject: String? -> "aUser".equals(anObject) }
-                    .map { correct: Boolean ->
-                        if (correct) {
-                            return@map AuthorizationResponse.permit()
-                        }
-                        AuthorizationResponse.deny()
+                .user()
+                .map { obj: Subject -> obj.principal() }
+                .map { obj: Principal -> obj.name }
+                .map { anObject: String? -> "aUser" == anObject }
+                .map { correct: Boolean ->
+                    if (correct) {
+                        return@map AuthorizationResponse.permit()
                     }
-                    .orElse(AuthorizationResponse.deny())
+                    AuthorizationResponse.deny()
+                }
+                .orElse(AuthorizationResponse.deny())
         } else AuthorizationResponse.deny()
     }
 
-    override fun syncOutbound(providerRequest: ProviderRequest,
-                              outboundEnv: SecurityEnvironment,
-                              outboundEndpointConfig: EndpointConfig): OutboundSecurityResponse {
+    override fun syncOutbound(
+        providerRequest: ProviderRequest,
+        outboundEnv: SecurityEnvironment,
+        outboundEndpointConfig: EndpointConfig
+    ): OutboundSecurityResponse {
         return providerRequest.securityContext()
-                .user()
-                .flatMap { subject: Subject -> subject.privateCredential(MyPrivateCreds::class.java) }
-                .map { myPrivateCreds: MyPrivateCreds ->
-                    OutboundSecurityResponse.builder()
-                            .requestHeader("Authorization", authHeader(myPrivateCreds))
-                            .build()
-                }.orElse(OutboundSecurityResponse.abstain())
+            .user()
+            .flatMap { subject: Subject -> subject.privateCredential(MyPrivateCreds::class.java) }
+            .map { myPrivateCreds: MyPrivateCreds ->
+                OutboundSecurityResponse.builder()
+                    .requestHeader("Authorization", authHeader(myPrivateCreds))
+                    .build()
+            }.orElse(OutboundSecurityResponse.abstain())
     }
 
     private fun authHeader(privCreds: MyPrivateCreds): String {
@@ -98,7 +101,7 @@ internal class MyProvider : SynchronousProvider(), AuthenticationProvider, Autho
         return "basic " + Base64.getEncoder().encodeToString(creds.toByteArray(StandardCharsets.UTF_8))
     }
 
-    private class MyPrivateCreds internal constructor(internal val name: String, internal val password: CharArray) {
+    private class MyPrivateCreds(val name: String, val password: CharArray) {
         override fun toString(): String {
             return "MyPrivateCreds: $name"
         }

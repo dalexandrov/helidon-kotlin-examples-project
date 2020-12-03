@@ -31,7 +31,7 @@ import javax.ws.rs.core.MediaType
 open class HelloWorldResource {
     @Inject
     @ConfigProperty(name = "server.static.classpath.context", defaultValue = "")
-    private var context: String? = null
+    private lateinit var context: String
 
     @get:Produces(MediaType.TEXT_HTML)
     @get:GET

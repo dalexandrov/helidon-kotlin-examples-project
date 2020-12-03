@@ -73,15 +73,15 @@ internal class MainTest {
     }
 
     companion object {
-        private var server: Server? = null
-        private var serverUrl: String? = null
+        private lateinit var server: Server
+        private lateinit var serverUrl: String
 
         @BeforeAll
         @JvmStatic
         @Throws(Exception::class)
         fun startTheServer() {
             server = Server.create().start()
-            serverUrl = "http://localhost:" + server!!.port()
+            serverUrl = "http://localhost:" + server.port()
         }
 
         @AfterAll

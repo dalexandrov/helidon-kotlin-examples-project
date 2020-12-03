@@ -23,7 +23,6 @@ import io.helidon.security.SecurityContext
 import io.helidon.security.integration.webserver.WebSecurity
 import io.helidon.webserver.*
 import java.util.concurrent.TimeUnit
-import java.util.function.Supplier
 
 /**
  * Example using configuration based approach.
@@ -43,20 +42,20 @@ object BasicExampleConfigMain {
         LogConfig.initClass()
         val config = Config.create()
         val routing = Routing.builder() // must be configured first, to protect endpoints
-                .register(WebSecurity.create(config["security"]))
-                .register("/static", StaticContentSupport.create("/WEB"))["/{*}", Handler { req: ServerRequest, res: ServerResponse ->
+            .register(WebSecurity.create(config["security"]))
+            .register("/static", StaticContentSupport.create("/WEB"))["/{*}", Handler { req: ServerRequest, res: ServerResponse ->
             val securityContext = req.context().get(SecurityContext::class.java)
             res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
             res.send("Hello, you are: \n" + securityContext
-                    .map { ctx: SecurityContext -> ctx.user().orElse(SecurityContext.ANONYMOUS).toString() }
-                    .orElse("Security context is null"))
+                .map { ctx: SecurityContext -> ctx.user().orElse(SecurityContext.ANONYMOUS).toString() }
+                .orElse("Security context is null"))
         }]
-                .build()
+            .build()
         return WebServer.builder()
-                .config(config["server"])
-                .routing(routing)
-                .build()
-                .start()
-                .await(10, TimeUnit.SECONDS)
+            .config(config["server"])
+            .routing(routing)
+            .build()
+            .start()
+            .await(10, TimeUnit.SECONDS)
     }
 }

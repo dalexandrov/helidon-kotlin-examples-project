@@ -116,7 +116,7 @@ object SignatureExampleBuilderMain {
     private fun routing1(): Routing {
         // build routing (security is loaded from config)
         return Routing.builder()
-                .register(WebSecurity.create(security1()).securityDefaults(WebSecurity.authenticate()))["/service1", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest?, res: ServerResponse? -> SignatureExampleUtil.processService1Request(req, res, "/service2", service2Server.port()) }]["/service1-rsa", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest?, res: ServerResponse? -> SignatureExampleUtil.processService1Request(req, res, "/service2-rsa", service2Server.port()) }]
+                .register(WebSecurity.create(security1()).securityDefaults(WebSecurity.authenticate()))["/service1", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest, res: ServerResponse -> SignatureExampleUtil.processService1Request(req, res, "/service2", service2Server.port()) }]["/service1-rsa", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest, res: ServerResponse -> SignatureExampleUtil.processService1Request(req, res, "/service2-rsa", service2Server.port()) }]
                 .build()
     }
 

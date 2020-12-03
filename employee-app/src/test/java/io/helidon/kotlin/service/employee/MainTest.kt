@@ -31,7 +31,7 @@ class MainTest {
     @Test
     @Throws(Exception::class)
     fun testHelloWorld() {
-        webClient!!.get()
+        webClient.get()
                 .path("/employees")
                 .request()
                 .thenAccept { response: WebClientResponse ->
@@ -40,7 +40,7 @@ class MainTest {
                 }
                 .toCompletableFuture()
                 .get()
-        webClient!!.get()
+        webClient.get()
                 .path("/health")
                 .request()
                 .thenAccept { response: WebClientResponse ->
@@ -49,7 +49,7 @@ class MainTest {
                 }
                 .toCompletableFuture()
                 .get()
-        webClient!!.get()
+        webClient.get()
                 .path("/metrics")
                 .request()
                 .thenAccept { response: WebClientResponse ->
@@ -61,8 +61,8 @@ class MainTest {
     }
 
     companion object {
-        private var webServer: WebServer? = null
-        private var webClient: WebClient? = null
+        private lateinit var webServer: WebServer
+        private lateinit var webClient: WebClient
         @BeforeAll
         @JvmStatic
         @Throws(Exception::class)
@@ -70,14 +70,14 @@ class MainTest {
             webServer = startServer()
             val timeout: Long = 2000 // 2 seconds should be enough to start the server
             val now = System.currentTimeMillis()
-            while (!webServer!!.isRunning) {
+            while (!webServer.isRunning) {
                 Thread.sleep(100)
                 if (System.currentTimeMillis() - now > timeout) {
                     Assertions.fail<Any>("Failed to start webserver")
                 }
             }
             webClient = WebClient.builder()
-                    .baseUri("http://localhost:" + webServer!!.port())
+                    .baseUri("http://localhost:" + webServer.port())
                     .addHeader(Http.Header.ACCEPT, MediaType.APPLICATION_JSON.toString())
                     .build()
         }
@@ -86,10 +86,8 @@ class MainTest {
         @JvmStatic
         @Throws(Exception::class)
         fun stopServer() {
-            if (webServer != null) {
-                webServer!!.shutdown()
-                        .toCompletableFuture()[10, TimeUnit.SECONDS]
-            }
+            webServer.shutdown()
+                    .toCompletableFuture()[10, TimeUnit.SECONDS]
         }
     }
 }

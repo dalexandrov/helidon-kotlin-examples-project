@@ -36,7 +36,7 @@ class TranslatorTest {
     @Test
     @Throws(Exception::class)
     fun testCzech() {
-        val response: Response = target!!.queryParam("q", "cloud")
+        val response: Response = target.queryParam("q", "cloud")
                 .queryParam("lang", "czech")
                 .request()
                 .get()
@@ -47,7 +47,7 @@ class TranslatorTest {
     @Test
     @Throws(Exception::class)
     fun testItalian() {
-        val response: Response = target!!.queryParam("q", "cloud")
+        val response: Response = target.queryParam("q", "cloud")
                 .queryParam("lang", "italian")
                 .request()
                 .get()
@@ -58,7 +58,7 @@ class TranslatorTest {
     @Test
     @Throws(Exception::class)
     fun testFrench() {
-        val response: Response = target!!.queryParam("q", "cloud")
+        val response: Response = target.queryParam("q", "cloud")
                 .queryParam("lang", "french")
                 .request()
                 .get()
@@ -67,29 +67,31 @@ class TranslatorTest {
     }
 
     companion object {
-        private var webServerFrontend: WebServer? = null
-        private var webServerBackend: WebServer? = null
-        private var client: Client? = null
-        private var target: WebTarget? = null
+        @JvmStatic
+        private lateinit var webServerFrontend: WebServer
+        @JvmStatic
+        private lateinit var webServerBackend: WebServer
+        @JvmStatic
+        private lateinit var client: Client
+        @JvmStatic
+        private lateinit var target: WebTarget
         @BeforeAll
         @JvmStatic
         @Throws(Exception::class)
         fun setUp() {
-            webServerBackend = startBackendServer().toCompletableFuture().get(10, TimeUnit.SECONDS)
-            webServerFrontend = startFrontendServer().toCompletableFuture().get(10, TimeUnit.SECONDS)
+            webServerBackend = startBackendServer().toCompletableFuture().get(10, TimeUnit.SECONDS)!!
+            webServerFrontend = startFrontendServer().toCompletableFuture().get(10, TimeUnit.SECONDS)!!
             client = ClientBuilder.newClient()
-            target = client!!.target("http://localhost:" + webServerFrontend!!.port())
+            target = client.target("http://localhost:" + webServerFrontend.port())
         }
 
         @AfterAll
         @JvmStatic
         @Throws(Exception::class)
         fun tearDown() {
-            webServerFrontend!!.shutdown().toCompletableFuture().get(10, TimeUnit.SECONDS)
-            webServerBackend!!.shutdown().toCompletableFuture().get(10, TimeUnit.SECONDS)
-            if (client != null) {
-                client!!.close()
-            }
+            webServerFrontend.shutdown().toCompletableFuture().get(10, TimeUnit.SECONDS)
+            webServerBackend.shutdown().toCompletableFuture().get(10, TimeUnit.SECONDS)
+            client.close()
         }
     }
 }

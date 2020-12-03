@@ -27,7 +27,7 @@ import javax.websocket.server.ServerEndpoint
 @ServerEndpoint(value = "/websocket", encoders = [MessageBoardEndpoint.UppercaseEncoder::class])
 open class MessageBoardEndpoint {
     @Inject
-    private var messageQueue: MessageQueue? = null
+    private lateinit var messageQueue: MessageQueue
 
     /**
      * OnOpen call.
@@ -55,8 +55,8 @@ open class MessageBoardEndpoint {
 
         // Send all messages in the queue
         if (message == "SEND") {
-            while (!messageQueue!!.isEmpty) {
-                session.basicRemote.sendObject(messageQueue!!.pop())
+            while (!messageQueue.isEmpty) {
+                session.basicRemote.sendObject(messageQueue.pop())
             }
         }
     }

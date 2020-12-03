@@ -57,7 +57,7 @@ class InitializeDb private constructor() {
                 dbClient.execute { exec: DbExecute ->
                     exec
                             .namedDml("create-types")
-                            .flatMapSingle { result: Long? -> exec.namedDml("create-pokemons") }
+                            .flatMapSingle { exec.namedDml("create-pokemons") }
                 }
                         .await()
             } catch (ex1: Exception) {
@@ -79,7 +79,7 @@ class InitializeDb private constructor() {
             // Init pokemon types
             dbClient.execute { exec: DbExecute ->
                 initTypes(exec)
-                        .flatMapSingle { count: Long? -> initPokemons(exec) }
+                        .flatMapSingle { initPokemons(exec) }
             }
                     .await()
         }
@@ -93,7 +93,7 @@ class InitializeDb private constructor() {
             dbClient.execute { exec: DbExecute ->
                 exec
                         .namedDelete("delete-all-pokemons")
-                        .flatMapSingle { count: Long? -> exec.namedDelete("delete-all-types") }
+                        .flatMapSingle { exec.namedDelete("delete-all-types") }
             }
                     .await()
         }
@@ -118,7 +118,7 @@ class InitializeDb private constructor() {
                 val types = reader.readArray()
                 for (typeValue in types) {
                     val type = typeValue.asJsonObject()
-                    stage = stage.flatMapSingle { it: Long? ->
+                    stage = stage.flatMapSingle {
                         exec.namedInsert(
                                 "insert-type", type.getInt("id"), type.getString("name"))
                     }
@@ -147,7 +147,7 @@ class InitializeDb private constructor() {
                 val pokemons = reader.readArray()
                 for (pokemonValue in pokemons) {
                     val pokemon = pokemonValue.asJsonObject()
-                    stage = stage.flatMapSingle { result: Long? ->
+                    stage = stage.flatMapSingle {
                         exec
                                 .namedInsert("insert-pokemon",
                                         pokemon.getInt("id"), pokemon.getString("name"), pokemon.getInt("idType"))

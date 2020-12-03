@@ -37,14 +37,13 @@ import java.util.function.Supplier
  * Test of mutual TLS example.
  */
 class MutualTlsExampleTest {
-    private var webServer: WebServer? = null
+
+    private lateinit var webServer: WebServer
     @AfterEach
     @Throws(InterruptedException::class, ExecutionException::class, TimeoutException::class)
     fun killServer() {
-        if (webServer != null) {
-            webServer!!.shutdown()
-                    .toCompletableFuture()[10, TimeUnit.SECONDS]
-        }
+        webServer.shutdown()
+                .toCompletableFuture()[10, TimeUnit.SECONDS]
     }
 
     @Test
@@ -53,8 +52,8 @@ class MutualTlsExampleTest {
         val config = Config.just(Supplier<ConfigSource> { ConfigSources.classpath("application-test.yaml").build() })
         waitForServerToStart(startServer(config["server"]))
         val webClient = WebClient.create(config["client"])
-        MatcherAssert.assertThat(ClientConfigMain.callUnsecured(webClient, webServer!!.port()), CoreMatchers.`is`("Hello world unsecured!"))
-        MatcherAssert.assertThat(ClientConfigMain.callSecured(webClient, webServer!!.port("secured")), CoreMatchers.`is`("Hello Helidon-client!"))
+        MatcherAssert.assertThat(ClientConfigMain.callUnsecured(webClient, webServer.port()), CoreMatchers.`is`("Hello world unsecured!"))
+        MatcherAssert.assertThat(ClientConfigMain.callSecured(webClient, webServer.port("secured")), CoreMatchers.`is`("Hello Helidon-client!"))
     }
 
     @Test
@@ -62,8 +61,8 @@ class MutualTlsExampleTest {
     fun testBuilderAccessSuccessful() {
         waitForServerToStart(startServer(-1, -1))
         val webClient = createWebClient()
-        MatcherAssert.assertThat(ClientBuilderMain.callUnsecured(webClient, webServer!!.port()), CoreMatchers.`is`("Hello world unsecured!"))
-        MatcherAssert.assertThat(ClientBuilderMain.callSecured(webClient, webServer!!.port("secured")), CoreMatchers.`is`("Hello Helidon-client!"))
+        MatcherAssert.assertThat(ClientBuilderMain.callUnsecured(webClient, webServer.port()), CoreMatchers.`is`("Hello world unsecured!"))
+        MatcherAssert.assertThat(ClientBuilderMain.callSecured(webClient, webServer.port("secured")), CoreMatchers.`is`("Hello Helidon-client!"))
     }
 
     @Throws(InterruptedException::class)

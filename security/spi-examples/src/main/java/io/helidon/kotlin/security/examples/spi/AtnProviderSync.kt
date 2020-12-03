@@ -17,12 +17,8 @@ package io.helidon.kotlin.security.examples.spi
 
 import io.helidon.config.Config
 import io.helidon.security.*
-import io.helidon.kotlin.security.examples.spi.AtnProviderSync.AtnObject
 import io.helidon.security.spi.AuthenticationProvider
 import io.helidon.security.spi.SynchronousProvider
-import java.lang.annotation.Documented
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
 import java.util.*
 
 /**
@@ -35,15 +31,17 @@ class AtnProviderSync : SynchronousProvider(), AuthenticationProvider {
         // first obtain the configuration of this request
         // either from annotation, custom object or config
         val myObject = getCustomObject(providerRequest.endpointConfig())
-                ?: // I do not have my required information, this request is probably not for me
-                return AuthenticationResponse.abstain()
+            ?: // I do not have my required information, this request is probably not for me
+            return AuthenticationResponse.abstain()
         return if (myObject.isValid) {
             // now authenticate - this example just creates a subject
             // based on the value (user subject) and size (group subject)
-            AuthenticationResponse.success(Subject.builder()
+            AuthenticationResponse.success(
+                Subject.builder()
                     .addPrincipal(Principal.create(myObject.value))
                     .addGrant(Role.create("role_" + myObject.size))
-                    .build())
+                    .build()
+            )
         } else {
             AuthenticationResponse.failed("Invalid request")
         }
@@ -58,7 +56,8 @@ class AtnProviderSync : SynchronousProvider(), AuthenticationProvider {
         }
 
         // 2) configuration in request
-        opt = epConfig.config("atn-object").flatMap { conf: Config -> conf.`as` { config: Config -> AtnObject.from(config) }.asOptional() }
+        opt = epConfig.config("atn-object")
+            .flatMap { conf: Config -> conf.`as` { config: Config -> AtnObject.from(config) }.asOptional() }
         if (opt.isPresent) {
             return opt.get()
         }
@@ -82,22 +81,30 @@ class AtnProviderSync : SynchronousProvider(), AuthenticationProvider {
     /**
      * This is an example annotation to see how to work with them.
      */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS, AnnotationTarget.FIELD)
-    @Documented
+    @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+    @Target(
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY_GETTER,
+        AnnotationTarget.PROPERTY_SETTER,
+        AnnotationTarget.ANNOTATION_CLASS,
+        AnnotationTarget.CLASS,
+        AnnotationTarget.FIELD
+    )
+    @MustBeDocumented
     annotation class AtnAnnot(
-            /**
-             * This is an example value.
-             *
-             * @return some value
-             */
-            val value: String,
-            /**
-             * This is an example value.
-             *
-             * @return some size
-             */
-            val size: Int = 4)
+        /**
+         * This is an example value.
+         *
+         * @return some value
+         */
+        val value: String,
+        /**
+         * This is an example value.
+         *
+         * @return some size
+         */
+        val size: Int = 4
+    )
 
     /**
      * This is an example custom object.

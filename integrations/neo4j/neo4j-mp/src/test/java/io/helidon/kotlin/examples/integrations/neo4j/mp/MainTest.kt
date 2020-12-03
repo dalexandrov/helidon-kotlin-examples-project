@@ -15,19 +15,6 @@
  */
 package io.helidon.kotlin.examples.integrations.neo4j.mp
 
-import io.helidon.microprofile.server.Server
-import org.junit.Ignore
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import org.neo4j.driver.AuthTokens
-import org.neo4j.driver.GraphDatabase
-import org.neo4j.driver.Transaction
-import org.testcontainers.containers.Neo4jContainer
-import javax.enterprise.inject.se.SeContainer
-import javax.enterprise.inject.spi.CDI
-import javax.json.JsonArray
-import javax.ws.rs.client.ClientBuilder
-
 /**
  * Main tests of the application done here.
  */

@@ -28,7 +28,7 @@
     <groupId>io.helidon.kotlin.examples.integrations</groupId>
     <artifactId>helidon-kotlin-examples-integrations-project</artifactId>
     <version>${helidon.version}</version>
-    <name>Helidon Integrations Examples</name>
+    <name>Helidon Integrations Examples in Kotlin</name>
     <packaging>pom</packaging>
 
     <modules>

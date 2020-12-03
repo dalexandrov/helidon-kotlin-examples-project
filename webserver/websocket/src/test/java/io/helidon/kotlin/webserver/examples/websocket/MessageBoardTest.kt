@@ -18,7 +18,6 @@ package io.helidon.kotlin.webserver.examples.websocket
 import io.helidon.common.http.Http
 import io.helidon.kotlin.webserver.examples.websocket.Main.startWebServer
 import io.helidon.webclient.WebClient
-import io.helidon.webclient.WebClientResponse
 import io.helidon.webserver.WebServer
 import org.glassfish.tyrus.client.ClientManager
 import org.hamcrest.CoreMatchers
@@ -40,23 +39,24 @@ import javax.websocket.*
  */
 class MessageBoardTest {
     private val messages = arrayOf("Whisky", "Tango", "Foxtrot")
+
     @Test
     @Throws(IOException::class, DeploymentException::class, InterruptedException::class, ExecutionException::class)
     fun testBoard() {
         // Post messages using REST resource
-        val restUri = URI.create("http://localhost:" + server!!.port() + "/rest/board")
+        val restUri = URI.create("http://localhost:" + server.port() + "/rest/board")
         for (message in messages) {
             restClient.post()
-                    .uri(restUri)
-                    .submit(message)
-                    .thenAccept { it: WebClientResponse -> MatcherAssert.assertThat(it.status(), CoreMatchers.`is`(Http.Status.NO_CONTENT_204)) }
-                    .toCompletableFuture()
-                    .get()
+                .uri(restUri)
+                .submit(message)
+                .thenAccept { MatcherAssert.assertThat(it.status(), CoreMatchers.`is`(Http.Status.NO_CONTENT_204)) }
+                .toCompletableFuture()
+                .get()
             LOGGER.info("Posting message '$message'")
         }
 
         // Now connect to message board using WS and them back
-        val websocketUri = URI.create("ws://localhost:" + server!!.port() + "/websocket/board")
+        val websocketUri = URI.create("ws://localhost:" + server.port() + "/websocket/board")
         val messageLatch = CountDownLatch(messages.size)
         val config = ClientEndpointConfig.Builder.create().build()
         websocketClient.connectToServer(object : Endpoint() {
@@ -99,7 +99,8 @@ class MessageBoardTest {
         private val LOGGER = Logger.getLogger(MessageBoardTest::class.java.name)
         private val restClient = WebClient.create()
         private val websocketClient = ClientManager.createClient()
-        private var server: WebServer? = null
+        private lateinit var server: WebServer
+
         @BeforeAll
         @JvmStatic
         fun initClass() {
@@ -109,7 +110,7 @@ class MessageBoardTest {
         @AfterAll
         @JvmStatic
         fun destroyClass() {
-            server!!.shutdown()
+            server.shutdown()
         }
     }
 }

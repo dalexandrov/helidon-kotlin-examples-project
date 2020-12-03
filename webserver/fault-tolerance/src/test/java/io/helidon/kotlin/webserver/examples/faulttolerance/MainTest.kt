@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
 internal class MainTest {
     @Test
     fun testAsync() {
-        val response = client!!.get()
+        val response = client.get()
                 .path("/async")
                 .request(String::class.java)
                 .await(5, TimeUnit.SECONDS)
@@ -42,16 +42,16 @@ internal class MainTest {
     fun testBulkhead() {
         // bulkhead is configured for limit of 1 and queue of 1, so third
         // request should fail
-        client!!.get()
+        client.get()
                 .path("/bulkhead/10000")
                 .request()
-        client!!.get()
+        client.get()
                 .path("/bulkhead/10000")
                 .request()
 
         // I want to make sure the above is connected
         Thread.sleep(300)
-        val third = client!!.get()
+        val third = client.get()
                 .path("/bulkhead/10000")
                 .request()
                 .await(1, TimeUnit.SECONDS)
@@ -63,31 +63,31 @@ internal class MainTest {
 
     @Test
     fun testCircuitBreaker() {
-        var response = client!!.get()
+        var response = client.get()
                 .path("/circuitBreaker/true")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response, CoreMatchers.`is`("blocked for 100 millis"))
 
         // error ratio is 20% within 10 request
-        client!!.get()
+        client.get()
                 .path("/circuitBreaker/false")
                 .request()
                 .await(1, TimeUnit.SECONDS)
 
         // should work after first
-        response = client!!.get()
+        response = client.get()
                 .path("/circuitBreaker/true")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response, CoreMatchers.`is`("blocked for 100 millis"))
 
         // should open after second
-        client!!.get()
+        client.get()
                 .path("/circuitBreaker/false")
                 .request()
                 .await(1, TimeUnit.SECONDS)
-        val clientResponse = client!!.get()
+        val clientResponse = client.get()
                 .path("/circuitBreaker/true")
                 .request()
                 .await(1, TimeUnit.SECONDS)
@@ -100,12 +100,12 @@ internal class MainTest {
 
     @Test
     fun testFallback() {
-        var response = client!!.get()
+        var response = client.get()
                 .path("/fallback/true")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response, CoreMatchers.`is`("blocked for 100 millis"))
-        response = client!!.get()
+        response = client.get()
                 .path("/fallback/false")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
@@ -114,22 +114,22 @@ internal class MainTest {
 
     @Test
     fun testRetry() {
-        var response = client!!.get()
+        var response = client.get()
                 .path("/retry/1")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response, CoreMatchers.`is`("calls/failures: 1/0"))
-        response = client!!.get()
+        response = client.get()
                 .path("/retry/2")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response, CoreMatchers.`is`("calls/failures: 2/1"))
-        response = client!!.get()
+        response = client.get()
                 .path("/retry/3")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response, CoreMatchers.`is`("calls/failures: 3/2"))
-        val clientResponse = client!!.get()
+        val clientResponse = client.get()
                 .path("/retry/4")
                 .request()
                 .await(1, TimeUnit.SECONDS)
@@ -141,12 +141,12 @@ internal class MainTest {
 
     @Test
     fun testTimeout() {
-        var response = client!!.get()
+        var response = client.get()
                 .path("/timeout/50")
                 .request(String::class.java)
                 .await(1, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response, CoreMatchers.`is`("Slept for 50 ms"))
-        val clientResponse = client!!.get()
+        val clientResponse = client.get()
                 .path("/timeout/105")
                 .request()
                 .await(1, TimeUnit.SECONDS)
@@ -157,8 +157,8 @@ internal class MainTest {
     }
 
     companion object {
-        private var server: WebServer? = null
-        private var client: WebClient? = null
+        private lateinit var server: WebServer
+        private lateinit var client: WebClient
         @BeforeAll
         @JvmStatic
         @Throws(ExecutionException::class, InterruptedException::class)
@@ -166,14 +166,14 @@ internal class MainTest {
             server = startServer(0)
                     .await(10, TimeUnit.SECONDS)
             client = WebClient.builder()
-                    .baseUri("http://localhost:" + server!!.port() + "/ft")
+                    .baseUri("http://localhost:" + server.port() + "/ft")
                     .build()
         }
 
         @AfterAll
         @JvmStatic
         fun destroyClass() {
-            server!!.shutdown()
+            server.shutdown()
                     .await(5, TimeUnit.SECONDS)
         }
     }

@@ -60,7 +60,7 @@ class TestCORS {
     @Test
     @Throws(Exception::class)
     fun testAnonymousGreetWithCors() {
-        val builder = client!!.get()
+        val builder = client.get()
         var headers: Headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -81,7 +81,7 @@ class TestCORS {
     fun testGreetingChangeWithCors() {
 
         // Send the pre-flight request and check the response.
-        var builder = client!!.method("OPTIONS")
+        var builder = client.method("OPTIONS")
         var headers: Headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -102,7 +102,7 @@ class TestCORS {
         MatcherAssert.assertThat("Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigins, Matchers.contains("http://foo.com"))
 
         // Send the follow-up request.
-        builder = client!!.put()
+        builder = client.put()
         headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -120,7 +120,7 @@ class TestCORS {
     @Test
     @Throws(Exception::class)
     fun testNamedGreetWithCors() {
-        val builder = client!!.get()
+        val builder = client.get()
         var headers: Headers = builder.headers()
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
@@ -138,7 +138,7 @@ class TestCORS {
     @Test
     @Throws(Exception::class)
     fun testGreetingChangeWithCorsAndOtherOrigin() {
-        val builder = client!!.put()
+        val builder = client.put()
         val headers: Headers = builder.headers()
         headers.add("Origin", "http://other.com")
         headers.add("Host", "here.com")
@@ -153,8 +153,8 @@ class TestCORS {
         private const val JSON_NEW_GREETING_LABEL = "greeting"
         private val JSON_BF = Json.createBuilderFactory(emptyMap<String, Any>())
         private val JSONP_SUPPORT = JsonpSupport.create()
-        private var client: WebClient? = null
-        private var server: Server? = null
+        private lateinit var client: WebClient
+        private lateinit var server: Server
         @BeforeAll
         @JvmStatic
         fun init() {
@@ -166,7 +166,7 @@ class TestCORS {
                     .build()
                     .start()
             client = WebClient.builder()
-                    .baseUri("http://localhost:" + server?.port())
+                    .baseUri("http://localhost:" + server.port())
                     .addMediaSupport(JSONP_SUPPORT)
                     .build()
         }
@@ -175,13 +175,13 @@ class TestCORS {
         @JvmStatic
         fun cleanup() {
             if (server != null) {
-                server!!.stop()
+                server.stop()
             }
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
         private fun getResponse(path: String): WebClientResponse {
-            return getResponse(path, client!!.get())
+            return getResponse(path, client.get())
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
@@ -211,7 +211,7 @@ class TestCORS {
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
-        private fun putResponse(path: String, message: String, builder: WebClientRequestBuilder = client!!.put()): WebClientResponse {
+        private fun putResponse(path: String, message: String, builder: WebClientRequestBuilder = client.put()): WebClientResponse {
             return builder
                     .accept(MediaType.APPLICATION_JSON)
                     .path(path)

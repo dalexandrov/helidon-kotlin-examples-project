@@ -83,9 +83,6 @@ open class HelloWorldResource
      *
      * @return the second part of the greeting; never `null`
      *
-     * @exception NullPointerException if `firstPart` was `null`
-     *
-     * @exception PersistenceException if the [EntityManager]
      * encountered an error
      */
     @GET
@@ -111,9 +108,6 @@ open class HelloWorldResource
      *
      * @return the [String] representation of the resulting [ ]'s identifier; never `null`
      *
-     * @exception NullPointerException if `firstPart` or `secondPart` was `null`
-     *
-     * @exception PersistenceException if the [EntityManager]
      * encountered an error
      *
      * @exception SystemException if something went wrong with the

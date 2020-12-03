@@ -21,7 +21,6 @@ import io.helidon.webclient.WebClient
 import io.helidon.webserver.WebServer
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
@@ -36,15 +35,17 @@ abstract class GoogleMainTest {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun testEndpoint() {
         client.get()
-                .uri("http://localhost:" + port() + "/rest/profile")
-                .request()
-                .thenAccept {
-                    MatcherAssert.assertThat(it.status(), CoreMatchers.`is`(Http.Status.UNAUTHORIZED_401))
-                    MatcherAssert.assertThat(it.headers().first(Http.Header.WWW_AUTHENTICATE),
-                            OptionalMatcher.value(CoreMatchers.`is`("Bearer realm=\"helidon\",scope=\"openid profile email\"")))
-                }
-                .toCompletableFuture()
-                .get()
+            .uri("http://localhost:" + port() + "/rest/profile")
+            .request()
+            .thenAccept {
+                MatcherAssert.assertThat(it.status(), CoreMatchers.`is`(Http.Status.UNAUTHORIZED_401))
+                MatcherAssert.assertThat(
+                    it.headers().first(Http.Header.WWW_AUTHENTICATE),
+                    OptionalMatcher.value(CoreMatchers.`is`("Bearer realm=\"helidon\",scope=\"openid profile email\""))
+                )
+            }
+            .toCompletableFuture()
+            .get()
     }
 
     abstract fun port(): Int

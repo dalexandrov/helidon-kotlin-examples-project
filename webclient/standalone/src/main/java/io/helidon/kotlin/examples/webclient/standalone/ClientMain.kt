@@ -38,7 +38,9 @@ import javax.json.JsonObject
  */
 object ClientMain {
     private val JSON_BUILDER = Json.createBuilderFactory(emptyMap<String, Any>())
-    private val JSON_NEW_GREETING: JsonObject?
+    private val JSON_NEW_GREETING: JsonObject? = JSON_BUILDER.createObjectBuilder()
+            .add("greeting", "Hola")
+            .build()
 
     /**
      * Executes WebClient examples.
@@ -56,8 +58,7 @@ object ClientMain {
     @JvmStatic
     fun main(args: Array<String>) {
         val config = Config.create()
-        val url: String
-        url = if (args.isEmpty()) {
+        val url: String = if (args.isEmpty()) {
             val port = config["server.port"].asInt()
             check(!(!port.isPresent || port.get() == -1)) {
                 ("Unknown port! Please specify port as a main method parameter "
@@ -152,9 +153,4 @@ object ClientMain {
                 .thenAccept { println("Download complete!") }
     }
 
-    init {
-        JSON_NEW_GREETING = JSON_BUILDER.createObjectBuilder()
-                .add("greeting", "Hola")
-                .build()
-    }
 }

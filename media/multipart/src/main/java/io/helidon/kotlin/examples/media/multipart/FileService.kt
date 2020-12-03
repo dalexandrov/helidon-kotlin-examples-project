@@ -38,7 +38,7 @@ import javax.json.JsonBuilderFactory
  */
 class FileService internal constructor() : Service {
     private val jsonFactory: JsonBuilderFactory = Json.createBuilderFactory(Map.of<String, Any?>())
-    private val storage: Path
+    private val storage: Path = createStorage()
     override fun update(rules: Routing.Rules) {
         rules["/", Handler { _: ServerRequest, res: ServerResponse -> list(res) }]["/{fname}", Handler { req: ServerRequest, res: ServerResponse -> download(req, res) }]
                 .post("/", Handler { req: ServerRequest, res: ServerResponse -> upload(req, res) })
@@ -129,8 +129,8 @@ class FileService internal constructor() : Service {
         private fun listFiles(storage: Path): Stream<String> {
             return try {
                 Files.walk(storage)
-                        .filter { path: Path? -> Files.isRegularFile(path) }
-                        .map { other: Path? -> storage.relativize(other) }
+                        .filter { path: Path -> Files.isRegularFile(path) }
+                        .map { other: Path -> storage.relativize(other) }
                         .map { obj: Path -> obj.toString() }
             } catch (ex: IOException) {
                 throw RuntimeException(ex)
@@ -176,7 +176,6 @@ class FileService internal constructor() : Service {
      * Create a new file upload service instance.
      */
     init {
-        storage = createStorage()
         println("Storage: $storage")
     }
 }

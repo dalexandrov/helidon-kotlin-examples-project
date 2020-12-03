@@ -57,22 +57,20 @@ open class RedisClientResource @Inject constructor(clientProvider: Provider<Jedi
     @Path("/{key}")
     @Produces(MediaType.TEXT_PLAIN)
     open operator fun get(@PathParam("key") key: String?): Response {
-        val returnValue: Response
-        returnValue = if (key == null || key.isEmpty()) {
+        return if (key == null || key.isEmpty()) {
             Response.status(400)
-                    .build()
+                .build()
         } else {
             val response = clientProvider.get()[key]
             if (response == null) {
                 Response.status(404)
-                        .build()
+                    .build()
             } else {
                 Response.ok()
-                        .entity(response)
-                        .build()
+                    .entity(response)
+                    .build()
             }
         }
-        return returnValue
     }
 
     /**
@@ -95,25 +93,25 @@ open class RedisClientResource @Inject constructor(clientProvider: Provider<Jedi
     @PUT
     @Path("/{key}")
     @Consumes(MediaType.TEXT_PLAIN)
-    open operator fun set(@Context uriInfo: UriInfo,
-                     @PathParam("key") key: String?,
-                     value: String?): Response {
+    open operator fun set(
+        @Context uriInfo: UriInfo,
+        @PathParam("key") key: String?,
+        value: String?
+    ): Response {
         requireNonNull(uriInfo)
-        val returnValue: Response
-        returnValue = if (key == null || key.isEmpty() || value == null) {
+        return if (key == null || key.isEmpty() || value == null) {
             Response.status(400)
-                    .build()
+                .build()
         } else {
             val priorValue: Any? = clientProvider.get().getSet(key, value)
             if (priorValue == null) {
                 Response.created(uriInfo.requestUri)
-                        .build()
+                    .build()
             } else {
                 Response.ok()
-                        .build()
+                    .build()
             }
         }
-        return returnValue
     }
 
     /**
@@ -132,21 +130,19 @@ open class RedisClientResource @Inject constructor(clientProvider: Provider<Jedi
     @Path("/{key}")
     @Produces(MediaType.TEXT_PLAIN)
     open fun del(@PathParam("key") key: String?): Response {
-        val returnValue: Response
-        returnValue = if (key == null || key.isEmpty()) {
+        return if (key == null || key.isEmpty()) {
             Response.status(400)
-                    .build()
+                .build()
         } else {
             val numberOfKeysDeleted = clientProvider.get().del(key)
             if (numberOfKeysDeleted == null || numberOfKeysDeleted.toLong() <= 0L) {
                 Response.status(404)
-                        .build()
+                    .build()
             } else {
                 Response.noContent()
-                        .build()
+                    .build()
             }
         }
-        return returnValue
     }
 
 }

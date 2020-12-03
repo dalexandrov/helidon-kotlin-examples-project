@@ -84,7 +84,7 @@ abstract class JerseyMainTest {
 
     private fun callProtected(uri: String, username: String, password: String): Response {
         // here we call the endpoint
-        return authFeatureClient!!.target(uri)
+        return authFeatureClient.target(uri)
                 .request()
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_USERNAME, username)
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_PASSWORD, password)
@@ -133,7 +133,7 @@ abstract class JerseyMainTest {
         @JvmStatic
         fun classDestroy() {
             client.close()
-            authFeatureClient!!.close()
+            authFeatureClient.close()
         }
 
         @JvmStatic

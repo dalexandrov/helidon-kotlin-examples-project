@@ -34,10 +34,10 @@ class MovieService
      * @param rules
      */
     override fun update(rules: Routing.Rules) {
-        rules["/api/movies", Handler { request: ServerRequest, response: ServerResponse -> findMoviesHandler(request, response) }]
+        rules["/api/movies", Handler { request: ServerRequest, response: ServerResponse -> findMoviesHandler(response) }]
     }
 
-    private fun findMoviesHandler(request: ServerRequest, response: ServerResponse) {
+    private fun findMoviesHandler(response: ServerResponse) {
         response.send(movieRepository.findAll())
     }
 }

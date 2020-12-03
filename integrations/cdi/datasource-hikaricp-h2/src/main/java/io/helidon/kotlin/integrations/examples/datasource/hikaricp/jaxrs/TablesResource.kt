@@ -68,15 +68,7 @@ open class TablesResource @Inject constructor(@Named("example") dataSource: Data
                 .entity(sb.toString())
                 .build()
     }
-
-    /**
-     * Creates a new [TablesResource].
-     *
-     * @param dataSource the [DataSource] to use to acquire
-     * database table names; must not be `null`
-     *
-     * @exception NullPointerException if `dataSource` is `null`
-     */
+    
     init {
         this.dataSource = Objects.requireNonNull(dataSource)
     }
