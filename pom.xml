@@ -75,6 +75,7 @@
         <module>microprofile</module>
         <module>security</module>
         <module>integrations</module>
+        <module>messaging</module>
     </modules>
 
     <dependencyManagement>
@@ -87,11 +88,27 @@
                 <scope>import</scope>
             </dependency>
 
+            <!--Messaging -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>5.6.2</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.helidon.messaging.jms</groupId>
+                <artifactId>helidon-messaging-jms</artifactId>
+                <version>2.1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>5.16.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.helidon.messaging.aq</groupId>
+                <artifactId>helidon-messaging-aq</artifactId>
+                <version>2.1.1-SNAPSHOT</version>
             </dependency>
         </dependencies>
 

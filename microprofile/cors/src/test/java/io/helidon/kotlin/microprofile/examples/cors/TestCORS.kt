@@ -174,9 +174,7 @@ class TestCORS {
         @AfterAll
         @JvmStatic
         fun cleanup() {
-            if (server != null) {
-                server.stop()
-            }
+            server.stop()
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
