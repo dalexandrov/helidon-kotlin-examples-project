@@ -1,19 +1,7 @@
 
 # Helidon Examples in Kotlin
 
-Welcome to the Helidon Examples! If this is your first experience with
-Helidon we recommend you start with our
-[quickstart](https://helidon.io/docs/latest/#/getting-started/02_base-example).
-That will quickly get you going with your first Helidon application.
-
-After that you can come back here and dig into the examples. To access
-these examples we recommend checking out from a released tag. For example:
-
-```
-git clone git@github.com:oracle/helidon.git
-cd helidon
-git checkout tags/1.0.0
-```
+Welcome to the Helidon Examples written in Kotlin! 
 
 Our examples are Maven projects and can be built and run with Java 11 -- so make sure you have those:
 
@@ -37,4 +25,8 @@ Usually you can then run the example using:
 mvn exec:java
 ```
 
+or
+```shell
+java -jar target/helidon-kotlin-standalone-quickstart-se.jar
+```
 But always see the example's `README` for details.
