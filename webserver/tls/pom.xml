@@ -20,18 +20,16 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-            <groupId>io.helidon.kotlin.examples.webserver</groupId>
+        <groupId>io.helidon.kotlin.examples.webserver</groupId>
         <artifactId>helidon-kotlin-examples-webserver-project</artifactId>
-            <version>2.1.0</version>
-        </parent>
+        <version>2.1.0</version>
+    </parent>
 
-    <groupId>io.helidon.kotlin.examples.webserver</groupId>
     <artifactId>helidon-kotlin-examples-webserver-tls</artifactId>
     <name>Helidon WebServer Examples TLS in Kotlin</name>
 
     <description>
-        Application demonstrates TLS configuration using a builder
-        and config. Written in Kotlin.
+        Application demonstrates TLS configuration using a builder and config. Written in Kotlin.
     </description>
 
     <properties>
@@ -84,6 +82,10 @@
                         <id>copy-libs</id>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -25,6 +25,7 @@
         <artifactId>helidon-kotlin-examples-project</artifactId>
         <version>2.1.0</version>
     </parent>
+
     <groupId>io.helidon.kotlin.examples.config</groupId>
     <artifactId>helidon-kotlin-examples-config-project</artifactId>
     <packaging>pom</packaging>

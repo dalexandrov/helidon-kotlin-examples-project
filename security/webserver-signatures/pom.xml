@@ -26,12 +26,13 @@
         <artifactId>helidon-kotlin-examples-security-project</artifactId>
         <version>2.1.0</version>
     </parent>
-    <groupId>io.helidon.kotlin.examples.security</groupId>
+
     <artifactId>helidon-kotlin-examples-security-webserver-signatures</artifactId>
     <name>Helidon Security Examples HTTP Signatures in Kotlin</name>
 
     <description>
-        This example demonstrates Integration of RX Web Server based application with Security component and HTTP Signatures. Written in Kotlin.
+        This example demonstrates Integration of RX Web Server based application with Security component and HTTP Signatures.
+        Written in Kotlin.
     </description>
 
     <properties>
@@ -98,6 +99,10 @@
                         <id>copy-libs</id>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

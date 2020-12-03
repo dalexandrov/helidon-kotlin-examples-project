@@ -28,7 +28,7 @@
     </parent>
     <groupId>io.helidon.kotlin.examples</groupId>
     <artifactId>helidon-kotlin-quickstart-se</artifactId>
-    <version>2.1.0</version>
+    <version>${helidon.version}</version>
     <name>Helidon Quickstart SE Example in Kotlin</name>
 
     <properties>

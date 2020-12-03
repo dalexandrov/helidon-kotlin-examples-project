@@ -26,7 +26,7 @@
         <artifactId>helidon-kotlin-examples-webserver-project</artifactId>
         <version>2.1.0</version>
     </parent>
-    <groupId>io.helidon.kotlin.examples.webserver</groupId>
+
     <artifactId>helidon-kotlin-examples-webserver-opentracing</artifactId>
     <name>Helidon WebServer Examples OpenTracing in Kotlin.</name>
 
@@ -83,6 +83,10 @@
                         <id>copy-libs</id>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

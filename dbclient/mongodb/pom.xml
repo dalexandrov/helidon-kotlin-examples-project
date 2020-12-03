@@ -28,7 +28,7 @@
 
     <groupId>io.helidon.kotlin.examples.dbclient.mongodb</groupId>
     <artifactId>helidon-examples-dbclient-mongodb</artifactId>
-    <version>2.1.0</version>
+    <version>${helidon.version}</version>
     <name>Helidon Examples DB Client MongoDB in Kotlin</name>
 
     <properties>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>io.helidon.kotlin.examples.dbclient</groupId>
             <artifactId>helidon-kotlin-examples-dbclient-common</artifactId>
-            <version>2.1.0</version>
+            <version>${helidon.version}</version>
         </dependency>
     </dependencies>
 
@@ -109,26 +109,6 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvmTarget>11</jvmTarget>
-                </configuration>
             </plugin>
         </plugins>
     </build>

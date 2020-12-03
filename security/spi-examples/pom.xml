@@ -26,7 +26,7 @@
         <artifactId>helidon-kotlin-examples-security-project</artifactId>
         <version>2.1.0</version>
     </parent>
-    <groupId>io.helidon.kotlin.examples.security</groupId>
+
     <artifactId>helidon-kotlin-examples-security-spi</artifactId>
     <name>Helidon Security Examples SPI Implementation in Kotlin</name>
 
@@ -74,26 +74,6 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvmTarget>11</jvmTarget>
-                </configuration>
             </plugin>
         </plugins>
     </build>
