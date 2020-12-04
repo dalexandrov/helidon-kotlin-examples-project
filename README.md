@@ -29,4 +29,4 @@ or
 ```shell
 java -jar target/helidon-kotlin-standalone-quickstart-se.jar
 ```
-But always see the example's `README` for details.
+But always take a look the example's `README` for details.

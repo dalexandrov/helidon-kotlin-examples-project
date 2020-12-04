@@ -15,7 +15,7 @@ The service uses Helidon DB Client that provides reactive and non-blocking acces
 
 ```bash
 mvn package
-java -jar target/employee-app.jar
+java -jar target/helidon-kotlin-examples-employee-app.jar
 ```
 
 ## Create script

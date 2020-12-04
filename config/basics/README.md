@@ -12,5 +12,5 @@ containing config in HOCON (Human-Optimized Config Object Notation) format
 
 ```bash
 mvn package
-java -jar target/helidon-examples-config-basics.jar
+java -jar target/helidon-kotlin-examples-config-basics.jar
 ```

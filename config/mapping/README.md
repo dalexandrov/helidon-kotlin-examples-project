@@ -19,5 +19,5 @@ system how to construct a POJO instance.
 
 ```bash
 mvn package
-java -jar target/helidon-examples-config-mapping.jar
+java -jar target/helidon-kotlin-examples-config-mapping.jar
 ```

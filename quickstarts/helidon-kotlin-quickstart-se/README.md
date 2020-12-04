@@ -7,7 +7,7 @@ This project implements a simple Hello World REST service using Helidon SE in Ko
 With JDK11+
 ```bash
 mvn package
-java -jar target/helidon-quickstart-se.jar
+java -jar target/helidon-kotlin-quickstart-se.jar
 ```
 
 ## Exercise the application
@@ -65,40 +65,6 @@ kubectl cluster-info                # Verify which cluster
 kubectl get pods                    # Verify connectivity to cluster
 kubectl create -f app.yaml   # Deply application
 kubectl get service helidon-quickstart-se  # Get service info
-```
-
-## Build a native image with GraalVM
-
-GraalVM allows you to compile your programs ahead-of-time into a native
- executable. See https://www.graalvm.org/docs/reference-manual/aot-compilation/
- for more information.
-
-You can build a native executable in 2 different ways:
-* With a local installation of GraalVM
-* Using Docker
-
-### Local build
-
-Download Graal VM at https://www.graalvm.org/downloads. We recommend
-version `20.1.0` or later.
-
-```
-# Setup the environment
-export GRAALVM_HOME=/path
-# build the native executable
-mvn package -Pnative-image
-```
-
-You can also put the Graal VM `bin` directory in your PATH, or pass
- `-DgraalVMHome=/path` to the Maven command.
-
-See https://github.com/oracle/helidon-build-tools/tree/master/helidon-maven-plugin#goal-native-image
- for more information.
-
-Start the application:
-
-```
-./target/helidon-quickstart-se
 ```
 
 ### Multi-stage Docker build

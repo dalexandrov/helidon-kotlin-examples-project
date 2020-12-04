@@ -32,5 +32,5 @@ the most up-to-date value. Sometimes that is all you need.
 
 ```bash
 mvn package
-java -jar target/helidon-examples-config-changes.jar
+java -jar target/helidon-kotlin-examples-config-changes.jar
 ```

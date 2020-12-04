@@ -19,5 +19,5 @@ filter.
 
 ```bash
 mvn package
-java -jar target/helidon-examples-config-sources.jar
+java -jar target/helidon-kotlin-examples-config-sources.jar
 ```

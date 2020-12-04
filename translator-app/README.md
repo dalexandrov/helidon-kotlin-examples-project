@@ -41,8 +41,8 @@ docker run --rm -d -p 8080:8080 \
 With Java 8+:
 ```bash
 mvn package
-java -jar backend/target/helidon-examples-translator-backend.jar &
-java -jar frontend/target/helidon-examples-translator-frontend.jar
+java -jar backend/target/helidon-kotlin-examples-translator-backend.jar &
+java -jar frontend/target/helidon-kotlin-examples-translator-frontend.jar
 ```
 
 Try the endpoint:
@@ -57,8 +57,8 @@ Then check out the traces at http://localhost:9411.
 ## Run with Kubernetes (docker for desktop)
 
 ```bash
-docker build -t helidon-examples-translator-backend backend/
-docker build -t helidon-examples-translator-frontend frontend/
+docker build -t helidon-kotlin-examples-translator-backend backend/
+docker build -t helidon-kotlin-examples-translator-frontend frontend/
 kubectl apply -f backend/app.yaml -f frontend/app.yaml
 ```
 
@@ -74,8 +74,8 @@ Then check out the traces at http://localhost/zipkin.
 Stop the docker containers:
 ```bash
 docker stop zipkin \
-    helidon-examples-translator-backend \
-    helidon-examples-translator-frontend
+    helidon-kotlin-examples-translator-backend \
+    helidon-kotlin-examples-translator-frontend
 ```
 
 Delete the Kubernetes resources:

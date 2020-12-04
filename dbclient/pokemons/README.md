@@ -40,11 +40,6 @@ To build a jar file
 mvn package
 ```
 
-To build a native image (supported only with Oracle, MongoDB, or H2 databases)
-```
-mvn package -Pnative-image
-```
-
 ## Database
 This example can run with any JDBC supported database.
 In the `pom.xml` and `application.yaml` we provide configuration needed for Oracle database, MySQL and H2 database.

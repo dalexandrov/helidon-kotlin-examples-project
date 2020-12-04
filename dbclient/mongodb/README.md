@@ -37,7 +37,7 @@ The query operation adds database trace.
 - `curl -i -X DELETE http://localhost:8079/db/Squirtle` - delete a single pokemon
 - `curl -i -X DELETE http://localhost:8079/db` - delete all pokemon
 
-The application also supports update and delete - see `PokemonService.java` for bound endpoints.
+The application also supports update and delete - see `PokemonService.kt` for bound endpoints.
 
 ---
 

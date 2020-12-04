@@ -19,7 +19,7 @@ With Docker:
 ```bash
 docker build -t helidon-kotlin-webserver-opentracing-example .
 docker run --rm -d --link zipkin --name helidon-kotlin-webserver-opentracing-example \
-    -p 8080:8080 helidon-webserver-opentracing-example:latest
+    -p 8080:8080 helidon-kotlin-webserver-opentracing-example:latest
 ```
 
 With Java 8+:

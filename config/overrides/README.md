@@ -23,5 +23,5 @@ take precedence over the settings in the original config sources.
 
 ```bash
 mvn package
-java -jar target/helidon-examples-config-overrides.jar
+java -jar target/helidon-kotlin-examples-config-overrides.jar
 ```

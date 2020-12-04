@@ -17,7 +17,7 @@ uncomment that line and then package and run the application.
 With JDK11+
 ```bash
 mvn package
-java -jar helidon-examples-cors.jar
+java -jar helidon-kotlin-examples-cors.jar
 ```
 
 ## Using the app endpoints as with the "classic" greeting app

@@ -42,7 +42,7 @@ javax.sql.DataSource.example.dataSource.password = tiger
 
 ```bash
 mvn package
-java -jar target/helidon-integrations-examples-datasource-hikaricp-mysql.jar
+java -jar target/helidon-kotlin-integrations-examples-datasource-hikaricp-mysql.jar
 ```
 
 Try the endpoint:

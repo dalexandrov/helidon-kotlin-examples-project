@@ -4,7 +4,7 @@ This example demonstrates integration with OIDC (Open ID Connect) providers. Wri
 
 ## Contents
 
-MP example that integrates with an OIDC provider.
+MP example that integrate with an OIDC provider.
 
 To configure this example, you need to replace the following:
 1. src/main/resources/application.yaml - set security.properties.oidc-* to your tenant and application configuration

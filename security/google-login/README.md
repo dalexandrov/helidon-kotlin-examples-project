@@ -21,5 +21,5 @@ Update the following files with your client id (it should support http://localho
 
 ```bash
 mvn package
-java -jar target/helidon-examples-security-google-login.jar
+java -jar target/helidon-kotlin-examples-security-google-login.jar
 ```

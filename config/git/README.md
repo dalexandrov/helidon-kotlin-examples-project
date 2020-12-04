@@ -24,5 +24,5 @@ checks to make sure the value is the expected `hello`.
 ```bash
 mvn package
 export ENVIRONMENT_NAME=test
-java -jar target/helidon-examples-config-git.jar
+java -jar target/helidon-kotlin-examples-config-git.jar
 ```

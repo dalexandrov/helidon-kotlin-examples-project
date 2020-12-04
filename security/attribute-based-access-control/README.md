@@ -6,5 +6,5 @@ JAX-RS (Jersey) example for attribute based access control. Written in Kotlin.
 
 ```bash
 mvn package
-java -jar target/helidon-examples-security-abac.jar
+java -jar target/helidon-kotlin-examples-security-abac.jar
 ```

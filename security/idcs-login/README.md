@@ -41,7 +41,7 @@ Edit application.yaml for IdcsMain.java or OidcConfig variable definition for Id
 
 ```bash
 mvn package
-java -jar target/helidon-examples-security-oidc.jar
+java -jar target/helidon-kotlin-examples-security-oidc.jar
 ```
 
 Try the endpoints:

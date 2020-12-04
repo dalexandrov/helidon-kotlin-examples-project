@@ -8,7 +8,7 @@ This project implements a simple Hello World REST service using Helidon SE with
 With JDK11+
 ```bash
 mvn package
-java -jar target/helidon-standalone-quickstart-se.jar
+java -jar target/helidon-kotlin-standalone-quickstart-se.jar
 ```
 
 ## Exercise the application

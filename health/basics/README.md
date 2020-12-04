@@ -10,7 +10,7 @@ Start the application:
 
 ```bash
 mvn package
-java -jar target/helidon-examples-health-basics.jar
+java -jar target/helidon-kotlin-examples-health-basics.jar
 ```
 
 Note the port number reported by the application.
