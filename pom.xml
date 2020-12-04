@@ -75,7 +75,6 @@
         <module>microprofile</module>
         <module>security</module>
         <module>integrations</module>
-        <module>messaging</module>
     </modules>
 
     <dependencyManagement>
@@ -98,7 +97,7 @@
             <dependency>
                 <groupId>io.helidon.messaging.jms</groupId>
                 <artifactId>helidon-messaging-jms</artifactId>
-                <version>2.1.1-SNAPSHOT</version>
+                <version>2.1.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
@@ -108,7 +107,7 @@
             <dependency>
                 <groupId>io.helidon.messaging.aq</groupId>
                 <artifactId>helidon-messaging-aq</artifactId>
-                <version>2.1.1-SNAPSHOT</version>
+                <version>2.1.0</version>
             </dependency>
         </dependencies>
 
