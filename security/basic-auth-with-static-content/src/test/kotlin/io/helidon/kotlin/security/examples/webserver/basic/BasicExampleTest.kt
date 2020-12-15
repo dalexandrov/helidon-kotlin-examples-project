@@ -45,7 +45,7 @@ abstract class BasicExampleTest {
                 .request()
                 .await(10, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(Http.Status.OK_200))
-        val entity = response.content().`as`(String::class.java).await(10, TimeUnit.SECONDS)
+        val entity = response.content().asSingle(String::class.java).await(10, TimeUnit.SECONDS)
         MatcherAssert.assertThat(entity, CoreMatchers.containsString("<ANONYMOUS>"))
     }
 
@@ -138,7 +138,7 @@ abstract class BasicExampleTest {
                               expectedRoles: Set<String>,
                               invalidRoles: Set<String>) {
         val response = callProtected(uri, username, password)
-        val entity = response.content().`as`(String::class.java).await(5, TimeUnit.SECONDS)
+        val entity = response.content().asSingle(String::class.java).await(5, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(Http.Status.OK_200))
 
         // check login

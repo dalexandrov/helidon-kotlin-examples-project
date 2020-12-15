@@ -111,7 +111,7 @@ object ClientMain {
                 .request()
                 .thenCompose { response: WebClientResponse ->
                     check(!(response.status() !== Http.Status.OK_200)) { "Follow redirection failed!" }
-                    response.content().`as`(String::class.java)
+                    response.content().asSingle(String::class.java)
                 }
                 .thenCompose { string: String? ->
                     println("Redirected request successfully followed.")

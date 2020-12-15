@@ -16,7 +16,9 @@
 package io.helidon.kotlin.examples.standalone.quickstart.se
 
 import io.helidon.common.http.Http
+import io.helidon.common.reactive.Single
 import io.helidon.config.Config
+import io.helidon.media.common.MessageBodyReadableContent
 import io.helidon.webserver.*
 import java.util.concurrent.atomic.AtomicReference
 import java.util.logging.Level
@@ -101,7 +103,7 @@ class GreetService internal constructor(config: Config) : Service {
      */
     private fun updateGreetingHandler(request: ServerRequest,
                                       response: ServerResponse) {
-        request.content().`as`(JsonObject::class.java)
+        request.content().asSingle(JsonObject::class.java)
                 .thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
                 .exceptionally { ex: Throwable -> processErrors(ex, response) }
     }
@@ -131,3 +133,11 @@ class GreetService internal constructor(config: Config) : Service {
         greeting.set(config["app.greeting"].asString().orElse("Ciao"))
     }
 }
+
+/**
+ * Extension function to hide keyword as.
+ */
+fun <T> MessageBodyReadableContent.asSingle(type:Class<T> ): Single<T> {
+    return this.`as`(type)
+}
+

@@ -15,8 +15,11 @@
  */
 package io.helidon.kotlin.examples.quickstart.se
 
+import asSingle
 import io.helidon.common.http.Http
+import io.helidon.common.reactive.Single
 import io.helidon.config.Config
+import io.helidon.media.common.MessageBodyReadableContent
 import io.helidon.webserver.*
 import java.util.concurrent.atomic.AtomicReference
 import java.util.logging.Level
@@ -101,7 +104,7 @@ class GreetService internal constructor(config: Config) : Service {
      */
     private fun updateGreetingHandler(request: ServerRequest,
                                       response: ServerResponse) {
-        request.content().`as`(JsonObject::class.java)
+        request.content().asSingle(JsonObject::class.java)
                 .thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
                 .exceptionally { ex: Throwable -> processErrors(ex, response) }
     }

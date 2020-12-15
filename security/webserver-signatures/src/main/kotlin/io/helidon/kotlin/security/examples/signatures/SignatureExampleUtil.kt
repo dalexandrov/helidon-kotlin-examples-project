@@ -78,7 +78,7 @@ internal object SignatureExampleUtil {
                 .request()
                 .thenAccept { it: WebClientResponse ->
                     if (it.status() === Http.Status.OK_200) {
-                        it.content().`as`(String::class.java)
+                        it.content().asSingle(String::class.java)
                             .thenAccept { t: String? -> res.send(t) }
                             .exceptionally {
                                 res.send("Getting server response failed!")

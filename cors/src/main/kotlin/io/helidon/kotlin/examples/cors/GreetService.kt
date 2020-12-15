@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.examples.cors
 
+import asSingle
 import io.helidon.common.http.Http
 import io.helidon.config.Config
 import io.helidon.kotlin.examples.cors.GreetingMessage.Companion.fromRest
@@ -95,7 +96,7 @@ class GreetService internal constructor(config: Config) : Service {
      */
     private fun updateGreetingHandler(request: ServerRequest,
                                       response: ServerResponse) {
-        request.content().`as`(JsonObject::class.java).thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
+        request.content().asSingle(JsonObject::class.java).thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
     }
 
     companion object {

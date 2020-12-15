@@ -82,7 +82,7 @@ class FileService internal constructor() : Service {
     }
 
     private fun bufferedUpload(req: ServerRequest, res: ServerResponse) {
-        req.content().`as`(ReadableMultiPart::class.java).thenAccept { multiPart: ReadableMultiPart ->
+        req.content().asSingle(ReadableMultiPart::class.java).thenAccept { multiPart: ReadableMultiPart ->
             for (part in multiPart.fields("file[]")) {
                 writeBytes(storage, part.filename(), part.`as`(ByteArray::class.java))
             }

@@ -58,7 +58,7 @@ internal class MainTest {
 
         // registered an error handler in Main
         MatcherAssert.assertThat(third.status(), CoreMatchers.`is`(Http.Status.SERVICE_UNAVAILABLE_503))
-        MatcherAssert.assertThat(third.content().`as`(String::class.java).await(1, TimeUnit.SECONDS), CoreMatchers.`is`("bulkhead"))
+        MatcherAssert.assertThat(third.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS), CoreMatchers.`is`("bulkhead"))
     }
 
     @Test
@@ -91,7 +91,7 @@ internal class MainTest {
                 .path("/circuitBreaker/true")
                 .request()
                 .await(1, TimeUnit.SECONDS)
-        response = clientResponse.content().`as`(String::class.java).await(1, TimeUnit.SECONDS)
+        response = clientResponse.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS)
 
         // registered an error handler in Main
         MatcherAssert.assertThat(clientResponse.status(), CoreMatchers.`is`(Http.Status.SERVICE_UNAVAILABLE_503))
@@ -133,7 +133,7 @@ internal class MainTest {
                 .path("/retry/4")
                 .request()
                 .await(1, TimeUnit.SECONDS)
-        response = clientResponse.content().`as`(String::class.java).await(1, TimeUnit.SECONDS)
+        response = clientResponse.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS)
         // no error handler specified
         MatcherAssert.assertThat(clientResponse.status(), CoreMatchers.`is`(Http.Status.INTERNAL_SERVER_ERROR_500))
         MatcherAssert.assertThat(response, CoreMatchers.`is`("java.lang.RuntimeException: reactive failure"))
@@ -150,7 +150,7 @@ internal class MainTest {
                 .path("/timeout/105")
                 .request()
                 .await(1, TimeUnit.SECONDS)
-        response = clientResponse.content().`as`(String::class.java).await(1, TimeUnit.SECONDS)
+        response = clientResponse.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS)
         // error handler specified in Main
         MatcherAssert.assertThat(clientResponse.status(), CoreMatchers.`is`(Http.Status.REQUEST_TIMEOUT_408))
         MatcherAssert.assertThat(response, CoreMatchers.`is`("timeout"))

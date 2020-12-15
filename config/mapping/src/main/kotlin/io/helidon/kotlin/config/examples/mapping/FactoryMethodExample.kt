@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.config.examples.mapping
 
+import asType
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.config.objectmapping.Value
@@ -34,7 +35,7 @@ object FactoryMethodExample {
     fun main(args: Array<String>) {
         val config = Config.create(ConfigSources.classpath("application.conf"))
         val appConfig = config["app"] // let config automatically deserialize the node to new AppConfig instance
-                .`as`(AppConfig::class.java)
+                .asType(AppConfig::class.java)
                 .get()
         println(appConfig)
         assert(appConfig.greeting == "Hello")

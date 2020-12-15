@@ -29,7 +29,7 @@
     <groupId>io.helidon.kotlin.examples.config</groupId>
     <artifactId>helidon-kotlin-examples-config-project</artifactId>
     <packaging>pom</packaging>
-    <name>Helidon Config Examples in K otlin</name>
+    <name>Helidon Config Examples in Kotlin</name>
 
     <modules>
         <module>basics</module>
@@ -40,4 +40,11 @@
         <module>sources</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.helidon.kotlin.examples</groupId>
+            <artifactId>kotlin-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

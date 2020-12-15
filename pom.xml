@@ -61,6 +61,7 @@
     </properties>
 
     <modules>
+        <module>kotlin-support</module>
         <module>quickstarts</module>
         <module>employee-app</module>
         <module>health</module>

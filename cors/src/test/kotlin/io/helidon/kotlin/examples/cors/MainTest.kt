@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.examples.cors
 
+import asSingle
 import io.helidon.common.http.Headers
 import io.helidon.common.http.MediaType
 import io.helidon.config.Config
@@ -216,7 +217,7 @@ class MainTest {
         private fun fromPayload(response: WebClientResponse): GreetingMessage {
             val json = response
                     .content()
-                    .`as`(JsonObject::class.java)
+                    .asSingle(JsonObject::class.java)
                     .toCompletableFuture()
                     .get()
             return fromRest(json)

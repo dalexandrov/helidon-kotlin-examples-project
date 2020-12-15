@@ -15,7 +15,7 @@
  */
 package io.helidon.kotlin.examples.quickstart
 
-import io.helidon.kotlin.examples.quickstart.se.Main.startServer
+import io.helidon.kotlin.examples.quickstart.se.startServer
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.webclient.WebClient
 import io.helidon.webclient.WebClientResponse

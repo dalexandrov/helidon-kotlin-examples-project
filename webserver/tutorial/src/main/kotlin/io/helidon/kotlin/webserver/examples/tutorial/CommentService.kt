@@ -79,7 +79,7 @@ class CommentService : Service {
                 .get(User::class.java)
                 .orElse(User.ANONYMOUS)
         req.content()
-                .`as`(String::class.java)
+                .content().asSingle(String::class.java)
                 .thenAccept { msg: String? -> addComment(roomId, user, msg) }
                 .thenRun { resp.send() }
                 .exceptionally { t: Throwable? ->
