@@ -32,6 +32,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static io.helidon.kotlin.microprofile.example.tls.MainKt.startServer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -62,7 +63,7 @@ public class TlsTest {
 
     @BeforeAll
     static void initClass() {
-        server = Main.startServer();
+        server = startServer();
         server.start();
     }
 

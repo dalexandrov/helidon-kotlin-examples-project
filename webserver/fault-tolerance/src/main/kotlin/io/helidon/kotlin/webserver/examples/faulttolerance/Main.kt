@@ -29,45 +29,47 @@ import java.util.concurrent.TimeoutException
 /**
  * Main class of Fault tolerance example.
  */
-object Main {
-    /**
-     * Start the example.
-     *
-     * @param args start arguments are ignored
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        LogConfig.configureRuntime()
-        startServer(8079).thenRun {}
-    }
 
-    @JvmStatic
-    fun startServer(port: Int): Single<WebServer> {
-        return WebServer.builder()
-                .routing(routing())
-                .port(port)
-                .build()
-                .start()
-                .peek { server: WebServer ->
-                    val url = "http://localhost:" + server.port()
-                    println("Server started on $url")
-                }
-    }
+fun main() {
+    LogConfig.configureRuntime()
+    startServer(8079).thenRun {}
+}
 
-    private fun routing(): Routing {
-        return Routing.builder()
-                .register("/ft", FtService())
-                .error(BulkheadException::class.java
-                ) { _: ServerRequest?, res: ServerResponse, _: BulkheadException? -> res.status(Http.Status.SERVICE_UNAVAILABLE_503).send("bulkhead") }
-                .error(CircuitBreakerOpenException::class.java
-                ) { _: ServerRequest?, res: ServerResponse, _: CircuitBreakerOpenException? -> res.status(Http.Status.SERVICE_UNAVAILABLE_503).send("circuit breaker") }
-                .error(TimeoutException::class.java
-                ) { _: ServerRequest?, res: ServerResponse, _: TimeoutException? -> res.status(Http.Status.REQUEST_TIMEOUT_408).send("timeout") }
-                .error(Throwable::class.java
-                ) { _: ServerRequest?, res: ServerResponse, ex: Throwable ->
-                    res.status(Http.Status.INTERNAL_SERVER_ERROR_500)
-                            .send(ex.javaClass.name + ": " + ex.message)
-                }
-                .build()
-    }
+fun startServer(port: Int): Single<WebServer> {
+    return WebServer.builder()
+        .routing(routing())
+        .port(port)
+        .build()
+        .start()
+        .peek { server: WebServer ->
+            val url = "http://localhost:" + server.port()
+            println("Server started on $url")
+        }
+}
+
+private fun routing(): Routing {
+    return Routing.builder()
+        .register("/ft", FtService())
+        .error(
+            BulkheadException::class.java
+        ) { _: ServerRequest?, res: ServerResponse, _: BulkheadException? ->
+            res.status(Http.Status.SERVICE_UNAVAILABLE_503).send("bulkhead")
+        }
+        .error(
+            CircuitBreakerOpenException::class.java
+        ) { _: ServerRequest?, res: ServerResponse, _: CircuitBreakerOpenException? ->
+            res.status(Http.Status.SERVICE_UNAVAILABLE_503).send("circuit breaker")
+        }
+        .error(
+            TimeoutException::class.java
+        ) { _: ServerRequest?, res: ServerResponse, _: TimeoutException? ->
+            res.status(Http.Status.REQUEST_TIMEOUT_408).send("timeout")
+        }
+        .error(
+            Throwable::class.java
+        ) { _: ServerRequest?, res: ServerResponse, ex: Throwable ->
+            res.status(Http.Status.INTERNAL_SERVER_ERROR_500)
+                .send(ex.javaClass.name + ": " + ex.message)
+        }
+        .build()
 }

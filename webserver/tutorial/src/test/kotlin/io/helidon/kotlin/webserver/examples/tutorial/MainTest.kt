@@ -16,7 +16,6 @@
 package io.helidon.kotlin.webserver.examples.tutorial
 
 import io.helidon.common.http.Http
-import io.helidon.kotlin.webserver.examples.tutorial.Main.createRouting
 import io.helidon.webserver.testsupport.TestClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

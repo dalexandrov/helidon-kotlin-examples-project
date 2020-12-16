@@ -17,7 +17,6 @@ package io.helidon.kotlin.webserver.examples.comments
 
 import io.helidon.common.http.Http
 import io.helidon.common.http.MediaType
-import io.helidon.kotlin.webserver.examples.comments.Main.createRouting
 import io.helidon.webserver.testsupport.MediaPublisher
 import io.helidon.webserver.testsupport.TestClient
 import org.junit.jupiter.api.Assertions

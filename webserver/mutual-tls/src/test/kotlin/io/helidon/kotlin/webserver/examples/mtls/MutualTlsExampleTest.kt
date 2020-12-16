@@ -18,12 +18,9 @@ package io.helidon.kotlin.webserver.examples.mtls
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.config.spi.ConfigSource
-import io.helidon.kotlin.webserver.examples.mtls.ClientBuilderMain.createWebClient
-import io.helidon.kotlin.webserver.examples.mtls.ServerBuilderMain.startServer
 import io.helidon.kotlin.webserver.examples.mtls.ServerConfigMain.startServer
 import io.helidon.webclient.WebClient
 import io.helidon.webserver.WebServer
-import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
@@ -32,6 +29,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.function.Supplier
+import org.hamcrest.CoreMatchers.`is` as Is
 
 /**
  * Test of mutual TLS example.
@@ -39,11 +37,12 @@ import java.util.function.Supplier
 class MutualTlsExampleTest {
 
     private lateinit var webServer: WebServer
+
     @AfterEach
     @Throws(InterruptedException::class, ExecutionException::class, TimeoutException::class)
     fun killServer() {
         webServer.shutdown()
-                .toCompletableFuture()[10, TimeUnit.SECONDS]
+            .toCompletableFuture()[10, TimeUnit.SECONDS]
     }
 
     @Test
@@ -52,8 +51,14 @@ class MutualTlsExampleTest {
         val config = Config.just(Supplier<ConfigSource> { ConfigSources.classpath("application-test.yaml").build() })
         waitForServerToStart(startServer(config["server"]))
         val webClient = WebClient.create(config["client"])
-        MatcherAssert.assertThat(ClientConfigMain.callUnsecured(webClient, webServer.port()), CoreMatchers.`is`("Hello world unsecured!"))
-        MatcherAssert.assertThat(ClientConfigMain.callSecured(webClient, webServer.port("secured")), CoreMatchers.`is`("Hello Helidon-client!"))
+        MatcherAssert.assertThat(
+            callUnsecuredConfig(webClient, webServer.port()),
+            Is("Hello world unsecured!")
+        )
+        MatcherAssert.assertThat(
+            callSecuredConfig(webClient, webServer.port("secured")),
+            Is("Hello Helidon-client!")
+        )
     }
 
     @Test
@@ -61,8 +66,14 @@ class MutualTlsExampleTest {
     fun testBuilderAccessSuccessful() {
         waitForServerToStart(startServer(-1, -1))
         val webClient = createWebClient()
-        MatcherAssert.assertThat(ClientBuilderMain.callUnsecured(webClient, webServer.port()), CoreMatchers.`is`("Hello world unsecured!"))
-        MatcherAssert.assertThat(ClientBuilderMain.callSecured(webClient, webServer.port("secured")), CoreMatchers.`is`("Hello Helidon-client!"))
+        MatcherAssert.assertThat(
+            callUnsecured(webClient, webServer.port()),
+            Is("Hello world unsecured!")
+        )
+        MatcherAssert.assertThat(
+            callSecured(webClient, webServer.port("secured")),
+            Is("Hello Helidon-client!")
+        )
     }
 
     @Throws(InterruptedException::class)

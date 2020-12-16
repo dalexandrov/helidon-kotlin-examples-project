@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.demo.todos.frontend
 
+import asSingle
 import io.helidon.common.http.Http
 import io.helidon.metrics.RegistryFactory
 import io.helidon.security.SecurityContext
@@ -206,7 +207,7 @@ class TodosHandler(bsc: BackendServiceClient) : Service {
                      res: ServerResponse,
                      json: Consumer<JsonObject>) {
         req.content()
-                .`as`(JsonObject::class.java)
+                .asSingle(JsonObject::class.java)
                 .thenAccept(json)
                 .exceptionally { throwable: Throwable -> sendError(throwable, res) }
     }

@@ -18,44 +18,37 @@ package io.helidon.kotlin.webserver.examples.mtls
 import io.helidon.config.Config
 import io.helidon.webclient.WebClient
 
+
 /**
- * Setting up [WebClient] to support mutual TLS via configuration.
+ * Start the example.
+ * This example executes two requests by Helidon [WebClient] which are configured
+ * by the configuration.
+ *
+ * You have to execute either [ServerBuilderMain] or [ServerConfigMain] for this to work.
+ *
+ * If any of the ports has been changed, you have to update ports in this main method also.
+ *
+ * @param args start arguments are ignored
  */
-object ClientConfigMain {
-    /**
-     * Start the example.
-     * This example executes two requests by Helidon [WebClient] which are configured
-     * by the configuration.
-     *
-     * You have to execute either [ServerBuilderMain] or [ServerConfigMain] for this to work.
-     *
-     * If any of the ports has been changed, you have to update ports in this main method also.
-     *
-     * @param args start arguments are ignored
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val config = Config.create()
-        val webClient = WebClient.create(config["client"])
-        println("Contacting unsecured endpoint!")
-        println("Response: " + callUnsecured(webClient, 8080))
-        println("Contacting secured endpoint!")
-        println("Response: " + callSecured(webClient, 443))
-    }
+fun main(args: Array<String>) {
+    val config = Config.create()
+    val webClient = WebClient.create(config["client"])
+    println("Contacting unsecured endpoint!")
+    println("Response: " + callUnsecured(webClient, 8080))
+    println("Contacting secured endpoint!")
+    println("Response: " + callSecured(webClient, 443))
+}
 
-    @JvmStatic
-    fun callUnsecured(webClient: WebClient, port: Int): String {
-        return webClient.get()
-                .uri("http://localhost:$port")
-                .request(String::class.java)
-                .await()
-    }
+fun callUnsecuredConfig(webClient: WebClient, port: Int): String {
+    return webClient.get()
+        .uri("http://localhost:$port")
+        .request(String::class.java)
+        .await()
+}
 
-    @JvmStatic
-    fun callSecured(webClient: WebClient, port: Int): String {
-        return webClient.get()
-                .uri("https://localhost:$port")
-                .request(String::class.java)
-                .await()
-    }
+fun callSecuredConfig(webClient: WebClient, port: Int): String {
+    return webClient.get()
+        .uri("https://localhost:$port")
+        .request(String::class.java)
+        .await()
 }

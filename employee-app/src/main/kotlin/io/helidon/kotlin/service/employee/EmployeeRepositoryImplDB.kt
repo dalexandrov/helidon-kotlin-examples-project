@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.service.employee
 
+import asType
 import io.helidon.common.reactive.Multi
 import io.helidon.config.Config
 import io.helidon.dbclient.DbClient
@@ -80,7 +81,7 @@ internal class EmployeeRepositoryImplDB(config: Config) : EmployeeRepository {
     override fun getById(id: String?): CompletionStage<Optional<Employee?>?> {
         val queryStr = "SELECT * FROM EMPLOYEE WHERE ID =?"
         return dbClient.execute { exec: DbExecute -> exec[queryStr, id] }
-                .map { optionalRow: Optional<DbRow> -> optionalRow.map { dbRow: DbRow -> dbRow.`as`(Employee::class.java) } }
+                .map { optionalRow: Optional<DbRow> -> optionalRow.map { dbRow: DbRow -> dbRow.asType(Employee::class.java) } }
     }
 
     override fun update(updatedEmployee: Employee?, id: String?): CompletionStage<Long?> {
@@ -104,14 +105,14 @@ internal class EmployeeRepositoryImplDB(config: Config) : EmployeeRepository {
         fun read(row: DbRow): Employee {
             // map named columns to an object
             return of(
-                    row.column("ID").`as`(String::class.java),
-                    row.column("FIRSTNAME").`as`(String::class.java),
-                    row.column("LASTNAME").`as`(String::class.java),
-                    row.column("EMAIL").`as`(String::class.java),
-                    row.column("PHONE").`as`(String::class.java),
-                    row.column("BIRTHDATE").`as`(String::class.java),
-                    row.column("TITLE").`as`(String::class.java),
-                    row.column("DEPARTMENT").`as`(String::class.java)
+                    row.column("ID").asType(String::class.java),
+                    row.column("FIRSTNAME").asType(String::class.java),
+                    row.column("LASTNAME").asType(String::class.java),
+                    row.column("EMAIL").asType(String::class.java),
+                    row.column("PHONE").asType(String::class.java),
+                    row.column("BIRTHDATE").asType(String::class.java),
+                    row.column("TITLE").asType(String::class.java),
+                    row.column("DEPARTMENT").asType(String::class.java)
             )
         }
     }

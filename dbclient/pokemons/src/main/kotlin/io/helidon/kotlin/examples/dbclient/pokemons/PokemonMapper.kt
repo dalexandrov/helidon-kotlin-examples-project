@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.examples.dbclient.pokemons
 
+import asType
 import io.helidon.dbclient.DbMapper
 import io.helidon.dbclient.DbRow
 import java.util.*
@@ -27,7 +28,7 @@ class PokemonMapper : DbMapper<Pokemon> {
         val id = row.column("id")
         val name = row.column("name")
         val type = row.column("idType")
-        return Pokemon(id.`as`(Int::class.java), name.`as`(String::class.java), type.`as`(Int::class.java))
+        return Pokemon(id.asType(Int::class.java), name.asType(String::class.java), type.asType(Int::class.java))
     }
 
     override fun toNamedParameters(value: Pokemon): Map<String, Any?> {

@@ -16,8 +16,6 @@
 package io.helidon.kotlin.microprofile.example.staticc
 
 import io.helidon.common.http.Http
-import io.helidon.kotlin.microprofile.example.staticc.Main.main
-import io.helidon.kotlin.microprofile.example.staticc.Main.port
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.AfterAll
@@ -30,6 +28,7 @@ import javax.enterprise.inject.se.SeContainer
 import javax.enterprise.inject.spi.CDI
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.MediaType
+import org.hamcrest.Matchers.`is` as Is
 
 /**
  * Unit test for [HelloWorldResource].
@@ -54,10 +53,10 @@ internal class StaticContentTest {
                 .request()
                 .accept(MediaType.TEXT_HTML_TYPE)
                 .get()
-        MatcherAssert.assertThat("Status should be 200", response.status, Matchers.`is`(Http.Status.OK_200.code()))
+        MatcherAssert.assertThat("Status should be 200", response.status, Is(Http.Status.OK_200.code()))
         val str = response.readEntity(String::class.java)
         Assertions.assertAll(
-                Executable { MatcherAssert.assertThat(response.mediaType, Matchers.`is`(MediaType.TEXT_HTML_TYPE)) },
+                Executable { MatcherAssert.assertThat(response.mediaType, Is(MediaType.TEXT_HTML_TYPE)) },
                 Executable { MatcherAssert.assertThat(str, Matchers.containsString("server.static.classpath.location=/WEB")) }
         )
     }
@@ -69,10 +68,10 @@ internal class StaticContentTest {
                 .request()
                 .accept(MediaType.TEXT_HTML_TYPE)
                 .get()
-        MatcherAssert.assertThat("Status should be 200", response.status, Matchers.`is`(Http.Status.OK_200.code()))
+        MatcherAssert.assertThat("Status should be 200", response.status, Is(Http.Status.OK_200.code()))
         val str = response.readEntity(String::class.java)
         Assertions.assertAll(
-                Executable { MatcherAssert.assertThat(response.mediaType, Matchers.`is`(MediaType.TEXT_HTML_TYPE)) },
+                Executable { MatcherAssert.assertThat(response.mediaType, Is(MediaType.TEXT_HTML_TYPE)) },
                 Executable { MatcherAssert.assertThat(str, Matchers.containsString("server.static.classpath.location=/WEB")) }
         )
     }

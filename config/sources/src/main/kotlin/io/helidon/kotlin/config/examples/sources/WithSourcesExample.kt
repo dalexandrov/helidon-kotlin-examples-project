@@ -23,46 +23,41 @@ import io.helidon.config.ConfigSources
  *
  * @see LoadSourcesExample
  */
-object WithSourcesExample {
-    /**
-     * Executes the example.
-     *
-     * @param args arguments
+
+fun main() {
+    /*
+       Creates a config source composed of following sources:
+       - conf/dev.yaml - developer specific configuration, should not be placed in VCS;
+       - conf/config.yaml - deployment dependent configuration, for example prod, stage, etc;
+       - default.yaml - application default values, loaded form classpath;
+       with a filter which convert values with keys ending with "level" to upper case
      */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        /*
-           Creates a config source composed of following sources:
-           - conf/dev.yaml - developer specific configuration, should not be placed in VCS;
-           - conf/config.yaml - deployment dependent configuration, for example prod, stage, etc;
-           - default.yaml - application default values, loaded form classpath;
-           with a filter which convert values with keys ending with "level" to upper case
-         */
-        val config = Config
-                .builder(ConfigSources.file("config/sources/conf/dev.yaml").optional(),
-                        ConfigSources.file("config/sources/conf/config.yaml").optional(),
-                        ConfigSources.classpath("default.yaml"))
-                .addFilter { key: Config.Key, stringValue: String -> if (key.name() == "level") stringValue.toUpperCase() else stringValue }
-                .build()
+    val config = Config
+        .builder(
+            ConfigSources.file("config/sources/conf/dev.yaml").optional(),
+            ConfigSources.file("config/sources/conf/config.yaml").optional(),
+            ConfigSources.classpath("default.yaml")
+        )
+        .addFilter { key: Config.Key, stringValue: String -> if (key.name() == "level") stringValue.toUpperCase() else stringValue }
+        .build()
 
-        // Environment type, from dev.yaml:
-        val env = config["meta.env"].asString()
-        env.ifPresent { e: String -> println("Environment: $e") }
-        assert(env.get() == "DEV")
+    // Environment type, from dev.yaml:
+    val env = config["meta.env"].asString()
+    env.ifPresent { e: String -> println("Environment: $e") }
+    assert(env.get() == "DEV")
 
-        // Default value (default.yaml): Config Sources Example
-        val appName = config["app.name"].asString().get()
-        println("Name: $appName")
-        assert(appName == "Config Sources Example")
+    // Default value (default.yaml): Config Sources Example
+    val appName = config["app.name"].asString().get()
+    println("Name: $appName")
+    assert(appName == "Config Sources Example")
 
-        // Page size, from config.yaml: 10
-        val pageSize = config["app.page-size"].asInt().get()
-        println("Page size: $pageSize")
-        assert(pageSize == 10)
+    // Page size, from config.yaml: 10
+    val pageSize = config["app.page-size"].asInt().get()
+    println("Page size: $pageSize")
+    assert(pageSize == 10)
 
-        // Applied filter (uppercase logging level), from dev.yaml: finest -> FINEST
-        val level = config["component.audit.logging.level"].asString().get()
-        println("Level: $level")
-        assert(level == "FINE")
-    }
+    // Applied filter (uppercase logging level), from dev.yaml: finest -> FINEST
+    val level = config["component.audit.logging.level"].asString().get()
+    println("Level: $level")
+    assert(level == "FINE")
 }

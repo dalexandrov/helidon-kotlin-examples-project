@@ -27,54 +27,50 @@ import io.helidon.webserver.*
  *
  * It also serves web server tutorial articles composed from life examples.
  */
-object Main {
-    @JvmStatic
-    fun createRouting(): Routing {
-        val upperXFilter = UpperXFilter()
-        return Routing.builder()
-                .any(UserFilter())
-                .any(Handler { req: ServerRequest, res: ServerResponse ->
-                    res.registerFilter(upperXFilter)
-                    req.next()
-                })
-                .register("/article", CommentService())
-                .post("/mgmt/shutdown", Handler { req: ServerRequest, res: ServerResponse ->
-                    res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
-                    res.send("Shutting down TUTORIAL server. Good bye!\n")
-                    // Use reactive API nature to stop the server AFTER the response was sent.
-                    res.whenSent().thenRun { req.webServer().shutdown() }
-                })
-                .build()
+
+fun createRouting(): Routing {
+    val upperXFilter = UpperXFilter()
+    return Routing.builder()
+        .any(UserFilter())
+        .any(Handler { req: ServerRequest, res: ServerResponse ->
+            res.registerFilter(upperXFilter)
+            req.next()
+        })
+        .register("/article", CommentService())
+        .post("/mgmt/shutdown", Handler { req: ServerRequest, res: ServerResponse ->
+            res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
+            res.send("Shutting down TUTORIAL server. Good bye!\n")
+            // Use reactive API nature to stop the server AFTER the response was sent.
+            res.whenSent().thenRun { req.webServer().shutdown() }
+        })
+        .build()
+}
+
+/**
+ * A java main class.
+ *
+ */
+fun main(args: Array<String>) {
+    // Create a web server instance
+    var port = 8080
+    if (args.isNotEmpty()) {
+        port = try {
+            args[0].toInt()
+        } catch (nfe: NumberFormatException) {
+            0
+        }
+    }
+    val server = WebServer.builder(createRouting())
+        .port(port)
+        .build()
+
+    // Start the server and print some info.
+    server.start().thenAccept { ws: WebServer ->
+        println("TUTORIAL server is up! http://localhost:" + ws.port())
+        println("Call POST on 'http://localhost:" + ws.port() + "/mgmt/shutdown' to STOP the server!")
     }
 
-    /**
-     * A java main class.
-     *
-     * @param args command line arguments.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        // Create a web server instance
-        var port = 8080
-        if (args.isNotEmpty()) {
-            port = try {
-                args[0].toInt()
-            } catch (nfe: NumberFormatException) {
-                0
-            }
-        }
-        val server = WebServer.builder(createRouting())
-                .port(port)
-                .build()
-
-        // Start the server and print some info.
-        server.start().thenAccept { ws: WebServer ->
-            println("TUTORIAL server is up! http://localhost:" + ws.port())
-            println("Call POST on 'http://localhost:" + ws.port() + "/mgmt/shutdown' to STOP the server!")
-        }
-
-        // Server threads are not demon. NO need to block. Just react.
-        server.whenShutdown()
-                .thenRun { println("TUTORIAL server is DOWN. Good bye!") }
-    }
+    // Server threads are not demon. NO need to block. Just react.
+    server.whenShutdown()
+        .thenRun { println("TUTORIAL server is DOWN. Good bye!") }
 }

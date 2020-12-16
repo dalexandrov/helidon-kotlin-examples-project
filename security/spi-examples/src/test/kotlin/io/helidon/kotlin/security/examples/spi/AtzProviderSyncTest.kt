@@ -16,10 +16,11 @@
 package io.helidon.kotlin.security.examples.spi
 
 import io.helidon.security.*
-import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.hamcrest.CoreMatchers.`is` as Is
+import org.mockito.Mockito.`when` as When
 
 /**
  * Unit test for [AtzProviderSync].
@@ -32,11 +33,11 @@ class AtzProviderSyncTest {
                 .build()
         val ep = EndpointConfig.create()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         val provider = AtzProviderSync()
         val response = provider.syncAuthorize(request)
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.SUCCESS))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.SUCCESS))
     }
 
     @Test
@@ -44,44 +45,44 @@ class AtzProviderSyncTest {
         val se = SecurityEnvironment.create()
         val ep = EndpointConfig.create()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         val provider = AtzProviderSync()
         val response = provider.syncAuthorize(request)
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.ABSTAIN))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.ABSTAIN))
     }
 
     @Test
     fun testDenied() {
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.isAuthenticated).thenReturn(false)
+        When(context.isAuthenticated).thenReturn(false)
         val se = SecurityEnvironment.builder()
                 .path("/private/some/path")
                 .build()
         val ep = EndpointConfig.create()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         val provider = AtzProviderSync()
         val response = provider.syncAuthorize(request)
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.FAILURE))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.FAILURE))
     }
 
     @Test
     fun testPermitted() {
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.isAuthenticated).thenReturn(true)
+        When(context.isAuthenticated).thenReturn(true)
         val se = SecurityEnvironment.builder()
                 .path("/private/some/path")
                 .build()
         val ep = EndpointConfig.create()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         val provider = AtzProviderSync()
         val response = provider.syncAuthorize(request)
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.SUCCESS))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.SUCCESS))
     }
 }

@@ -20,7 +20,6 @@ import io.helidon.common.http.Headers
 import io.helidon.common.http.MediaType
 import io.helidon.config.Config
 import io.helidon.kotlin.examples.cors.GreetingMessage.Companion.fromRest
-import io.helidon.kotlin.examples.cors.Main.startServer
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.webclient.WebClient
 import io.helidon.webclient.WebClientRequestBuilder
@@ -41,18 +40,24 @@ class MainTest {
     fun testHelloWorld() {
         var r = getResponse("/greet")
         Assertions.assertEquals(200, r.status().code(), "HTTP response1")
-        Assertions.assertEquals("Hello World!", fromPayload(r).message,
-                "default message")
+        Assertions.assertEquals(
+            "Hello World!", fromPayload(r).message,
+            "default message"
+        )
         r = getResponse("/greet/Joe")
         Assertions.assertEquals(200, r.status().code(), "HTTP response2")
-        Assertions.assertEquals("Hello Joe!", fromPayload(r).message,
-                "hello Joe message")
+        Assertions.assertEquals(
+            "Hello Joe!", fromPayload(r).message,
+            "hello Joe message"
+        )
         r = putResponse("/greet/greeting", GreetingMessage("Hola"))
         Assertions.assertEquals(204, r.status().code(), "HTTP response3")
         r = getResponse("/greet/Jose")
         Assertions.assertEquals(200, r.status().code(), "HTTP response4")
-        Assertions.assertEquals("Hola Jose!", fromPayload(r).message,
-                "hola Jose message")
+        Assertions.assertEquals(
+            "Hola Jose!", fromPayload(r).message,
+            "hola Jose message"
+        )
         r = getResponse("/health")
         Assertions.assertEquals(200, r.status().code(), "HTTP response2")
         r = getResponse("/metrics")
@@ -73,8 +78,10 @@ class MainTest {
         Assertions.assertTrue(payload.contains("Hola World"), "HTTP response payload was $payload")
         headers = r.headers()
         val allowOrigin = headers.value(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
-        Assertions.assertTrue(allowOrigin.isPresent,
-                "Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " is absent")
+        Assertions.assertTrue(
+            allowOrigin.isPresent,
+            "Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " is absent"
+        )
         Assertions.assertEquals(allowOrigin.get(), "*")
     }
 
@@ -90,19 +97,25 @@ class MainTest {
         headers.add("Host", "here.com")
         headers.add("Access-Control-Request-Method", "PUT")
         var r = builder.path("/greet/greeting")
-                .submit()
-                .toCompletableFuture()
-                .get()
+            .submit()
+            .toCompletableFuture()
+            .get()
         val preflightResponseHeaders: Headers = r.headers()
         val allowMethods = preflightResponseHeaders.values(CrossOriginConfig.ACCESS_CONTROL_ALLOW_METHODS)
-        Assertions.assertFalse(allowMethods.isEmpty(),
-                "pre-flight response does not include " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_METHODS)
+        Assertions.assertFalse(
+            allowMethods.isEmpty(),
+            "pre-flight response does not include " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_METHODS
+        )
         Assertions.assertTrue(allowMethods.contains("PUT"))
         var allowOrigins = preflightResponseHeaders.values(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
-        Assertions.assertFalse(allowOrigins.isEmpty(),
-                "pre-flight response does not include " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
-        Assertions.assertTrue(allowOrigins.contains("http://foo.com"), "Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN
-                + " should contain '*' but does not; " + allowOrigins)
+        Assertions.assertFalse(
+            allowOrigins.isEmpty(),
+            "pre-flight response does not include " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN
+        )
+        Assertions.assertTrue(
+            allowOrigins.contains("http://foo.com"), "Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN
+                    + " should contain '*' but does not; " + allowOrigins
+        )
 
         // Send the follow-up request.
         builder = webClient.put()
@@ -114,10 +127,14 @@ class MainTest {
         Assertions.assertEquals(204, r.status().code(), "HTTP response3")
         headers = r.headers()
         allowOrigins = headers.values(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
-        Assertions.assertFalse(allowOrigins.isEmpty(),
-                "Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " has no value(s)")
-        Assertions.assertTrue(allowOrigins.contains("http://foo.com"), "Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN
-                + " should contain '*' but does not; " + allowOrigins)
+        Assertions.assertFalse(
+            allowOrigins.isEmpty(),
+            "Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " has no value(s)"
+        )
+        Assertions.assertTrue(
+            allowOrigins.contains("http://foo.com"), "Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN
+                    + " should contain '*' but does not; " + allowOrigins
+        )
     }
 
     @Order(12) // Run after CORS test changes greeting to Cheers.
@@ -133,8 +150,10 @@ class MainTest {
         Assertions.assertTrue(fromPayload(r).message.contains("Cheers Maria"))
         headers = r.headers()
         val allowOrigin = headers.value(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
-        Assertions.assertTrue(allowOrigin.isPresent,
-                "Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " is absent")
+        Assertions.assertTrue(
+            allowOrigin.isPresent,
+            "Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " is absent"
+        )
         Assertions.assertEquals(allowOrigin.get(), "*")
     }
 
@@ -163,13 +182,13 @@ class MainTest {
             // the port is only available if the server started already!
             // so we need to wait
             webServer = startServer()
-                    .start()
-                    .toCompletableFuture()
-                    .get()
+                .start()
+                .toCompletableFuture()
+                .get()
             WebClient.builder()
-                    .baseUri("http://localhost:" + webServer.port())
-                    .addMediaSupport(JsonpSupport.create())
-                    .build().also { webClient = it }
+                .baseUri("http://localhost:" + webServer.port())
+                .addMediaSupport(JsonpSupport.create())
+                .build().also { webClient = it }
             val timeout: Long = 2000 // 2 seconds should be enough to start the server
             val now = System.currentTimeMillis()
             while (!webServer.isRunning) {
@@ -185,7 +204,7 @@ class MainTest {
         @Throws(Exception::class)
         fun stop() {
             webServer.shutdown()
-                    .toCompletableFuture()[10, TimeUnit.SECONDS]
+                .toCompletableFuture()[10, TimeUnit.SECONDS]
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
@@ -196,30 +215,34 @@ class MainTest {
         @Throws(ExecutionException::class, InterruptedException::class)
         private fun getResponse(path: String, builder: WebClientRequestBuilder): WebClientResponse {
             return builder
-                    .accept(MediaType.APPLICATION_JSON)
-                    .path(path)
-                    .submit()
-                    .toCompletableFuture()
-                    .get()
+                .accept(MediaType.APPLICATION_JSON)
+                .path(path)
+                .submit()
+                .toCompletableFuture()
+                .get()
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
-        private fun putResponse(path: String, payload: GreetingMessage, builder: WebClientRequestBuilder = webClient.put()): WebClientResponse {
+        private fun putResponse(
+            path: String,
+            payload: GreetingMessage,
+            builder: WebClientRequestBuilder = webClient.put()
+        ): WebClientResponse {
             return builder
-                    .accept(MediaType.APPLICATION_JSON)
-                    .path(path)
-                    .submit(payload.forRest())
-                    .toCompletableFuture()
-                    .get()
+                .accept(MediaType.APPLICATION_JSON)
+                .path(path)
+                .submit(payload.forRest())
+                .toCompletableFuture()
+                .get()
         }
 
         @Throws(ExecutionException::class, InterruptedException::class)
         private fun fromPayload(response: WebClientResponse): GreetingMessage {
             val json = response
-                    .content()
-                    .asSingle(JsonObject::class.java)
-                    .toCompletableFuture()
-                    .get()
+                .content()
+                .asSingle(JsonObject::class.java)
+                .toCompletableFuture()
+                .get()
             return fromRest(json)
         }
     }

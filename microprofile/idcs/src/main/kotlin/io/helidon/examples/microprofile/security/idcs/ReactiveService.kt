@@ -27,7 +27,7 @@ import javax.enterprise.context.ApplicationScoped
  */
 @ApplicationScoped
 @RoutingPath("/reactive")
-class ReactiveService : Service {
+open class ReactiveService : Service {
     override fun update(rules: Routing.Rules) {
         rules[Handler { req: ServerRequest, res: ServerResponse -> reactiveRoute(req, res) }]
     }

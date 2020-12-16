@@ -31,7 +31,6 @@ class GreetingMessage
         /**
          * Sets the message value.
          *
-         * @param message value to be set
          */
         var message: String) {
     /**

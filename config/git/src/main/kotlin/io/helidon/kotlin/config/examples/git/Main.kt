@@ -18,7 +18,6 @@ package io.helidon.kotlin.config.examples.git
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.config.git.GitConfigSource
-import java.io.IOException
 import java.net.URI
 
 /**
@@ -44,31 +43,25 @@ import java.net.URI
  *
  *
  */
-object Main {
-    private const val ENVIRONMENT_NAME_PROPERTY = "ENVIRONMENT_NAME"
+private const val ENVIRONMENT_NAME_PROPERTY = "ENVIRONMENT_NAME"
 
-    /**
-     * Executes the example.
-     *
-     * @param args arguments
-     * @throws IOException when some git repo operation failed
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
+/**
+ * Executes the example.
+ */
+fun main() {
 
-        // we expect a name of the current environment in envvar ENVIRONMENT_NAME
-        // in this example we just set envvar in maven plugin 'exec', but can be set in k8s pod via ConfigMap
-        val env = Config.create(ConfigSources.environmentVariables())
-        val branch = env[ENVIRONMENT_NAME_PROPERTY].asString().orElse("master")
-        println("Loading from branch $branch")
-        val config = Config.create(
-                GitConfigSource.builder()
-                        .path("application.conf")
-                        .uri(URI.create("https://github.com/helidonrobot/test-config.git"))
-                        .branch(branch)
-                        .build())
-        println("Greeting is " + config["greeting"].asString().get())
-        assert(config["greeting"].asString().get() == "hello")
-    }
+    // we expect a name of the current environment in envvar ENVIRONMENT_NAME
+    // in this example we just set envvar in maven plugin 'exec', but can be set in k8s pod via ConfigMap
+    val env = Config.create(ConfigSources.environmentVariables())
+    val branch = env[ENVIRONMENT_NAME_PROPERTY].asString().orElse("master")
+    println("Loading from branch $branch")
+    val config = Config.create(
+        GitConfigSource.builder()
+            .path("application.conf")
+            .uri(URI.create("https://github.com/helidonrobot/test-config.git"))
+            .branch(branch)
+            .build()
+    )
+    println("Greeting is " + config["greeting"].asString().get())
+    assert(config["greeting"].asString().get() == "hello")
 }

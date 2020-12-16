@@ -38,7 +38,7 @@ class InitializeDb private constructor() {
         @JvmStatic
         fun init(dbClient: DbClient) {
             try {
-                if (!PokemonMain.isMongo) {
+                if (!isMongo) {
                     initSchema(dbClient)
                 }
                 initData(dbClient)
@@ -56,10 +56,10 @@ class InitializeDb private constructor() {
             try {
                 dbClient.execute { exec: DbExecute ->
                     exec
-                            .namedDml("create-types")
-                            .flatMapSingle { exec.namedDml("create-pokemons") }
+                        .namedDml("create-types")
+                        .flatMapSingle { exec.namedDml("create-pokemons") }
                 }
-                        .await()
+                    .await()
             } catch (ex1: Exception) {
                 System.out.printf("Could not create tables: %s", ex1.message)
                 try {
@@ -79,9 +79,9 @@ class InitializeDb private constructor() {
             // Init pokemon types
             dbClient.execute { exec: DbExecute ->
                 initTypes(exec)
-                        .flatMapSingle { initPokemons(exec) }
+                    .flatMapSingle { initPokemons(exec) }
             }
-                    .await()
+                .await()
         }
 
         /**
@@ -92,10 +92,10 @@ class InitializeDb private constructor() {
         private fun deleteData(dbClient: DbClient) {
             dbClient.execute { exec: DbExecute ->
                 exec
-                        .namedDelete("delete-all-pokemons")
-                        .flatMapSingle { exec.namedDelete("delete-all-types") }
+                    .namedDelete("delete-all-pokemons")
+                    .flatMapSingle { exec.namedDelete("delete-all-types") }
             }
-                    .await()
+                .await()
         }
 
         /**
@@ -120,7 +120,8 @@ class InitializeDb private constructor() {
                     val type = typeValue.asJsonObject()
                     stage = stage.flatMapSingle {
                         exec.namedInsert(
-                                "insert-type", type.getInt("id"), type.getString("name"))
+                            "insert-type", type.getInt("id"), type.getString("name")
+                        )
                     }
                 }
             }
@@ -149,8 +150,10 @@ class InitializeDb private constructor() {
                     val pokemon = pokemonValue.asJsonObject()
                     stage = stage.flatMapSingle {
                         exec
-                                .namedInsert("insert-pokemon",
-                                        pokemon.getInt("id"), pokemon.getString("name"), pokemon.getInt("idType"))
+                            .namedInsert(
+                                "insert-pokemon",
+                                pokemon.getInt("id"), pokemon.getString("name"), pokemon.getInt("idType")
+                            )
                     }
                 }
             }

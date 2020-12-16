@@ -20,13 +20,14 @@ import io.helidon.config.ConfigSources
 import io.helidon.kotlin.security.examples.spi.AtnProviderSync.AtnObject
 import io.helidon.kotlin.security.examples.spi.AtnProviderSync.AtnObject.Companion.from
 import io.helidon.security.*
-import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import java.util.*
 import java.util.Map
+import org.hamcrest.CoreMatchers.`is` as Is
+import org.mockito.Mockito.`when` as When
 
 /**
  * Unit test for [AtnProviderSync].
@@ -35,17 +36,17 @@ class AtnProviderSyncTest {
     @Test
     fun testAbstain() {
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.user()).thenReturn(Optional.empty())
-        Mockito.`when`(context.service()).thenReturn(Optional.empty())
+        When(context.user()).thenReturn(Optional.empty())
+        When(context.service()).thenReturn(Optional.empty())
         val se = SecurityEnvironment.create()
         val ep = EndpointConfig.create()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         val provider = AtnProviderSync()
         val response = provider.syncAuthenticate(request)
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.ABSTAIN))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.ABSTAIN))
     }
 
 
@@ -55,16 +56,16 @@ class AtnProviderSyncTest {
         obj.size = SIZE
         obj.value = VALUE
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.user()).thenReturn(Optional.empty())
-        Mockito.`when`(context.service()).thenReturn(Optional.empty())
+        When(context.user()).thenReturn(Optional.empty())
+        When(context.service()).thenReturn(Optional.empty())
         val se = SecurityEnvironment.create()
         val ep = EndpointConfig.builder()
                 .customObject(AtnObject::class.java, obj)
                 .build()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         testSuccess(request)
     }
 
@@ -75,16 +76,16 @@ class AtnProviderSyncTest {
                         "size", SIZE.toString()))
         )
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.user()).thenReturn(Optional.empty())
-        Mockito.`when`(context.service()).thenReturn(Optional.empty())
+        When(context.user()).thenReturn(Optional.empty())
+        When(context.service()).thenReturn(Optional.empty())
         val se = SecurityEnvironment.create()
         val ep = EndpointConfig.builder()
                 .config("atn-object", config)
                 .build()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         testSuccess(request)
     }
 
@@ -94,19 +95,19 @@ class AtnProviderSyncTest {
                 ConfigSources.create(Map.of("atn-object.size", SIZE.toString()))
         )
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.user()).thenReturn(Optional.empty())
-        Mockito.`when`(context.service()).thenReturn(Optional.empty())
+        When(context.user()).thenReturn(Optional.empty())
+        When(context.service()).thenReturn(Optional.empty())
         val se = SecurityEnvironment.create()
         val ep = EndpointConfig.builder()
                 .config("atn-object", config)
                 .build()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
-        Mockito.`when`(request.endpointConfig()).thenReturn(ep)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
+        When(request.endpointConfig()).thenReturn(ep)
         val provider = AtnProviderSync()
         val response = provider.syncAuthenticate(request)
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.FAILURE))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.FAILURE))
     }
 
     @Test
@@ -127,13 +128,13 @@ class AtnProviderSyncTest {
     }
 
     private fun validateResponse(response: AuthenticationResponse) {
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.SUCCESS))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.SUCCESS))
         val maybeuser = response.user()
         maybeuser.ifPresentOrElse({ user: Subject ->
-            MatcherAssert.assertThat(user.principal().id(), CoreMatchers.`is`(VALUE))
+            MatcherAssert.assertThat(user.principal().id(), Is(VALUE))
             val roles = Security.getRoles(user)
-            MatcherAssert.assertThat(roles.size, CoreMatchers.`is`(1))
-            MatcherAssert.assertThat(roles.iterator().next(), CoreMatchers.`is`("role_" + SIZE))
+            MatcherAssert.assertThat(roles.size, Is(1))
+            MatcherAssert.assertThat(roles.iterator().next(), Is("role_$SIZE"))
         }) { Assertions.fail<Any>("User should have been returned") }
     }
 

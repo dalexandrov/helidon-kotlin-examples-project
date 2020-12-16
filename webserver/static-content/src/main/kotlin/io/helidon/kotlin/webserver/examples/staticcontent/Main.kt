@@ -23,44 +23,36 @@ import io.helidon.webserver.*
  * Application demonstrates combination of the static content with a simple REST API. It counts accesses and display it
  * on the WEB page.
  */
-object Main {
-    /**
-     * Creates new [Routing].
-     *
-     * @return the new instance
-     */
-    private fun createRouting(): Routing {
-        return Routing.builder()
-                .any("/", Handler { _: ServerRequest?, res: ServerResponse ->
-                    // showing the capability to run on any path, and redirecting from root
-                    res.status(Http.Status.MOVED_PERMANENTLY_301)
-                    res.headers().put(Http.Header.LOCATION, "/ui")
-                    res.send()
-                })
-                .register("/ui", CounterService())
-                .register("/ui", StaticContentSupport.builder("WEB")
-                        .welcomeFileName("index.html")
-                        .build())
+
+
+private fun createRouting(): Routing {
+    return Routing.builder()
+        .any("/", Handler { _: ServerRequest?, res: ServerResponse ->
+            // showing the capability to run on any path, and redirecting from root
+            res.status(Http.Status.MOVED_PERMANENTLY_301)
+            res.headers().put(Http.Header.LOCATION, "/ui")
+            res.send()
+        })
+        .register("/ui", CounterService())
+        .register(
+            "/ui", StaticContentSupport.builder("WEB")
+                .welcomeFileName("index.html")
                 .build()
-    }
+        )
+        .build()
+}
 
-    /**
-     * A java main class.
-     *
-     * @param args command line arguments.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val server = WebServer.builder(createRouting())
-                .port(8080)
-                .addMediaSupport(JsonpSupport.create())
-                .build()
 
-        // Start the server and print some info.
-        server.start().thenAccept { ws: WebServer -> println("WEB server is up! http://localhost:" + ws.port()) }
+fun main() {
+    val server = WebServer.builder(createRouting())
+        .port(8080)
+        .addMediaSupport(JsonpSupport.create())
+        .build()
 
-        // Server threads are not demon. NO need to block. Just react.
-        server.whenShutdown()
-                .thenRun { println("WEB server is DOWN. Good bye!") }
-    }
+    // Start the server and print some info.
+    server.start().thenAccept { ws: WebServer -> println("WEB server is up! http://localhost:" + ws.port()) }
+
+    // Server threads are not demon. NO need to block. Just react.
+    server.whenShutdown()
+        .thenRun { println("WEB server is DOWN. Good bye!") }
 }

@@ -104,6 +104,11 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.helidon.kotlin.examples</groupId>
+            <artifactId>kotlin-support</artifactId>
+            <version>2.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

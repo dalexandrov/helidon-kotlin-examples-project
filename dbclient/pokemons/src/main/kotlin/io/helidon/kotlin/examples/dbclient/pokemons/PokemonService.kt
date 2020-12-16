@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.examples.dbclient.pokemons
 
+import asType
 import io.helidon.common.http.Http
 import io.helidon.dbclient.DbClient
 import io.helidon.dbclient.DbExecute
@@ -67,7 +68,7 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
      */
     private fun listTypes(request: ServerRequest, response: ServerResponse) {
         response.send(dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all-types") }
-                .map { it: DbRow -> it.`as`(JsonObject::class.java) }, JsonObject::class.java)
+                .map { it: DbRow -> it.asType(JsonObject::class.java) }, JsonObject::class.java)
     }
 
     /**
@@ -80,7 +81,7 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
      */
     private fun listPokemons(request: ServerRequest, response: ServerResponse) {
         response.send(dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all-pokemons") }
-                .map { it: DbRow -> it.`as`(JsonObject::class.java) }, JsonObject::class.java)
+                .map { it: DbRow -> it.asType(JsonObject::class.java) }, JsonObject::class.java)
     }
 
     /**
@@ -223,7 +224,7 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
      * @param response server response
      */
     private fun sendRow(row: DbRow, response: ServerResponse) {
-        response.send(row.`as`(JsonObject::class.java))
+        response.send(row.asType(JsonObject::class.java))
     }
 
     /**

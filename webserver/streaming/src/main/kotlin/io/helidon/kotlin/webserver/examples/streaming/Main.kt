@@ -18,34 +18,28 @@ package io.helidon.kotlin.webserver.examples.streaming
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 
+
+const val LARGE_FILE_RESOURCE = "/large-file.bin"
+
 /**
- * Class Main. Entry point to streaming application.
+ * Creates new [Routing].
+ *
+ * @return the new instance
  */
-object Main {
-    const val LARGE_FILE_RESOURCE = "/large-file.bin"
+private fun createRouting(): Routing {
+    return Routing.builder()
+        .register(StreamingService())
+        .build()
+}
 
-    /**
-     * Creates new [Routing].
-     *
-     * @return the new instance
-     */
-    private fun createRouting(): Routing {
-        return Routing.builder()
-                .register(StreamingService())
-                .build()
-    }
-
-    /**
-     * A java main class.
-     *
-     * @param args command line arguments.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val server = WebServer.builder(createRouting())
-                .port(8080)
-                .build()
-        server.start().thenAccept { ws: WebServer -> println("Steaming service is up at http://localhost:" + ws.port()) }
-        server.whenShutdown().thenRun { println("Streaming service is down") }
-    }
+/**
+ * A java main class.
+ *
+ */
+fun main() {
+    val server = WebServer.builder(createRouting())
+        .port(8080)
+        .build()
+    server.start().thenAccept { ws: WebServer -> println("Steaming service is up at http://localhost:" + ws.port()) }
+    server.whenShutdown().thenRun { println("Streaming service is down") }
 }

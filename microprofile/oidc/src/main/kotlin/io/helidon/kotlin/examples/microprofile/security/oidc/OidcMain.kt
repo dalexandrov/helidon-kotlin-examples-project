@@ -20,27 +20,23 @@ import io.helidon.config.ConfigSources
 import io.helidon.microprofile.server.Server
 
 /**
- * Main class for MP.
+ * Main for MP.
  */
-object OidcMain {
-    /**
-     * Start the application.
-     * @param args ignored.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val server = Server.builder()
-                .config(buildConfig())
-                .build()
-                .start()
-        println("http://localhost:" + server.port() + "/test")
-    }
 
-    private fun buildConfig(): Config {
-        return Config.builder()
-                .sources( // you can use this file to override the defaults that are built-in
-                        ConfigSources.file(System.getProperty("user.home") + "/helidon/conf/examples.yaml").optional(),  // in jar file (see src/main/resources/application.yaml)
-                        ConfigSources.classpath("application.yaml"))
-                .build()
-    }
+fun main() {
+    val server = Server.builder()
+        .config(buildConfig())
+        .build()
+        .start()
+    println("http://localhost:" + server.port() + "/test")
+}
+
+private fun buildConfig(): Config {
+    return Config.builder()
+        .sources( // you can use this file to override the defaults that are built-in
+            ConfigSources.file(System.getProperty("user.home") + "/helidon/conf/examples.yaml")
+                .optional(),  // in jar file (see src/main/resources/application.yaml)
+            ConfigSources.classpath("application.yaml")
+        )
+        .build()
 }

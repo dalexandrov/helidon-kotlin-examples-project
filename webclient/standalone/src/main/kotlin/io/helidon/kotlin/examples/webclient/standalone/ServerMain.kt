@@ -23,71 +23,64 @@ import io.helidon.webserver.WebServer
 import java.util.concurrent.CompletionStage
 
 /**
- * The application main class.
+ * The application main .
  */
-object ServerMain {
-    /**
-     * Returns current port of the running server.
-     *
-     * @return server port
-     */
-    @JvmStatic
-    var serverPort = -1
-        private set
 
-    /**
-     * WebServer starting method.
-     *
-     * @param args starting arguments
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startServer()
+var serverPort = -1
+    private set
+
+/**
+ * WebServer starting method.
+ *
+ * @param args starting arguments
+ */
+
+fun main() {
+    startServer()
+}
+
+/**
+ * Start the server.
+ *
+ * @return the created [WebServer] instance
+ */
+
+fun startServer(): CompletionStage<WebServer> {
+    // By default this will pick up application.yaml from the classpath
+    val config = Config.create()
+    val server = WebServer.builder(createRouting(config))
+        .config(config["server"])
+        .addMediaSupport(JsonpSupport.create())
+        .build()
+
+    // Try to start the server. If successful, print some info and arrange to
+    // print a message at shutdown. If unsuccessful, print the exception.
+    val start: CompletionStage<WebServer> = server.start()
+    start.thenAccept { ws: WebServer ->
+        serverPort = ws.port()
+        println("WEB server is up! http://localhost:" + ws.port() + "/greet")
+        ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+    }.exceptionally { t: Throwable ->
+        System.err.println("Startup failed: " + t.message)
+        t.printStackTrace(System.err)
+        null
     }
 
-    /**
-     * Start the server.
-     *
-     * @return the created [WebServer] instance
-     */
-    @JvmStatic
-    fun startServer(): CompletionStage<WebServer> {
-        // By default this will pick up application.yaml from the classpath
-        val config = Config.create()
-        val server = WebServer.builder(createRouting(config))
-                .config(config["server"])
-                .addMediaSupport(JsonpSupport.create())
-                .build()
+    // Server threads are not daemon. No need to block. Just react.
+    return start
+}
 
-        // Try to start the server. If successful, print some info and arrange to
-        // print a message at shutdown. If unsuccessful, print the exception.
-        val start: CompletionStage<WebServer> = server.start()
-        start.thenAccept { ws: WebServer ->
-            serverPort = ws.port()
-            println("WEB server is up! http://localhost:" + ws.port() + "/greet")
-            ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-        }.exceptionally { t: Throwable ->
-            System.err.println("Startup failed: " + t.message)
-            t.printStackTrace(System.err)
-            null
-        }
-
-        // Server threads are not daemon. No need to block. Just react.
-        return start
-    }
-
-    /**
-     * Creates new [Routing].
-     *
-     * @param config configuration of this server
-     * @return routing configured with JSON support, a health check, and a service
-     */
-    private fun createRouting(config: Config): Routing {
-        val metrics = MetricsSupport.create()
-        val greetService = GreetService(config)
-        return Routing.builder()
-                .register(metrics)
-                .register("/greet", greetService)
-                .build()
-    }
+/**
+ * Creates new [Routing].
+ *
+ * @param config configuration of this server
+ * @return routing configured with JSON support, a health check, and a service
+ */
+private fun createRouting(config: Config): Routing {
+    val metrics = MetricsSupport.create()
+    val greetService = GreetService(config)
+    return Routing.builder()
+        .register(metrics)
+        .register("/greet", greetService)
+        .build()
 }

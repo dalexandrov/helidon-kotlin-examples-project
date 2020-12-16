@@ -28,106 +28,94 @@ import java.io.IOException
 import java.util.logging.LogManager
 import java.util.logging.Logger
 
+class Main
 /**
  * Simple Hello World rest application.
  */
-object Main {
-    /**
-     * Application main entry point.
-     * @param args command line arguments.
-     * @throws IOException if there are problems reading logging properties
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startServer()
-    }
+fun main() {
+    startServer()
+}
 
-    /**
-     * Start the server.
-     * @return the created [WebServer] instance
-     * @throws IOException if there are problems reading logging properties
-     */
-    @JvmStatic
-    @Throws(IOException::class)
-    fun startServer(): WebServer {
+/**
+ * Start the server.
+ * @return the created [WebServer] instance
+ * @throws IOException if there are problems reading logging properties
+ */
+fun startServer(): WebServer {
 
-        // load logging configuration
-        Main::class.java.getResourceAsStream("/logging.properties").use { `is` ->
-            LogManager.getLogManager()
-                    .readConfiguration(`is`)
+    // load logging configuration
+    Main::class.java.getResourceAsStream("/logging.properties").use(LogManager.getLogManager()::readConfiguration)
+
+    // By default this will pick up application.yaml from the classpath
+    val config = Config.create()
+
+    // Get webserver config from the "server" section of application.yaml
+    val server = WebServer.builder(createRouting(config))
+        .config(config["server"])
+        .addMediaSupport(JsonpSupport.create())
+        .build()
+
+    // Try to start the server. If successful, print some info and arrange to
+    // print a message at shutdown. If unsuccessful, print the exception.
+    server.start()
+        .thenAccept { ws: WebServer ->
+            println(
+                "WEB server is up! http://localhost:" + ws.port() + "/greet"
+            )
+            ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+        }
+        .exceptionally { t: Throwable ->
+            System.err.println("Startup failed: " + t.message)
+            t.printStackTrace(System.err)
+            null
         }
 
-        // By default this will pick up application.yaml from the classpath
-        val config = Config.create()
+    // Server threads are not daemon. No need to block. Just react.
+    return server
+}
 
-        // Get webserver config from the "server" section of application.yaml
-        val server = WebServer.builder(createRouting(config))
-                .config(config["server"])
-                .addMediaSupport(JsonpSupport.create())
-                .build()
+/**
+ * Creates new [Routing].
+ *
+ * @return routing configured with JSON support, a health check, and a service
+ * @param config configuration of this server
+ */
+private fun createRouting(config: Config): Routing {
+    val metrics = MetricsSupport.create()
+    val greetService = GreetService(config)
+    val health = HealthSupport.builder()
+        .addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
+        .build()
 
-        // Try to start the server. If successful, print some info and arrange to
-        // print a message at shutdown. If unsuccessful, print the exception.
-        server.start()
-                .thenAccept { ws: WebServer ->
-                    println(
-                            "WEB server is up! http://localhost:" + ws.port() + "/greet")
-                    ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-                }
-                .exceptionally { t: Throwable ->
-                    System.err.println("Startup failed: " + t.message)
-                    t.printStackTrace(System.err)
-                    null
-                }
+    // Note: Add the CORS routing *before* registering the GreetService routing.
+    return Routing.builder()
+        .register(health) // Health at "/health"
+        .register(metrics) // Metrics at "/metrics"
+        .register("/greet", corsSupportForGreeting(config), greetService)
+        .build()
+}
 
-        // Server threads are not daemon. No need to block. Just react.
-        return server
+private fun corsSupportForGreeting(config: Config): CorsSupport {
+
+    // The default CorsSupport object (obtained using CorsSupport.create()) allows sharing for any HTTP method and with any
+    // origin. Using CorsSupport.create(Config) with a missing config node yields a default CorsSupport, which might not be
+    // what you want. This example warns if either expected config node is missing and then continues with the default.
+    val restrictiveConfig = config["restrictive-cors"]
+    if (!restrictiveConfig.exists()) {
+        Logger.getLogger(Main::class.java.name)
+            .warning("Missing restrictive config; continuing with default CORS support")
     }
+    val corsBuilder = CorsSupport.builder()
 
-    /**
-     * Creates new [Routing].
-     *
-     * @return routing configured with JSON support, a health check, and a service
-     * @param config configuration of this server
-     */
-    private fun createRouting(config: Config): Routing {
-        val metrics = MetricsSupport.create()
-        val greetService = GreetService(config)
-        val health = HealthSupport.builder()
-                .addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
-                .build()
-
-        // Note: Add the CORS routing *before* registering the GreetService routing.
-        return Routing.builder()
-                .register(health) // Health at "/health"
-                .register(metrics) // Metrics at "/metrics"
-                .register("/greet", corsSupportForGreeting(config), greetService)
-                .build()
-    }
-
-    private fun corsSupportForGreeting(config: Config): CorsSupport {
-
-        // The default CorsSupport object (obtained using CorsSupport.create()) allows sharing for any HTTP method and with any
-        // origin. Using CorsSupport.create(Config) with a missing config node yields a default CorsSupport, which might not be
-        // what you want. This example warns if either expected config node is missing and then continues with the default.
-        val restrictiveConfig = config["restrictive-cors"]
-        if (!restrictiveConfig.exists()) {
-            Logger.getLogger(Main::class.java.name)
-                    .warning("Missing restrictive config; continuing with default CORS support")
+    // Use possible overrides first.
+    config["cors"]
+        .ifExists { c: Config? ->
+            Logger.getLogger(Main::class.java.name).info("Using the override configuration")
+            corsBuilder.mappedConfig(c)
         }
-        val corsBuilder = CorsSupport.builder()
-
-        // Use possible overrides first.
-        config["cors"]
-                .ifExists { c: Config? ->
-                    Logger.getLogger(Main::class.java.name).info("Using the override configuration")
-                    corsBuilder.mappedConfig(c)
-                }
-        corsBuilder
-                .config(restrictiveConfig) // restricted sharing for PUT, DELETE
-                .addCrossOrigin(CrossOriginConfig.create()) // open sharing for other methods
-                .build()
-        return corsBuilder.build()
-    }
+    corsBuilder
+        .config(restrictiveConfig) // restricted sharing for PUT, DELETE
+        .addCrossOrigin(CrossOriginConfig.create()) // open sharing for other methods
+        .build()
+    return corsBuilder.build()
 }

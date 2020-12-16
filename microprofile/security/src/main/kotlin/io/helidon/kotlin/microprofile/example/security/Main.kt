@@ -22,21 +22,16 @@ import java.util.concurrent.TimeUnit
  * Main class to start the application.
  * See resources/META-INF/microprofile-config.properties.
  */
-object Main {
-    /**
-     * Run this example.
-     *
-     * @param args command line arguments (ignored)
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        var now = System.nanoTime()
-        val server = Server.create(StaticContentApp::class.java, OtherApp::class.java)
-                .start()
-        now = System.nanoTime() - now
-        println("Start server: " + TimeUnit.MILLISECONDS.convert(now, TimeUnit.NANOSECONDS))
-        println("Endpoint available at http://localhost:" + server.port() + "/static/helloworld")
-        println("Alternative endpoint (second application) available at http://localhost:" + server
-                .port() + "/other/helloworld")
-    }
+
+fun main() {
+    var now = System.nanoTime()
+    val server = Server.create(StaticContentApp::class.java, OtherApp::class.java)
+        .start()
+    now = System.nanoTime() - now
+    println("Start server: " + TimeUnit.MILLISECONDS.convert(now, TimeUnit.NANOSECONDS))
+    println("Endpoint available at http://localhost:" + server.port() + "/static/helloworld")
+    println(
+        "Alternative endpoint (second application) available at http://localhost:" + server
+            .port() + "/other/helloworld"
+    )
 }

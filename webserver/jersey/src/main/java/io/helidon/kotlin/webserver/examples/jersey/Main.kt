@@ -19,7 +19,6 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.jersey.JerseySupport
 import org.glassfish.jersey.server.ResourceConfig
-import java.io.IOException
 import java.util.concurrent.CompletionStage
 import java.util.logging.LogManager
 
@@ -29,47 +28,43 @@ import java.util.logging.LogManager
  * @see .main
  * @see .startServer
  */
-object Main {
-    /**
-     * Run the Jersey WebServer Example.
-     *
-     * @param args arguments are not used
-     * @throws IOException in case of an IO error
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        // configure logging in order to not have the standard JVM defaults
-        LogManager.getLogManager().readConfiguration(Main::class.java.getResourceAsStream("/logging.properties"))
+class Main
 
-        // start the server on port 8080
-        startServer(8080)
-    }
+fun main() {
+    // configure logging in order to not have the standard JVM defaults
+    LogManager.getLogManager().readConfiguration(Main::class.java.getResourceAsStream("/logging.properties"))
 
-    /**
-     * Start the WebServer based on the provided configuration. When running from
-     * a test, pass [null] to have a dynamically allocated port
-     * the server listens on.
-     *
-     * @param port port to start server on
-     * @return a completion stage indicating that the server has started and is ready to
-     * accept http requests
-     */
-    @JvmStatic
-    fun startServer(port: Int): CompletionStage<WebServer> {
-        val webServer = WebServer.builder(
-                Routing.builder() // register a Jersey Application at the '/jersey' context path
-                        .register("/jersey",
-                                JerseySupport.create(ResourceConfig(HelloWorld::class.java)))
-                        .build())
-                .port(port)
-                .build()
-        return webServer.start()
-                .whenComplete { server: WebServer, _: Throwable? ->
-                    println("Jersey WebServer started.")
-                    println("To stop the application, hit CTRL+C")
-                    println("Try the hello world resource at: http://localhost:" + server
-                            .port() + "/jersey/hello")
-                }
-    }
+    // start the server on port 8080
+    startServer(8080)
+}
+
+/**
+ * Start the WebServer based on the provided configuration. When running from
+ * a test, pass to have a dynamically allocated port
+ * the server listens on.
+ *
+ * @param port port to start server on
+ * @return a completion stage indicating that the server has started and is ready to
+ * accept http requests
+ */
+fun startServer(port: Int): CompletionStage<WebServer> {
+    val webServer = WebServer.builder(
+        Routing.builder() // register a Jersey Application at the '/jersey' context path
+            .register(
+                "/jersey",
+                JerseySupport.create(ResourceConfig(HelloWorld::class.java))
+            )
+            .build()
+    )
+        .port(port)
+        .build()
+    return webServer.start()
+        .whenComplete { server: WebServer, _: Throwable? ->
+            println("Jersey WebServer started.")
+            println("To stop the application, hit CTRL+C")
+            println(
+                "Try the hello world resource at: http://localhost:" + server
+                    .port() + "/jersey/hello"
+            )
+        }
 }

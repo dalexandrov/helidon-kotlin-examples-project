@@ -20,19 +20,11 @@ import io.helidon.microprofile.server.Server
 /**
  * Starts the server.
  */
-object Main {
-    /**
-     * Main method.
-     *
-     * @param args args
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startServer()
-    }
 
-    @JvmStatic
-    fun startServer(): Server {
-        return Server.create().start()
-    }
+fun main() {
+    startServer()
+}
+
+fun startServer(): Server {
+    return Server.create().start()
 }

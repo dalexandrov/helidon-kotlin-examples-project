@@ -17,7 +17,6 @@ package io.helidon.kotlin.examples.integrations.cdi.pokemon
 
 import io.helidon.microprofile.server.Server
 import org.hamcrest.MatcherAssert
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -28,6 +27,7 @@ import javax.ws.rs.client.Client
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.client.Entity
 import javax.ws.rs.core.MediaType
+import org.hamcrest.Matchers.`is` as Is
 
 internal class MainTest {
     @Test
@@ -35,24 +35,24 @@ internal class MainTest {
         val types = client.target(getConnectionString("/type"))
                 .request()
                 .get(JsonArray::class.java)
-        MatcherAssert.assertThat(types.size, Matchers.`is`(18))
+        MatcherAssert.assertThat(types.size, Is(18))
     }
 
     @Test
     fun testPokemon() {
-        MatcherAssert.assertThat(pokemonCount, Matchers.`is`(6))
+        MatcherAssert.assertThat(pokemonCount, Is(6))
         var pokemon = client.target(getConnectionString("/pokemon/1"))
                 .request()
                 .get(Pokemon::class.java)
-        MatcherAssert.assertThat(pokemon.name, Matchers.`is`("Bulbasaur"))
+        MatcherAssert.assertThat(pokemon.name, Is("Bulbasaur"))
         pokemon = client.target(getConnectionString("/pokemon/name/Charmander"))
                 .request()
                 .get(Pokemon::class.java)
-        MatcherAssert.assertThat(pokemon.type, Matchers.`is`(10))
+        MatcherAssert.assertThat(pokemon.type, Is(10))
         var response = client.target(getConnectionString("/pokemon/1"))
                 .request()
                 .get()
-        MatcherAssert.assertThat(response.status, Matchers.`is`(200))
+        MatcherAssert.assertThat(response.status, Is(200))
         val test = Pokemon()
         test.type = 1
         test.id = 100
@@ -60,13 +60,13 @@ internal class MainTest {
         response = client.target(getConnectionString("/pokemon"))
                 .request()
                 .post(Entity.entity(test, MediaType.APPLICATION_JSON))
-        MatcherAssert.assertThat(response.status, Matchers.`is`(204))
-        MatcherAssert.assertThat(pokemonCount, Matchers.`is`(7))
+        MatcherAssert.assertThat(response.status, Is(204))
+        MatcherAssert.assertThat(pokemonCount, Is(7))
         response = client.target(getConnectionString("/pokemon/100"))
                 .request()
                 .delete()
-        MatcherAssert.assertThat(response.status, Matchers.`is`(204))
-        MatcherAssert.assertThat(pokemonCount, Matchers.`is`(6))
+        MatcherAssert.assertThat(response.status, Is(204))
+        MatcherAssert.assertThat(pokemonCount, Is(6))
     }
 
     private val pokemonCount: Int

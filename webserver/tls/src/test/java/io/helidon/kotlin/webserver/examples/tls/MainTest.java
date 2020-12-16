@@ -32,6 +32,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static io.helidon.kotlin.webserver.examples.tls.MainKt.startBuilderBasedServer;
+import static io.helidon.kotlin.webserver.examples.tls.MainKt.startConfigBasedServer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -47,10 +49,10 @@ class MainTest {
         Config config = Config.create(ConfigSources.classpath("test-application.yaml"),
                                       ConfigSources.classpath("application.yaml"));
 
-        configBasedServer = Main.startConfigBasedServer(config.get("config-based"))
+        configBasedServer = startConfigBasedServer(config.get("config-based"))
                 .toCompletableFuture()
                 .get();
-        builderBasedServer = Main.startBuilderBasedServer(config.get("builder-based"))
+        builderBasedServer = startBuilderBasedServer(config.get("builder-based"))
                 .toCompletableFuture()
                 .get();
 

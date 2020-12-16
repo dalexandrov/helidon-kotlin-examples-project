@@ -19,10 +19,10 @@ import io.helidon.security.AuditEvent
 import io.helidon.security.Security
 import io.helidon.security.SecurityEnvironment
 import io.helidon.security.spi.AuditProvider
-import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.Test
 import java.util.stream.Collectors
+import org.hamcrest.CoreMatchers.`is` as Is
 
 /**
  * Unit test for [Auditer].
@@ -48,6 +48,6 @@ class AuditerTest {
         val atzEvents = messages.stream()
                 .filter { event: AuditProvider.TracedAuditEvent -> event.eventType().startsWith(AuditEvent.AUTHZ_TYPE_PREFIX) }
                 .collect(Collectors.toList())
-        MatcherAssert.assertThat("We only expect a single authorization event", atzEvents.size, CoreMatchers.`is`(1))
+        MatcherAssert.assertThat("We only expect a single authorization event", atzEvents.size, Is(1))
     }
 }

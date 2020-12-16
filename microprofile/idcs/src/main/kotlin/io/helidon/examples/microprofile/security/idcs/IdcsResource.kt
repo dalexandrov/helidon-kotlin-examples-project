@@ -29,7 +29,7 @@ import javax.ws.rs.core.Response
  * JAX-RS resource.
  */
 @Path("/")
-class IdcsResource {
+open class IdcsResource {
     /**
      * A protected resource (authentication required).
      *
@@ -39,7 +39,7 @@ class IdcsResource {
     @GET
     @Path("/login")
     @Authenticated
-    fun login(@Context context: SecurityContext): String {
+    open fun login(@Context context: SecurityContext): String {
         return context.user().toString()
     }
 
@@ -54,7 +54,7 @@ class IdcsResource {
     @GET
     @Path("/login2")
     @Authenticated
-    fun login(@Context context: SecurityContext?, @QueryParam("target") redirectTo: String?): Response {
+    open fun login(@Context context: SecurityContext?, @QueryParam("target") redirectTo: String?): Response {
         return Response
                 .status(Response.Status.TEMPORARY_REDIRECT)
                 .header("Location", redirectTo)
@@ -73,7 +73,7 @@ class IdcsResource {
     @ScopeValidator.Scope("first_scope")
     //@ScopeValidator.Scope("second_scope") // A group defined in my IDCS domain !NOT SUPPORTED IN KOTLIN!
     @RoleValidator.Roles("my_admins")
-    fun scopes(@Context context: SecurityContext): String {
+    open fun scopes(@Context context: SecurityContext): String {
         return context.user().toString()
     }
 }

@@ -24,7 +24,7 @@ import javax.ws.rs.core.Application
  */
 @ApplicationScoped
 @ApplicationPath("/rest")
-class IdcsApplication : Application() {
+open class IdcsApplication : Application() {
     override fun getClasses(): Set<Class<*>> {
         return mutableSetOf<Class<*>>(IdcsResource::class.java)
     }

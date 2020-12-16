@@ -29,75 +29,69 @@ import java.util.logging.LogManager
 /**
  * Simple Hello World rest application.
  */
-object Main {
-    /**
-     * Application main entry point.
-     * @param args command line arguments.
-     * @throws IOException if there are problems reading logging properties
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startServer()
-    }
+class Main
 
-    /**
-     * Start the server.
-     * @return the created [WebServer] instance
-     * @throws IOException if there are problems reading logging properties
-     */
-    @JvmStatic
-    @Throws(IOException::class)
-    fun startServer(): WebServer {
+fun main() {
+    startServer()
+}
 
-        // load logging configuration
-        LogManager.getLogManager().readConfiguration(
-                Main::class.java.getResourceAsStream("/logging.properties"))
+/**
+ * Start the server.
+ * @return the created [WebServer] instance
+ * @throws IOException if there are problems reading logging properties
+ */
 
-        // By default this will pick up application.yaml from the classpath
-        val config = Config.create()
+fun startServer(): WebServer {
 
-        // Get webserver config from the "server" section of application.yaml and register JSON support
-        val server = WebServer.builder(createRouting(config))
-                .config(config["server"])
-                .addMediaSupport(JsonpSupport.create())
-                .build()
+    // load logging configuration
+    LogManager.getLogManager().readConfiguration(
+        Main::class.java.getResourceAsStream("/logging.properties")
+    )
 
-        // Try to start the server. If successful, print some info and arrange to
-        // print a message at shutdown. If unsuccessful, print the exception.
-        server.start()
-                .thenAccept { ws: WebServer ->
-                    println(
-                            "WEB server is up! http://localhost:" + ws.port() + "/greet")
-                    ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-                }
-                .exceptionally { t: Throwable ->
-                    System.err.println("Startup failed: " + t.message)
-                    t.printStackTrace(System.err)
-                    null
-                }
+    // By default this will pick up application.yaml from the classpath
+    val config = Config.create()
 
-        // Server threads are not daemon. No need to block. Just react.
-        return server
-    }
+    // Get webserver config from the "server" section of application.yaml and register JSON support
+    val server = WebServer.builder(createRouting(config))
+        .config(config["server"])
+        .addMediaSupport(JsonpSupport.create())
+        .build()
 
-    /**
-     * Creates new [Routing].
-     *
-     * @return routing configured with a health check, and a service
-     * @param config configuration of this server
-     */
-    private fun createRouting(config: Config): Routing {
-        val metrics = MetricsSupport.create()
-        val greetService = GreetService(config)
-        val health = HealthSupport.builder()
-                .addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
-                .build()
-        return Routing.builder()
-                .register(OpenAPISupport.create(config[OpenAPISupport.Builder.CONFIG_KEY]))
-                .register(health) // Health at "/health"
-                .register(metrics) // Metrics at "/metrics"
-                .register("/greet", greetService)
-                .build()
-    }
+    // Try to start the server. If successful, print some info and arrange to
+    // print a message at shutdown. If unsuccessful, print the exception.
+    server.start()
+        .thenAccept { ws: WebServer ->
+            println(
+                "WEB server is up! http://localhost:" + ws.port() + "/greet"
+            )
+            ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+        }
+        .exceptionally { t: Throwable ->
+            System.err.println("Startup failed: " + t.message)
+            t.printStackTrace(System.err)
+            null
+        }
+
+    // Server threads are not daemon. No need to block. Just react.
+    return server
+}
+
+/**
+ * Creates new [Routing].
+ *
+ * @return routing configured with a health check, and a service
+ * @param config configuration of this server
+ */
+private fun createRouting(config: Config): Routing {
+    val metrics = MetricsSupport.create()
+    val greetService = GreetService(config)
+    val health = HealthSupport.builder()
+        .addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
+        .build()
+    return Routing.builder()
+        .register(OpenAPISupport.create(config[OpenAPISupport.Builder.CONFIG_KEY]))
+        .register(health) // Health at "/health"
+        .register(metrics) // Metrics at "/metrics"
+        .register("/greet", greetService)
+        .build()
 }

@@ -18,22 +18,13 @@ package io.helidon.kotlin.examples.webclient.standalone
 import io.helidon.common.http.Http
 import io.helidon.common.reactive.Single
 import io.helidon.config.Config
-import io.helidon.kotlin.examples.webclient.standalone.ClientMain.followRedirects
-import io.helidon.kotlin.examples.webclient.standalone.ClientMain.performGetMethod
-import io.helidon.kotlin.examples.webclient.standalone.ClientMain.performPutMethod
-import io.helidon.kotlin.examples.webclient.standalone.ClientMain.saveResponseToFile
-import io.helidon.kotlin.examples.webclient.standalone.ServerMain.serverPort
-import io.helidon.kotlin.examples.webclient.standalone.ServerMain.startServer
 import io.helidon.media.jsonp.JsonpSupport
-import io.helidon.metrics.RegistryFactory
 import io.helidon.webclient.WebClient
 import io.helidon.webclient.WebClientServiceRequest
 import io.helidon.webclient.WebClientServiceResponse
 import io.helidon.webclient.spi.WebClientService
 import io.helidon.webserver.WebServer
-import org.eclipse.microprofile.metrics.MetricRegistry
 import org.hamcrest.MatcherAssert
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -43,23 +34,23 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.ExecutionException
-import java.util.function.Consumer
+import org.hamcrest.Matchers.`is` as Is
 
 /**
  * Test for verification of WebClient example.
  */
 class ClientMainTest {
-    private var webClient: WebClient? = null
-    private var testFile: Path? = null
+    private lateinit var webClient: WebClient
+    private lateinit var testFile: Path
 
     @BeforeEach
     @Throws(ExecutionException::class, InterruptedException::class)
     fun beforeEach() {
         testFile = Paths.get("test.txt")
         startServer()
-                .thenAccept { webServer: WebServer -> createWebClient(webServer.port()) }
-                .toCompletableFuture()
-                .get()
+            .thenAccept { webServer: WebServer -> createWebClient(webServer.port()) }
+            .toCompletableFuture()
+            .get()
     }
 
     @AfterEach
@@ -71,9 +62,9 @@ class ClientMainTest {
     private fun createWebClient(port: Int, vararg services: WebClientService) {
         val config = Config.create()
         val builder = WebClient.builder()
-                .baseUri("http://localhost:$port/greet")
-                .config(config["client"])
-                .addMediaSupport(JsonpSupport.create())
+            .baseUri("http://localhost:$port/greet")
+            .config(config["client"])
+            .addMediaSupport(JsonpSupport.create())
         for (service in services) {
             builder.addService(service)
         }
@@ -83,39 +74,39 @@ class ClientMainTest {
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun testPerformPutAndGetMethod() {
-        performGetMethod(webClient!!)
-                .thenAccept(Consumer { it: String? -> MatcherAssert.assertThat(it, Matchers.`is`("{\"message\":\"Hello World!\"}")) })
-                .thenCompose { it: Void? -> performPutMethod(webClient!!) }
-                .thenCompose { it: Void? -> performGetMethod(webClient!!) }
-                .thenAccept { it: String? -> MatcherAssert.assertThat(it, Matchers.`is`("{\"message\":\"Hola World!\"}")) }
-                .toCompletableFuture()
-                .get()
+        performGetMethod(webClient)
+            .thenAccept { MatcherAssert.assertThat(it, Is("{\"message\":\"Hello World!\"}")) }
+            .thenCompose { performPutMethod(webClient) }
+            .thenCompose { performGetMethod(webClient) }
+            .thenAccept { MatcherAssert.assertThat(it, Is("{\"message\":\"Hola World!\"}")) }
+            .toCompletableFuture()
+            .get()
     }
 
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun testPerformRedirect() {
         createWebClient(serverPort, RedirectClientServiceTest())
-        followRedirects(webClient!!)
-                .thenAccept(Consumer { it: String? -> MatcherAssert.assertThat(it, Matchers.`is`("{\"message\":\"Hello World!\"}")) })
-                .toCompletableFuture()
-                .get()
+        followRedirects(webClient)
+            .thenAccept { MatcherAssert.assertThat(it, Is("{\"message\":\"Hello World!\"}")) }
+            .toCompletableFuture()
+            .get()
     }
 
     @Test
     @Throws(InterruptedException::class, ExecutionException::class)
     fun testFileDownload() {
-        saveResponseToFile(webClient!!)
-                .thenAccept(Consumer { it: Void? -> MatcherAssert.assertThat(Files.exists(testFile), Matchers.`is`(true)) })
-                .thenAccept { it: Void? ->
-                    try {
-                        MatcherAssert.assertThat(Files.readString(testFile), Matchers.`is`("{\"message\":\"Hello World!\"}"))
-                    } catch (e: IOException) {
-                        Assertions.fail<Any>(e)
-                    }
+        saveResponseToFile(webClient)
+            .thenAccept { MatcherAssert.assertThat(Files.exists(testFile), Is(true)) }
+            .thenAccept {
+                try {
+                    MatcherAssert.assertThat(Files.readString(testFile), Is("{\"message\":\"Hello World!\"}"))
+                } catch (e: IOException) {
+                    Assertions.fail<Any>(e)
                 }
-                .toCompletableFuture()
-                .get()
+            }
+            .toCompletableFuture()
+            .get()
     }
 
 
@@ -123,19 +114,14 @@ class ClientMainTest {
         private val redirect = false
         override fun request(request: WebClientServiceRequest): Single<WebClientServiceRequest> {
             request.whenComplete()
-                    .thenAccept { response: WebClientServiceResponse ->
-                        if (response.status() === Http.Status.MOVED_PERMANENTLY_301 && redirect) {
-                            Assertions.fail<Any>("Received second redirect! Only one redirect expected here.")
-                        } else if (response.status() === Http.Status.OK_200 && !redirect) {
-                            Assertions.fail<Any>("There was status 200 without status 301 before it.")
-                        }
+                .thenAccept { response: WebClientServiceResponse ->
+                    if (response.status() === Http.Status.MOVED_PERMANENTLY_301 && redirect) {
+                        Assertions.fail<Any>("Received second redirect! Only one redirect expected here.")
+                    } else if (response.status() === Http.Status.OK_200 && !redirect) {
+                        Assertions.fail<Any>("There was status 200 without status 301 before it.")
                     }
+                }
             return Single.just(request)
         }
-    }
-
-    companion object {
-        private val METRIC_REGISTRY = RegistryFactory.getInstance()
-                .getRegistry(MetricRegistry.Type.APPLICATION)
     }
 }

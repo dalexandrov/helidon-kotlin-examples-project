@@ -15,11 +15,11 @@
  */
 package io.helidon.kotlin.webserver.examples.opentracing
 
+import asSingle
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webserver.*
-import java.io.IOException
 import java.util.logging.LogManager
 
 /**
@@ -30,44 +30,39 @@ import java.util.logging.LogManager
  *
  * @see io.helidon.tracing.zipkin.ZipkinTracerBuilder
  */
-object Main {
-    /**
-     * Run the OpenTracing application.
-     *
-     * @param args not used
-     * @throws IOException in case of an error
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
+class Main
 
-        // configure logging in order to not have the standard JVM defaults
-        LogManager.getLogManager().readConfiguration(Main::class.java.getResourceAsStream("/logging.properties"))
-        val config = Config.builder()
-                .sources(ConfigSources.environmentVariables())
+fun main() {
+
+    // configure logging in order to not have the standard JVM defaults
+    LogManager.getLogManager().readConfiguration(Main::class.java.getResourceAsStream("/logging.properties"))
+    val config = Config.builder()
+        .sources(ConfigSources.environmentVariables())
+        .build()
+    val webServer = WebServer.builder(
+        Routing.builder()
+            .any(Handler { req: ServerRequest, _: ServerResponse? ->
+                println("Received another request.")
+                req.next()
+            })["/test", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") }]
+            .post("/hello", Handler { req: ServerRequest, res: ServerResponse ->
+                req.content()
+                    .asSingle(String::class.java)
+                    .thenAccept { s: String -> res.send("Hello: $s") }
+                    .exceptionally { t: Throwable? ->
+                        req.next(t)
+                        null
+                    }
+            })
+    )
+        .port(8080)
+        .tracer(
+            TracerBuilder.create(config["tracing"])
+                .serviceName("demo-first")
+                .registerGlobal(true)
                 .build()
-        val webServer = WebServer.builder(
-                Routing.builder()
-                        .any(Handler { req: ServerRequest, _: ServerResponse? ->
-                            println("Received another request.")
-                            req.next()
-                        })["/test", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") }]
-                        .post("/hello", Handler { req: ServerRequest, res: ServerResponse ->
-                            req.content()
-                                    .`as`(String::class.java)
-                                    .thenAccept { s: String -> res.send("Hello: $s") }
-                                    .exceptionally { t: Throwable? ->
-                                        req.next(t)
-                                        null
-                                    }
-                        }))
-                .port(8080)
-                .tracer(TracerBuilder.create(config["tracing"])
-                        .serviceName("demo-first")
-                        .registerGlobal(true)
-                        .build())
-                .build()
-        webServer.start()
-                .whenComplete { server: WebServer, _: Throwable? -> println("Started at http://localhost:" + server.port()) }
-    }
+        )
+        .build()
+    webServer.start()
+        .whenComplete { server: WebServer, _: Throwable? -> println("Started at http://localhost:" + server.port()) }
 }

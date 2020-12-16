@@ -17,7 +17,6 @@ package io.helidon.kotlin.microprofile.example.helloworld.implicit
 
 import io.helidon.microprofile.server.Server
 import org.hamcrest.MatcherAssert
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -27,6 +26,7 @@ import javax.enterprise.inject.se.SeContainer
 import javax.enterprise.inject.spi.CDI
 import javax.json.JsonObject
 import javax.ws.rs.client.ClientBuilder
+import org.hamcrest.Matchers.`is` as Is
 
 /**
  * Unit test for [HelloWorldResource].
@@ -39,10 +39,16 @@ internal class ImplicitHelloWorldTest {
                 .request()
                 .get(JsonObject::class.java)
         Assertions.assertAll("JSON fields must match expected injection values",
-                Executable { MatcherAssert.assertThat("Name from request", jsonObject.getString("name"), Matchers.`is`("unit")) },
-                Executable { MatcherAssert.assertThat("Request id from CDI provider", jsonObject.getInt("requestId"), Matchers.`is`(1)) },
-                Executable { MatcherAssert.assertThat("App name from config", jsonObject.getString("appName"), Matchers.`is`("Hello World Application")) },
-                Executable { MatcherAssert.assertThat("Logger name", jsonObject.getString("logger"), Matchers.`is`(HelloWorldResource::class.java.name)) }
+                Executable { MatcherAssert.assertThat("Name from request", jsonObject.getString("name"), Is("unit")) },
+                Executable { MatcherAssert.assertThat("Request id from CDI provider", jsonObject.getInt("requestId"),
+                    Is(1)
+                ) },
+                Executable { MatcherAssert.assertThat("App name from config", jsonObject.getString("appName"),
+                    Is("Hello World Application")
+                ) },
+                Executable { MatcherAssert.assertThat("Logger name", jsonObject.getString("logger"),
+                    Is(HelloWorldResource::class.java.name)
+                ) }
         )
     }
 

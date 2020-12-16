@@ -64,6 +64,11 @@
             <artifactId>hamcrest-all</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.helidon.kotlin.examples</groupId>
+            <artifactId>kotlin-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -21,27 +21,19 @@ import io.helidon.config.ConfigSources
 /**
  * This example shows how to read configuration from several files placed in selected directory.
  */
-object DirectorySourceExample {
-    /**
-     * Executes the example.
-     *
-     * @param args arguments
+fun main() {
+    /*
+       Creates a config from files from specified directory.
+       E.g. Kubernetes Secrets:
      */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        /*
-           Creates a config from files from specified directory.
-           E.g. Kubernetes Secrets:
-         */
-        val secrets = Config.builder(ConfigSources.directory("config/sources/conf/secrets"))
-                .disableEnvironmentVariablesSource()
-                .disableSystemPropertiesSource()
-                .build()
-        val username = secrets["username"].asString().get()
-        println("Username: $username")
-        assert(username == "libor")
-        val password = secrets["password"].asString().get()
-        println("Password: $password")
-        assert(password == "^ery\$ecretP&ssword")
-    }
+    val secrets = Config.builder(ConfigSources.directory("config/sources/conf/secrets"))
+        .disableEnvironmentVariablesSource()
+        .disableSystemPropertiesSource()
+        .build()
+    val username = secrets["username"].asString().get()
+    println("Username: $username")
+    assert(username == "libor")
+    val password = secrets["password"].asString().get()
+    println("Password: $password")
+    assert(password == "^ery\$ecretP&ssword")
 }

@@ -25,64 +25,59 @@ import java.util.function.Supplier
  * This example shows how to automatically deserialize configuration instance into POJO beans
  * using factory method.
  */
-object FactoryMethodExample {
-    /**
-     * Executes the example.
-     *
-     * @param args arguments
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val config = Config.create(ConfigSources.classpath("application.conf"))
-        val appConfig = config["app"] // let config automatically deserialize the node to new AppConfig instance
-                .asType(AppConfig::class.java)
-                .get()
-        println(appConfig)
-        assert(appConfig.greeting == "Hello")
-        assert(appConfig.pageSize == 20)
-        assert(appConfig.basicRange.size == 2)
-    }
 
-    /**
-     * POJO representing an application configuration.
-     * Class is initialized from [Config] instance.
-     * During deserialization [factory method][.create] is invoked.
-     */
-    class AppConfig private constructor(val greeting: String, val pageSize: Int, val basicRange: List<Integer>) {
-        override fun toString(): String {
-            return """AppConfig:
+fun main() {
+    val config = Config.create(ConfigSources.classpath("application.conf"))
+    val appConfig = config["app"] // let config automatically deserialize the node to new AppConfig instance
+        .asType(AppConfigFact::class.java)
+        .get()
+    println(appConfig)
+    assert(appConfig.greeting == "Hello")
+    assert(appConfig.pageSize == 20)
+    assert(appConfig.basicRange.size == 2)
+}
+
+/**
+ * POJO representing an application configuration.
+ * Class is initialized from [Config] instance.
+ * During deserialization [factory method][.create] is invoked.
+ */
+class AppConfigFact private constructor(val greeting: String, val pageSize: Int, val basicRange: List<Integer>) {
+    override fun toString(): String {
+        return """AppConfig:
     greeting  = $greeting
     pageSize  = $pageSize
     basicRange= $basicRange"""
-        }
+    }
 
+    /**
+     * Supplier of default value for `basic-range` property, see [.create].
+     */
+    class DefaultBasicRangeSupplier : Supplier<List<Int>> {
+        override fun get(): List<Int> {
+            return listOf(-10, 10)
+        }
+    }
+
+    companion object {
         /**
-         * Supplier of default value for `basic-range` property, see [.create].
+         * Creates new [AppConfigFact] instances.
+         *
+         *
+         * [Value] is used to specify config keys
+         * and default values in case configuration does not contain appropriate value.
+         *
+         * @param greeting   greeting
+         * @param pageSize   page size
+         * @param basicRange basic range
+         * @return new instance of [AppConfigFact].
          */
-        class DefaultBasicRangeSupplier : Supplier<List<Int>> {
-            override fun get(): List<Int> {
-                return listOf(-10, 10)
-            }
-        }
-
-        companion object {
-            /**
-             * Creates new [AppConfig] instances.
-             *
-             *
-             * [Value] is used to specify config keys
-             * and default values in case configuration does not contain appropriate value.
-             *
-             * @param greeting   greeting
-             * @param pageSize   page size
-             * @param basicRange basic range
-             * @return new instance of [AppConfig].
-             */
-            fun create(@Value(key = "greeting", withDefault = "Hi") greeting: String,
-                       @Value(key = "page-size", withDefault = "10") pageSize: Int,
-                       @Value(key = "basic-range", withDefaultSupplier = DefaultBasicRangeSupplier::class) basicRange: List<Integer>): AppConfig {
-                return AppConfig(greeting, pageSize, basicRange)
-            }
+        fun create(
+            @Value(key = "greeting", withDefault = "Hi") greeting: String,
+            @Value(key = "page-size", withDefault = "10") pageSize: Int,
+            @Value(key = "basic-range", withDefaultSupplier = DefaultBasicRangeSupplier::class) basicRange: List<Integer>
+        ): AppConfigFact {
+            return AppConfigFact(greeting, pageSize, basicRange)
         }
     }
 }

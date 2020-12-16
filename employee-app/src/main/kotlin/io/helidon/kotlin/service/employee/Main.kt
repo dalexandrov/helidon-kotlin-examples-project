@@ -23,79 +23,72 @@ import io.helidon.metrics.MetricsSupport
 import io.helidon.webserver.Routing
 import io.helidon.webserver.StaticContentSupport
 import io.helidon.webserver.WebServer
-import java.io.IOException
 import java.util.logging.LogManager
 
 /**
  * Simple Employee rest application.
  */
-object Main {
-    /**
-     * Application main entry point.
-     * @param args command line arguments.
-     * @throws IOException if there are problems reading logging properties
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startServer()
+class Main
+
+fun main() {
+    startServer()
+}
+
+/**
+ * Start the server.
+ */
+fun startServer(): WebServer {
+
+    // load logging configuration
+    Main::class.java.getResourceAsStream("/logging.properties")
+        .use { logFile -> LogManager.getLogManager().readConfiguration(logFile) }
+
+    // By default this will pick up application.yaml from the classpath
+    val config = Config.create()
+
+    // Get webserver config from the "server" section of application.yaml and JSON support registration
+    val server = WebServer.builder(createRouting(config))
+        .config(config["server"])
+        .addMediaSupport(JsonbSupport.create())
+        .build()
+
+    // Try to start the server. If successful, print some info and arrange to
+    // print a message at shutdown. If unsuccessful, print the exception.
+    server.start().thenAccept { ws: WebServer ->
+        println("WEB server is up!")
+        println(
+            "Web client at: http://localhost:" + ws.port()
+                    + "/public/index.html"
+        )
+        ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+    }.exceptionally { t: Throwable ->
+        System.err.println("Startup failed: " + t.message)
+        t.printStackTrace(System.err)
+        null
     }
 
-    /**
-     * Start the server.
-     * @return the created [WebServer] instance
-     * @throws IOException if there are problems reading logging properties
-     */
-    @JvmStatic
-    @Throws(IOException::class)
-    fun startServer(): WebServer {
+    // Server threads are not daemon. No need to block. Just react.
+    return server
+}
 
-        // load logging configuration
-        Main::class.java.getResourceAsStream("/logging.properties").use { logFile -> LogManager.getLogManager().readConfiguration(logFile) }
-
-        // By default this will pick up application.yaml from the classpath
-        val config = Config.create()
-
-        // Get webserver config from the "server" section of application.yaml and JSON support registration
-        val server = WebServer.builder(createRouting(config))
-                .config(config["server"])
-                .addMediaSupport(JsonbSupport.create())
-                .build()
-
-        // Try to start the server. If successful, print some info and arrange to
-        // print a message at shutdown. If unsuccessful, print the exception.
-        server.start().thenAccept { ws: WebServer ->
-            println("WEB server is up!")
-            println("Web client at: http://localhost:" + ws.port()
-                    + "/public/index.html")
-            ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-        }.exceptionally { t: Throwable ->
-            System.err.println("Startup failed: " + t.message)
-            t.printStackTrace(System.err)
-            null
-        }
-
-        // Server threads are not daemon. No need to block. Just react.
-        return server
-    }
-
-    /**
-     * Creates new [Routing].
-     *
-     * @param config configuration of this server
-     * @return routing configured with a health check, and a service
-     */
-    private fun createRouting(config: Config): Routing {
-        val metrics = MetricsSupport.create()
-        val employeeService = EmployeeService(config)
-        val health = HealthSupport.builder().addLiveness(*HealthChecks.healthChecks())
-                .build() // Adds a convenient set of checks
-        return Routing.builder()
-                .register("/public", StaticContentSupport.builder("public")
-                        .welcomeFileName("index.html"))
-                .register(health) // Health at "/health"
-                .register(metrics) // Metrics at "/metrics"
-                .register("/employees", employeeService)
-                .build()
-    }
+/**
+ * Creates new [Routing].
+ *
+ * @param config configuration of this server
+ * @return routing configured with a health check, and a service
+ */
+private fun createRouting(config: Config): Routing {
+    val metrics = MetricsSupport.create()
+    val employeeService = EmployeeService(config)
+    val health = HealthSupport.builder().addLiveness(*HealthChecks.healthChecks())
+        .build() // Adds a convenient set of checks
+    return Routing.builder()
+        .register(
+            "/public", StaticContentSupport.builder("public")
+                .welcomeFileName("index.html")
+        )
+        .register(health) // Health at "/health"
+        .register(metrics) // Metrics at "/metrics"
+        .register("/employees", employeeService)
+        .build()
 }

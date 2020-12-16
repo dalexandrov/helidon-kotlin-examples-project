@@ -15,10 +15,9 @@
  */
 package io.helidon.kotlin.examples.translator
 
-import io.helidon.kotlin.examples.translator.backend.Main.startBackendServer
-import io.helidon.kotlin.examples.translator.frontend.Main.startFrontendServer
+import io.helidon.kotlin.examples.translator.backend.startBackendServer
+import io.helidon.kotlin.examples.translator.frontend.startFrontendServer
 import io.helidon.webserver.WebServer
-import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -28,6 +27,7 @@ import javax.ws.rs.client.Client
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.Response
+import org.hamcrest.CoreMatchers.`is` as Is
 
 /**
  * The TranslatorTest.
@@ -41,7 +41,8 @@ class TranslatorTest {
                 .request()
                 .get()
         MatcherAssert.assertThat("Unexpected response! Status code: " + response.status,
-                response.readEntity(String::class.java), CoreMatchers.`is`("oblak\n"))
+                response.readEntity(String::class.java), Is("oblak\n")
+        )
     }
 
     @Test
@@ -52,7 +53,8 @@ class TranslatorTest {
                 .request()
                 .get()
         MatcherAssert.assertThat("Unexpected response! Status code: " + response.status,
-                response.readEntity(String::class.java), CoreMatchers.`is`("nube\n"))
+                response.readEntity(String::class.java), Is("nube\n")
+        )
     }
 
     @Test
@@ -63,7 +65,8 @@ class TranslatorTest {
                 .request()
                 .get()
         MatcherAssert.assertThat("Unexpected response! Status code: " + response.status,
-                response.readEntity(String::class.java), CoreMatchers.`is`("nuage\n"))
+                response.readEntity(String::class.java), Is("nuage\n")
+        )
     }
 
     companion object {

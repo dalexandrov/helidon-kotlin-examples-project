@@ -52,45 +52,40 @@ import java.util.concurrent.TimeUnit
  * pods
  * `test.*.logging.level` to `FINE`.
  */
-object Main {
-    /**
-     * Executes the example.
-     *
-     * @param args arguments
-     * @throws InterruptedException when a sleeper awakes
-     */
-    @Throws(InterruptedException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val config = Config
-                .builder() // specify config sources
-                .sources(ConfigSources.file("config/overrides/conf/priority-config.yaml").pollingStrategy(PollingStrategies.regular(Duration.ofSeconds(1))),
-                        ConfigSources.classpath("application.yaml")) // specify overrides source
-                .overrides(OverrideSources.file("config/overrides/conf/overrides.properties")
-                        .pollingStrategy(PollingStrategies.regular(Duration.ofSeconds(1))))
-                .build()
+fun main() {
+    val config = Config
+        .builder() // specify config sources
+        .sources(
+            ConfigSources.file("config/overrides/conf/priority-config.yaml")
+                .pollingStrategy(PollingStrategies.regular(Duration.ofSeconds(1))),
+            ConfigSources.classpath("application.yaml")
+        ) // specify overrides source
+        .overrides(
+            OverrideSources.file("config/overrides/conf/overrides.properties")
+                .pollingStrategy(PollingStrategies.regular(Duration.ofSeconds(1)))
+        )
+        .build()
 
-        // Resolve current runtime context
-        val env = config["env"].asString().get()
-        val pod = config["pod"].asString().get()
+    // Resolve current runtime context
+    val env = config["env"].asString().get()
+    val pod = config["pod"].asString().get()
 
-        // get logging config for the current runtime
-        val loggingConfig = config[env][pod]["logging"]
+    // get logging config for the current runtime
+    val loggingConfig = config[env][pod]["logging"]
 
-        // initialize logging from config
-        initLogging(loggingConfig)
+    // initialize logging from config
+    initLogging(loggingConfig)
 
-        // react on changes of logging configuration
-        loggingConfig.onChange { obj: Config? -> obj?.let { initLogging(it) } }
-        TimeUnit.MINUTES.sleep(1)
-    }
+    // react on changes of logging configuration
+    loggingConfig.onChange { obj: Config? -> obj?.let { initLogging(it) } }
+    TimeUnit.MINUTES.sleep(1)
+}
 
-    /**
-     * Initialize logging from config.
-     */
-    private fun initLogging(loggingConfig: Config) {
-        val level = loggingConfig["level"].asString().orElse("WARNING")
-        //e.g. initialize logging using configured level...
-        println("Set logging level to $level.")
-    }
+/**
+ * Initialize logging from config.
+ */
+private fun initLogging(loggingConfig: Config) {
+    val level = loggingConfig["level"].asString().orElse("WARNING")
+    //e.g. initialize logging using configured level...
+    println("Set logging level to $level.")
 }

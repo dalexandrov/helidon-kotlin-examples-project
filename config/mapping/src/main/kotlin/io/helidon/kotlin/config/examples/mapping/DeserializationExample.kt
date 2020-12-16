@@ -26,82 +26,76 @@ import io.helidon.config.objectmapping.Value
  * This example shows how to automatically deserialize configuration instance into POJO beans
  * using setters.
  */
-object DeserializationExample {
+
+
+fun main() {
+    val config = Config.create(ConfigSources.classpath("application.conf"))
+    val appConfig = config["app"] // let config automatically deserialize the node to new AppConfig instance
+        .asType(AppConfigDec::class.java)
+        .get()
+    println(appConfig)
+    assert(appConfig.greeting == "Hello")
+    assert(appConfig.pageSize == 20)
+    assert(appConfig.basicRange!!.size == 2)
+    assert(appConfig.basicRange!![0] == -20)
+    assert(appConfig.basicRange!![1] == 20)
+}
+
+/**
+ * POJO representing an application configuration.
+ * Class is initialized from [Config] instance.
+ * During deserialization setter methods are invoked.
+ */
+class AppConfigDec {
     /**
-     * Executes the example.
+     * Set greeting property.
      *
-     * @param args arguments
+     *
+     * POJO property and config key are same, no need to customize it.
+     * [Value] is used just to specify default value
+     * in case configuration does not contain appropriate value.
+     *
      */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val config = Config.create(ConfigSources.classpath("application.conf"))
-        val appConfig = config["app"] // let config automatically deserialize the node to new AppConfig instance
-                .asType(AppConfig::class.java)
-                .get()
-        println(appConfig)
-        assert(appConfig.greeting == "Hello")
-        assert(appConfig.pageSize == 20)
-        assert(appConfig.basicRange!!.size == 2)
-        assert(appConfig.basicRange!![0] == -20)
-        assert(appConfig.basicRange!![1] == 20)
-    }
+    @set:Value(withDefault = "Hi")
+    var greeting: String? = null
 
     /**
-     * POJO representing an application configuration.
-     * Class is initialized from [Config] instance.
-     * During deserialization setter methods are invoked.
+     * Set a page size.
+     *
+     *
+     * [Value] is used to specify correct config key and default value
+     * in case configuration does not contain appropriate value.
+     * Original string value is mapped to target int using appropriate
+     * [ConfigMapper][io.helidon.config.ConfigMappers].
+     *
      */
-    class AppConfig {
-        /**
-         * Set greeting property.
-         *
-         *
-         * POJO property and config key are same, no need to customize it.
-         * [Value] is used just to specify default value
-         * in case configuration does not contain appropriate value.
-         *
-         */
-        @set:Value(withDefault = "Hi")
-        var greeting: String? = null
+    @set:Value(key = "page-size", withDefault = "10")
+    var pageSize = 0
 
-        /**
-         * Set a page size.
-         *
-         *
-         * [Value] is used to specify correct config key and default value
-         * in case configuration does not contain appropriate value.
-         * Original string value is mapped to target int using appropriate
-         * [ConfigMapper][io.helidon.config.ConfigMappers].
-         *
-         */
-        @set:Value(key = "page-size", withDefault = "10")
-        var pageSize = 0
-
-        /**
-         * Set a basic range.
-         *
-         *
-         * [Value] is used to specify correct config key and default value supplier
-         * in case configuration does not contain appropriate value.
-         * Supplier already returns default value in target type of a property.
-         *
-         */
-        @set:Value(key = "basic-range", withDefaultSupplier = DefaultBasicRangeSupplier::class)
-        var basicRange: List<Int>? = null
-        override fun toString(): String {
-            return """AppConfig:
+    /**
+     * Set a basic range.
+     *
+     *
+     * [Value] is used to specify correct config key and default value supplier
+     * in case configuration does not contain appropriate value.
+     * Supplier already returns default value in target type of a property.
+     *
+     */
+    @set:Value(key = "basic-range", withDefaultSupplier = DefaultBasicRangeSupplier::class)
+    var basicRange: List<Int>? = null
+    override fun toString(): String {
+        return """AppConfig:
     greeting  = $greeting
     pageSize  = $pageSize
     basicRange= $basicRange"""
-        }
+    }
 
-        /**
-         * Supplier of default value for [basic-range][.setBasicRange] property.
-         */
-        class DefaultBasicRangeSupplier : Supplier<List<Int>> {
-            override fun get(): List<Int> {
-                return listOf(-10, 10)
-            }
+    /**
+     * Supplier of default value for [basic-range][.setBasicRange] property.
+     */
+    class DefaultBasicRangeSupplier : Supplier<List<Int>> {
+        override fun get(): List<Int> {
+            return listOf(-10, 10)
         }
     }
 }

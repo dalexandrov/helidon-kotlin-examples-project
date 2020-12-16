@@ -30,16 +30,15 @@ import java.util.logging.Logger
  */
 class ServerFileReader internal constructor(private val path: Path) : Flow.Publisher<DataChunk?> {
     override fun subscribe(s: Flow.Subscriber<in DataChunk?>) {
-        val channel: FileChannel
         val buffer = ByteBuffer.allocate(BUFFER_SIZE)
-        channel = try {
+        val channel: FileChannel = try {
             FileChannel.open(path, StandardOpenOption.READ)
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
         s.onSubscribe(object : Flow.Subscription {
-            override fun request(n: Long) {
-                var n = n
+            override fun request(inn: Long) {
+                var n = inn
                 try {
                     while (n > 0) {
                         val bytes = channel.read(buffer)

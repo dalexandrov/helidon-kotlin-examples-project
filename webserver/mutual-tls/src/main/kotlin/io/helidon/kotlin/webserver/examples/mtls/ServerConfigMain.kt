@@ -19,61 +19,54 @@ import io.helidon.common.http.Http
 import io.helidon.config.Config
 import io.helidon.webserver.*
 
+
 /**
- * Setting up [WebServer] to support mutual TLS via configuration.
+ * Start the example.
+ * This will start Helidon [WebServer] which is configured by the configuration.
+ * There will be two sockets running:
+ *
+ *
+ *  * `8080` - without TLS protection
+ *  * `443` - with TLS protection
+ *
+ *
+ * Both of the ports mentioned above are default ports for this example and can be changed via configuration file.
+ *
  */
-object ServerConfigMain {
-    /**
-     * Start the example.
-     * This will start Helidon [WebServer] which is configured by the configuration.
-     * There will be two sockets running:
-     *
-     *
-     *  * `8080` - without TLS protection
-     *  * `443` - with TLS protection
-     *
-     *
-     * Both of the ports mentioned above are default ports for this example and can be changed via configuration file.
-     *
-     * @param args start arguments are ignored
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val config = Config.create()
-        startServer(config["server"])
-    }
+fun main() {
+    val config = Config.create()
+    startServer(config["server"])
+}
 
-    @JvmStatic
-    fun startServer(config: Config?): WebServer {
-        val webServer = WebServer.builder(createPlainRouting())
-                .config(config)
-                .addNamedRouting("secured", createMtlsRouting())
-                .build()
-        webServer.start()
-                .thenAccept { ws: WebServer ->
-                    println("WebServer is up!")
-                    println("Unsecured: http://localhost:" + ws.port() + "/")
-                    println("Secured: https://localhost:" + ws.port("secured") + "/")
-                    ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-                }
-                .exceptionally { t: Throwable ->
-                    System.err.println("Startup failed: " + t.message)
-                    t.printStackTrace(System.err)
-                    null
-                }
-        return webServer
-    }
+fun startServer(config: Config?): WebServer {
+    val webServer = WebServer.builder(createPlainRouting())
+        .config(config)
+        .addNamedRouting("secured", createMtlsRouting())
+        .build()
+    webServer.start()
+        .thenAccept { ws: WebServer ->
+            println("WebServer is up!")
+            println("Unsecured: http://localhost:" + ws.port() + "/")
+            println("Secured: https://localhost:" + ws.port("secured") + "/")
+            ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+        }
+        .exceptionally { t: Throwable ->
+            System.err.println("Startup failed: " + t.message)
+            t.printStackTrace(System.err)
+            null
+        }
+    return webServer
+}
 
-    private fun createPlainRouting(): Routing {
-        return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello world unsecured!") }]
-                .build()
-    }
+private fun createPlainRouting(): Routing {
+    return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello world unsecured!") }]
+        .build()
+}
 
-    private fun createMtlsRouting(): Routing {
-        return Routing.builder()["/", Handler { req: ServerRequest, res: ServerResponse ->
-            val cn = req.headers().first(Http.Header.X_HELIDON_CN).orElse("Unknown CN")
-            res.send("Hello $cn!")
-        }]
-                .build()
-    }
+private fun createMtlsRouting(): Routing {
+    return Routing.builder()["/", Handler { req: ServerRequest, res: ServerResponse ->
+        val cn = req.headers().first(Http.Header.X_HELIDON_CN).orElse("Unknown CN")
+        res.send("Hello $cn!")
+    }]
+        .build()
 }

@@ -30,7 +30,7 @@ class MainTest {
     @Throws(Exception::class)
     fun firstRouting() {
         // POST
-        var response = createClient { obj: Main -> obj.firstRouting() }.path("/post-endpoint").post()
+        var response = createClient {  }.path("/post-endpoint").post()
         Assertions.assertEquals(201, response.status().code())
         // GET
         response = createClient { obj: Main -> obj.firstRouting() }.path("/get-endpoint").get()

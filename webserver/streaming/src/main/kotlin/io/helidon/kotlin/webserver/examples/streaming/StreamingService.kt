@@ -52,7 +52,8 @@ class StreamingService internal constructor() : Service {
 
     init {
         filePath = try {
-            Paths.get(javaClass.getResource(Main.LARGE_FILE_RESOURCE).toURI())
+            Paths.get(javaClass.getResource(
+                LARGE_FILE_RESOURCE).toURI())
         } catch (e: URISyntaxException) {
             throw RuntimeException(e)
         }

@@ -22,29 +22,26 @@ import java.util.concurrent.TimeUnit
  * Main class to start the application.
  * See resources/META-INF/microprofile-config.properties.
  */
-object Main {
-    @JvmStatic
-    var port = 0
-        private set
 
-    /**
-     * Run this example.
-     *
-     * @param args command line arguments (ignored)
-     */
-    @JvmStatic
-    fun main(args: Array<String?>) {
-        var now = System.nanoTime()
+var port = 0
+    private set
 
-        // everything is configured through application.yaml
-        val server = Server.create()
-        now = System.nanoTime() - now
-        println("Create server: " + TimeUnit.MILLISECONDS.convert(now, TimeUnit.NANOSECONDS))
-        now = System.nanoTime()
-        server.start()
-        port = server.port()
-        now = System.nanoTime() - now
-        println("Start server: " + TimeUnit.MILLISECONDS.convert(now, TimeUnit.NANOSECONDS))
-        println("Endpoint available at http://localhost:" + port + "/helloworld")
-    }
+/**
+ * Run this example.
+ *
+ * @param args command line arguments (ignored)
+ */
+fun main(args: Array<String?>) {
+    var now = System.nanoTime()
+
+    // everything is configured through application.yaml
+    val server = Server.create()
+    now = System.nanoTime() - now
+    println("Create server: " + TimeUnit.MILLISECONDS.convert(now, TimeUnit.NANOSECONDS))
+    now = System.nanoTime()
+    server.start()
+    port = server.port()
+    now = System.nanoTime() - now
+    println("Start server: " + TimeUnit.MILLISECONDS.convert(now, TimeUnit.NANOSECONDS))
+    println("Endpoint available at http://localhost:" + port + "/helloworld")
 }

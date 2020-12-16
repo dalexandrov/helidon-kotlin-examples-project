@@ -20,56 +20,50 @@ import io.helidon.config.ConfigSources
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
-import java.io.IOException
 import java.util.concurrent.CompletionStage
 import java.util.logging.LogManager
 
 /**
  * Translator application backend main class.
  */
-object Main {
-    /**
-     * Start the server.
-     * @return the created [WebServer] instance
-     * @throws IOException if there are problems reading logging properties
-     */
-    @Throws(IOException::class)
-    fun startBackendServer(): CompletionStage<WebServer?> {
-        // configure logging in order to not have the standard JVM defaults
-        LogManager.getLogManager().readConfiguration(Main::class.java.getResourceAsStream("/logging.properties"))
-        val config = Config.builder()
-                .sources(ConfigSources.environmentVariables())
-                .build()
-        val webServer = WebServer.builder(
-                Routing.builder()
-                        .register(TranslatorBackendService()))
-                .port(9080)
-                .tracer(TracerBuilder.create(config["tracing"])
-                        .serviceName("helidon-webserver-translator-backend")
-                        .build())
-                .build()
-        return webServer.start()
-                .thenApply { ws: WebServer ->
-                    println(
-                            "WEB server is up! http://localhost:" + ws.port())
-                    ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-                    ws
-                }.exceptionally { t: Throwable ->
-                    System.err.println("Startup failed: " + t.message)
-                    t.printStackTrace(System.err)
-                    null
-                }
-    }
+class Main
 
-    /**
-     * The main method of Translator backend.
-     *
-     * @param args command-line args, currently ignored.
-     * @throws Exception in case of an error
-     */
-    @Throws(Exception::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startBackendServer()
-    }
+fun startBackendServer(): CompletionStage<WebServer?> {
+    // configure logging in order to not have the standard JVM defaults
+    LogManager.getLogManager().readConfiguration(Main::class.java.getResourceAsStream("/logging.properties"))
+    val config = Config.builder()
+        .sources(ConfigSources.environmentVariables())
+        .build()
+    val webServer = WebServer.builder(
+        Routing.builder()
+            .register(TranslatorBackendService())
+    )
+        .port(9080)
+        .tracer(
+            TracerBuilder.create(config["tracing"])
+                .serviceName("helidon-webserver-translator-backend")
+                .build()
+        )
+        .build()
+    return webServer.start()
+        .thenApply { ws: WebServer ->
+            println(
+                "WEB server is up! http://localhost:" + ws.port()
+            )
+            ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+            ws
+        }.exceptionally { t: Throwable ->
+            System.err.println("Startup failed: " + t.message)
+            t.printStackTrace(System.err)
+            null
+        }
+}
+
+/**
+ * The main method of Translator backend.
+ *
+ */
+
+fun main() {
+    startBackendServer()
 }

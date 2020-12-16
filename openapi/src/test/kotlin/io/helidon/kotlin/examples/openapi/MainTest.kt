@@ -16,7 +16,6 @@
 package io.helidon.kotlin.examples.openapi
 
 import io.helidon.common.http.MediaType
-import io.helidon.kotlin.examples.openapi.Main.startServer
 import io.helidon.kotlin.examples.openapi.internal.SimpleAPIModelReader
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.webclient.WebClient
@@ -37,6 +36,7 @@ class MainTest {
         private lateinit var webClient: WebClient
         private val JSON_BF = Json.createBuilderFactory(emptyMap<String, Any>())
         private var TEST_JSON_OBJECT: JsonObject? = null
+
         @BeforeAll
         @JvmStatic
         @Throws(Exception::class)
@@ -51,9 +51,9 @@ class MainTest {
                 }
             }
             webClient = WebClient.builder()
-                    .baseUri("http://localhost:" + webServer.port())
-                    .addMediaSupport(JsonpSupport.create())
-                    .build()
+                .baseUri("http://localhost:" + webServer.port())
+                .addMediaSupport(JsonpSupport.create())
+                .build()
         }
 
         @AfterAll
@@ -61,7 +61,7 @@ class MainTest {
         @Throws(Exception::class)
         fun stopServer() {
             webServer.shutdown()
-                    .toCompletableFuture()[10, TimeUnit.SECONDS]
+                .toCompletableFuture()[10, TimeUnit.SECONDS]
         }
 
         private fun escape(path: String): String {
@@ -70,8 +70,8 @@ class MainTest {
 
         init {
             TEST_JSON_OBJECT = JSON_BF.createObjectBuilder()
-                    .add("greeting", "Hola")
-                    .build()
+                .add("greeting", "Hola")
+                .build()
         }
     }
 
@@ -79,47 +79,47 @@ class MainTest {
     @Throws(Exception::class)
     fun testHelloWorld() {
         webClient.get()
-                .path("/greet")
-                .request(JsonObject::class.java)
-                .thenAccept { jsonObject: JsonObject -> Assertions.assertEquals("Hello World!", jsonObject.getString("greeting")) }
-                .toCompletableFuture()
-                .get()
+            .path("/greet")
+            .request(JsonObject::class.java)
+            .thenAccept { jsonObject: JsonObject -> Assertions.assertEquals("Hello World!", jsonObject.getString("greeting")) }
+            .toCompletableFuture()
+            .get()
         webClient.get()
-                .path("/greet/Joe")
-                .request(JsonObject::class.java)
-                .thenAccept { jsonObject: JsonObject -> Assertions.assertEquals("Hello Joe!", jsonObject.getString("greeting")) }
-                .toCompletableFuture()
-                .get()
+            .path("/greet/Joe")
+            .request(JsonObject::class.java)
+            .thenAccept { jsonObject: JsonObject -> Assertions.assertEquals("Hello Joe!", jsonObject.getString("greeting")) }
+            .toCompletableFuture()
+            .get()
         webClient.put()
-                .path("/greet/greeting")
-                .submit(TEST_JSON_OBJECT)
-                .thenAccept { response: WebClientResponse -> Assertions.assertEquals(204, response.status().code()) }
-                .thenCompose { nothing: Void? ->
-                    webClient.get()
-                            .path("/greet/Joe")
-                            .request(JsonObject::class.java)
-                }
-                .thenAccept { jsonObject: JsonObject -> Assertions.assertEquals("Hola Joe!", jsonObject.getString("greeting")) }
-                .toCompletableFuture()
-                .get()
+            .path("/greet/greeting")
+            .submit(TEST_JSON_OBJECT)
+            .thenAccept { response: WebClientResponse -> Assertions.assertEquals(204, response.status().code()) }
+            .thenCompose { nothing: Void? ->
+                webClient.get()
+                    .path("/greet/Joe")
+                    .request(JsonObject::class.java)
+            }
+            .thenAccept { jsonObject: JsonObject -> Assertions.assertEquals("Hola Joe!", jsonObject.getString("greeting")) }
+            .toCompletableFuture()
+            .get()
         webClient.get()
-                .path("/health")
-                .request()
-                .thenAccept { response: WebClientResponse ->
-                    Assertions.assertEquals(200, response.status().code())
-                    response.close()
-                }
-                .toCompletableFuture()
-                .get()
+            .path("/health")
+            .request()
+            .thenAccept { response: WebClientResponse ->
+                Assertions.assertEquals(200, response.status().code())
+                response.close()
+            }
+            .toCompletableFuture()
+            .get()
         webClient.get()
-                .path("/metrics")
-                .request()
-                .thenAccept { response: WebClientResponse ->
-                    Assertions.assertEquals(200, response.status().code())
-                    response.close()
-                }
-                .toCompletableFuture()
-                .get()
+            .path("/metrics")
+            .request()
+            .thenAccept { response: WebClientResponse ->
+                Assertions.assertEquals(200, response.status().code())
+                response.close()
+            }
+            .toCompletableFuture()
+            .get()
     }
 
     @Test
@@ -130,20 +130,24 @@ class MainTest {
          * change the following path also.
          */
         val jsonObject = webClient.get()
-                .accept(MediaType.APPLICATION_JSON)
-                .path("/openapi")
-                .request(JsonObject::class.java)
-                .toCompletableFuture()
-                .get()
+            .accept(MediaType.APPLICATION_JSON)
+            .path("/openapi")
+            .request(JsonObject::class.java)
+            .toCompletableFuture()
+            .get()
         val paths = jsonObject.getJsonObject("paths")
         var jp = Json.createPointer("/" + escape("/greet/greeting") + "/put/summary")
         var js = JsonString::class.java.cast(jp.getValue(paths))
         Assertions.assertEquals("Set the greeting prefix", js.string, "/greet/greeting.put.summary not as expected")
-        jp = Json.createPointer("/" + escape(SimpleAPIModelReader.MODEL_READER_PATH)
-                + "/get/summary")
+        jp = Json.createPointer(
+            "/" + escape(SimpleAPIModelReader.MODEL_READER_PATH)
+                    + "/get/summary"
+        )
         js = JsonString::class.java.cast(jp.getValue(paths))
-        Assertions.assertEquals(SimpleAPIModelReader.SUMMARY, js.string,
-                "summary added by model reader does not match")
+        Assertions.assertEquals(
+            SimpleAPIModelReader.SUMMARY, js.string,
+            "summary added by model reader does not match"
+        )
         jp = Json.createPointer("/" + escape(SimpleAPIModelReader.DOOMED_PATH))
         Assertions.assertFalse(jp.containsValue(paths), "/test/doomed should not appear but does")
     }

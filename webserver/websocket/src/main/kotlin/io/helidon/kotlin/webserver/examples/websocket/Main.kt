@@ -27,58 +27,54 @@ import javax.websocket.server.ServerEndpointConfig
 /**
  * Application demonstrates combination of websocket and REST.
  */
-object Main {
-    /**
-     * Creates new [Routing].
-     *
-     * @return the new instance
-     */
-    fun createRouting(): Routing {
-        val encoders: List<Class<out Encoder?>> = listOf(UppercaseEncoder::class.java)
-        return Routing.builder()
-                .register("/rest", MessageQueueService())
-                .register("/websocket",
-                        TyrusSupport.builder().register(
-                                ServerEndpointConfig.Builder.create(MessageBoardEndpoint::class.java, "/board")
-                                        .encoders(encoders).build())
-                                .build())
-                .register("/web", StaticContentSupport.builder("/WEB").build())
+
+
+fun createRouting(): Routing {
+    val encoders: List<Class<out Encoder?>> = listOf(UppercaseEncoder::class.java)
+    return Routing.builder()
+        .register("/rest", MessageQueueService())
+        .register(
+            "/websocket",
+            TyrusSupport.builder().register(
+                ServerEndpointConfig.Builder.create(MessageBoardEndpoint::class.java, "/board")
+                    .encoders(encoders).build()
+            )
                 .build()
+        )
+        .register("/web", StaticContentSupport.builder("/WEB").build())
+        .build()
+}
+
+
+fun startWebServer(): WebServer {
+    val server = WebServer.builder(createRouting())
+        .port(8080)
+        .build()
+
+    // Start webserver
+    val started = CompletableFuture<Void?>()
+    server.start().thenAccept { ws: WebServer ->
+        println("WEB server is up! http://localhost:" + ws.port())
+        started.complete(null)
     }
 
-    @JvmStatic
-    fun startWebServer(): WebServer {
-        val server = WebServer.builder(createRouting())
-                .port(8080)
-                .build()
-
-        // Start webserver
-        val started = CompletableFuture<Void?>()
-        server.start().thenAccept { ws: WebServer ->
-            println("WEB server is up! http://localhost:" + ws.port())
-            started.complete(null)
-        }
-
-        // Wait for webserver to start before returning
-        try {
-            started.toCompletableFuture().get()
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-        return server
+    // Wait for webserver to start before returning
+    try {
+        started.toCompletableFuture().get()
+    } catch (e: Exception) {
+        throw RuntimeException(e)
     }
+    return server
+}
 
-    /**
-     * A java main class.
-     *
-     * @param args command line arguments.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val server = startWebServer()
+/**
+ * A java main class.
+ *
+ */
+fun main() {
+    val server = startWebServer()
 
-        // Server threads are not demon. NO need to block. Just react.
-        server.whenShutdown()
-                .thenRun { println("WEB server is DOWN. Good bye!") }
-    }
+    // Server threads are not demon. NO need to block. Just react.
+    server.whenShutdown()
+        .thenRun { println("WEB server is DOWN. Good bye!") }
 }

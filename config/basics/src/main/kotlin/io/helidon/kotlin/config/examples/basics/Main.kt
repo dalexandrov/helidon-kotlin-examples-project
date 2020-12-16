@@ -23,22 +23,17 @@ import java.nio.file.Path
 /**
  * Basics example.
  */
-object Main {
-    /**
-     * Executes the example.
-     *
-     * @param args arguments
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val config = Config.create(ConfigSources.classpath("application.conf"))
-        val pageSize = config["app.page-size"].asInt().get()
-        val storageEnabled = config["app.storageEnabled"].asBoolean().orElse(false)
-        val basicRange = config["app.basic-range"].asList(Int::class.java).get()
-        val loggingOutputPath = config["logging.outputs.file.name"].asType(Path::class.java).get()
-        println(pageSize)
-        println(storageEnabled)
-        println(basicRange)
-        println(loggingOutputPath)
-    }
+
+
+fun main() {
+    val config = Config.create(ConfigSources.classpath("application.conf"))
+    val pageSize = config["app.page-size"].asInt().get()
+    val storageEnabled = config["app.storageEnabled"].asBoolean().orElse(false)
+    val basicRange = config["app.basic-range"].asList(Int::class.java).get()
+    val loggingOutputPath = config["logging.outputs.file.name"].asType(Path::class.java).get()
+    println(pageSize)
+    println(storageEnabled)
+    println(basicRange)
+    println(loggingOutputPath)
+
 }

@@ -28,77 +28,70 @@ import io.helidon.webserver.WebServer
 import java.io.IOException
 import java.util.logging.LogManager
 
+class JdbcExampleMain
+
 /**
  * Simple Hello World rest application.
  */
-object JdbcExampleMain {
-    /**
-     * Application main entry point.
-     *
-     * @param args command line arguments.
-     * @throws java.io.IOException if there are problems reading logging properties
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startServer()
+
+fun main(args: Array<String>) {
+    startServer()
+}
+
+/**
+ * Start the server.
+ *
+ * @return the created [io.helidon.webserver.WebServer] instance
+ */
+fun startServer(): WebServer {
+
+    // load logging configuration
+    LogManager.getLogManager().readConfiguration(
+        JdbcExampleMain::class.java.getResourceAsStream("/logging.properties")
+    )
+
+    // By default this will pick up application.yaml from the classpath
+    val config = Config.create()
+
+    // Prepare routing for the server
+    val server = WebServer.builder()
+        .routing(createRouting(config)) // Get webserver config from the "server" section of application.yaml
+        .config(config["server"])
+        .tracer(TracerBuilder.create(config["tracing"]))
+        .addMediaSupport(JsonpSupport.create())
+        .addMediaSupport(JsonbSupport.create())
+        .build()
+
+    // Start the server and print some info.
+    server.start().thenAccept { ws: WebServer ->
+        println(
+            "WEB server is up! http://localhost:" + ws.port() + "/"
+        )
     }
 
-    /**
-     * Start the server.
-     *
-     * @return the created [io.helidon.webserver.WebServer] instance
-     * @throws java.io.IOException if there are problems reading logging properties
-     */
-    @Throws(IOException::class)
-    fun startServer(): WebServer {
+    // Server threads are not daemon. NO need to block. Just react.
+    server.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+    return server
+}
 
-        // load logging configuration
-        LogManager.getLogManager().readConfiguration(
-                JdbcExampleMain::class.java.getResourceAsStream("/logging.properties"))
+/**
+ * Creates new [io.helidon.webserver.Routing].
+ *
+ * @param config configuration of this server
+ * @return routing configured with JSON support, a health check, and a service
+ */
+private fun createRouting(config: Config): Routing {
+    val dbConfig = config["db"]
 
-        // By default this will pick up application.yaml from the classpath
-        val config = Config.create()
-
-        // Prepare routing for the server
-        val server = WebServer.builder()
-                .routing(createRouting(config)) // Get webserver config from the "server" section of application.yaml
-                .config(config["server"])
-                .tracer(TracerBuilder.create(config["tracing"]))
-                .addMediaSupport(JsonpSupport.create())
-                .addMediaSupport(JsonbSupport.create())
-                .build()
-
-        // Start the server and print some info.
-        server.start().thenAccept { ws: WebServer ->
-            println(
-                    "WEB server is up! http://localhost:" + ws.port() + "/")
-        }
-
-        // Server threads are not daemon. NO need to block. Just react.
-        server.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-        return server
-    }
-
-    /**
-     * Creates new [io.helidon.webserver.Routing].
-     *
-     * @param config configuration of this server
-     * @return routing configured with JSON support, a health check, and a service
-     */
-    private fun createRouting(config: Config): Routing {
-        val dbConfig = config["db"]
-
-        // Client services are added through a service loader - see mongoDB example for explicit services
-        val dbClient = DbClient.builder(dbConfig)
-                .build()
-        val health = HealthSupport.builder()
-                .addLiveness(DbClientHealthCheck.create(dbClient))
-                .build()
-        return Routing.builder()
-                .register(health) // Health at "/health"
-                .register(MetricsSupport.create()) // Metrics at "/metrics"
-                .register("/db", PokemonService(dbClient))
-                .build()
-    }
+    // Client services are added through a service loader - see mongoDB example for explicit services
+    val dbClient = DbClient.builder(dbConfig)
+        .build()
+    val health = HealthSupport.builder()
+        .addLiveness(DbClientHealthCheck.create(dbClient))
+        .build()
+    return Routing.builder()
+        .register(health) // Health at "/health"
+        .register(MetricsSupport.create()) // Metrics at "/metrics"
+        .register("/db", PokemonService(dbClient))
+        .build()
 }

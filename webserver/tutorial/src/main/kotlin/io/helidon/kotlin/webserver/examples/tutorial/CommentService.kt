@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UNCHECKED_CAST")
+
 package io.helidon.kotlin.webserver.examples.tutorial
 
+import asSingle
 import io.helidon.common.http.DataChunk
 import io.helidon.common.http.MediaType
 import io.helidon.kotlin.webserver.examples.tutorial.user.User
@@ -24,7 +27,6 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Flow
-import java.util.function.Function
 import java.util.stream.Collectors
 
 /**
@@ -35,7 +37,8 @@ class CommentService : Service {
     override fun update(routingRules: Routing.Rules) {
         routingRules[Handler { req: ServerRequest, res: ServerResponse ->
             // Register a publisher for comment
-            res.registerWriter(MutableList::class.java, MediaType.TEXT_PLAIN.withCharset("UTF-8"), Function { comments: List<*> -> publish(comments as List<Comment>) })
+            res.registerWriter(MutableList::class.java, MediaType.TEXT_PLAIN.withCharset("UTF-8")
+            ) { comments: List<*> -> publish(comments as List<Comment>) }
             req.next()
         }]["/{" + ROOM_PATH_ID + "}", Handler { req: ServerRequest, resp: ServerResponse -> this.getComments(req, resp) }]
                 .post("/{" + ROOM_PATH_ID + "}", Handler { req: ServerRequest, resp: ServerResponse -> this.addComment(req, resp) })
@@ -79,7 +82,7 @@ class CommentService : Service {
                 .get(User::class.java)
                 .orElse(User.ANONYMOUS)
         req.content()
-                .content().asSingle(String::class.java)
+                .asSingle(String::class.java)
                 .thenAccept { msg: String? -> addComment(roomId, user, msg) }
                 .thenRun { resp.send() }
                 .exceptionally { t: Throwable? ->

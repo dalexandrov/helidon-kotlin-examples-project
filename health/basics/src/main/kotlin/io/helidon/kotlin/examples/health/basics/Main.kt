@@ -24,33 +24,26 @@ import org.eclipse.microprofile.health.HealthCheckResponse
 /**
  * Main class of health check integration example.
  */
-object Main {
-    /**
-     * Start the example. Prints endpoints to standard output.
-     *
-     * @param args not used
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val health = HealthSupport.builder()
-                .addLiveness(*HealthChecks.healthChecks())
-                .addReadiness(HealthCheck {
-                    HealthCheckResponse.named("exampleHealthCheck")
-                            .up()
-                            .withData("time", System.currentTimeMillis())
-                            .build()
-                })
+
+fun main() {
+    val health = HealthSupport.builder()
+        .addLiveness(*HealthChecks.healthChecks())
+        .addReadiness(HealthCheck {
+            HealthCheckResponse.named("exampleHealthCheck")
+                .up()
+                .withData("time", System.currentTimeMillis())
                 .build()
-        val routing = Routing.builder()
-                .register(health)["/hello", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") }]
-                .build()
-        val ws = WebServer.create(routing)
-        ws.start()
-                .thenApply<Any?> { webServer: WebServer ->
-                    val endpoint = "http://localhost:" + webServer.port()
-                    println("Hello World started on $endpoint/hello")
-                    println("Health checks available on $endpoint/health")
-                    null
-                }
-    }
+        })
+        .build()
+    val routing = Routing.builder()
+        .register(health)["/hello", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") }]
+        .build()
+    val ws = WebServer.create(routing)
+    ws.start()
+        .thenApply<Any?> { webServer: WebServer ->
+            val endpoint = "http://localhost:" + webServer.port()
+            println("Hello World started on $endpoint/hello")
+            println("Health checks available on $endpoint/health")
+            null
+        }
 }

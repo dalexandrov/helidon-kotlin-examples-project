@@ -16,11 +16,9 @@
 package io.helidon.kotlin.webserver.examples.websocket
 
 import io.helidon.common.http.Http
-import io.helidon.kotlin.webserver.examples.websocket.Main.startWebServer
 import io.helidon.webclient.WebClient
 import io.helidon.webserver.WebServer
 import org.glassfish.tyrus.client.ClientManager
-import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
@@ -33,6 +31,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import javax.websocket.*
+import org.hamcrest.CoreMatchers.`is` as Is
 
 /**
  * Class MessageBoardTest.
@@ -49,7 +48,7 @@ class MessageBoardTest {
             restClient.post()
                 .uri(restUri)
                 .submit(message)
-                .thenAccept { MatcherAssert.assertThat(it.status(), CoreMatchers.`is`(Http.Status.NO_CONTENT_204)) }
+                .thenAccept { MatcherAssert.assertThat(it.status(), Is(Http.Status.NO_CONTENT_204)) }
                 .toCompletableFuture()
                 .get()
             LOGGER.info("Posting message '$message'")

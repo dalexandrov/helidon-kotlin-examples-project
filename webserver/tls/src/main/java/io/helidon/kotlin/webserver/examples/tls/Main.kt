@@ -25,58 +25,56 @@ import java.util.logging.LogManager
 
 /**
  * Main class of TLS example.
+
+ * Start the example.
+ * This will start two Helidon WebServers, both protected by TLS - one configured from config, one using a builder.
+ * Port of the servers will be configured from config, to be able to switch to an ephemeral port for tests.
+
  */
-object Main {
-    /**
-     * Start the example.
-     * This will start two Helidon WebServers, both protected by TLS - one configured from config, one using a builder.
-     * Port of the servers will be configured from config, to be able to switch to an ephemeral port for tests.
-     *
-     * @param args start arguments are ignored
-     */
-    @Throws(IOException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        setupLogging()
-        val config = Config.create()
-        startConfigBasedServer(config["config-based"])
-                .thenAccept { ws: WebServer -> println("Started config based WebServer on http://localhost:" + ws.port()) }
-        startBuilderBasedServer(config["builder-based"])
-                .thenAccept { ws: WebServer -> println("Started builder based WebServer on http://localhost:" + ws.port()) }
-    }
+class Main
 
-    @JvmStatic
-    fun startBuilderBasedServer(config: Config?): CompletionStage<WebServer> {
-        return WebServer.builder()
-                .config(config)
-                .routing(routing()) // now let's configure TLS
-                .tls(WebServerTls.builder()
-                        .privateKey(KeyConfig.keystoreBuilder()
-                                .keystore(Resource.create("certificate.p12"))
-                                .keystorePassphrase("helidon")))
-                .build()
-                .start()
-    }
+fun main(args: Array<String>) {
+    setupLogging()
+    val config = Config.create()
+    startConfigBasedServer(config["config-based"])
+        .thenAccept { ws: WebServer -> println("Started config based WebServer on http://localhost:" + ws.port()) }
+    startBuilderBasedServer(config["builder-based"])
+        .thenAccept { ws: WebServer -> println("Started builder based WebServer on http://localhost:" + ws.port()) }
+}
 
-    @JvmStatic
-    fun startConfigBasedServer(config: Config?): CompletionStage<WebServer> {
-        return WebServer.builder()
-                .config(config)
-                .routing(routing())
-                .build()
-                .start()
-    }
+fun startBuilderBasedServer(config: Config?): CompletionStage<WebServer> {
+    return WebServer.builder()
+        .config(config)
+        .routing(routing()) // now let's configure TLS
+        .tls(
+            WebServerTls.builder()
+                .privateKey(
+                    KeyConfig.keystoreBuilder()
+                        .keystore(Resource.create("certificate.p12"))
+                        .keystorePassphrase("helidon")
+                )
+        )
+        .build()
+        .start()
+}
 
-    private fun routing(): Routing {
-        return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello!") }]
-                .build()
-    }
+fun startConfigBasedServer(config: Config?): CompletionStage<WebServer> {
+    return WebServer.builder()
+        .config(config)
+        .routing(routing())
+        .build()
+        .start()
+}
 
-    /**
-     * Configure logging from logging.properties file.
-     */
-    @Throws(IOException::class)
-    private fun setupLogging() {
-        Main::class.java.getResourceAsStream("/logging.properties").use { `is` -> LogManager.getLogManager().readConfiguration(`is`) }
-    }
+private fun routing(): Routing {
+    return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello!") }]
+        .build()
+}
+
+/**
+ * Configure logging from logging.properties file.
+ */
+@Throws(IOException::class)
+private fun setupLogging() {
+    Main::class.java.getResourceAsStream("/logging.properties").use(LogManager.getLogManager()::readConfiguration)
 }

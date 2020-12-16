@@ -20,50 +20,45 @@ import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.media.multipart.MultiPartSupport
 import io.helidon.webserver.*
 
+
+/**
+ * Creates new [Routing].
+ *
+ * @return the new instance
+ */
+private fun createRouting(): Routing {
+    return Routing.builder()
+        .any("/", Handler { _: ServerRequest?, res: ServerResponse ->
+            res.status(Http.Status.MOVED_PERMANENTLY_301)
+            res.headers().put(Http.Header.LOCATION, "/ui")
+            res.send()
+        })
+        .register(
+            "/ui", StaticContentSupport.builder("WEB")
+                .welcomeFileName("index.html")
+                .build()
+        )
+        .register("/api", FileService())
+        .build()
+}
+
 /**
  * This application provides a simple file upload service with a UI to exercise multipart.
  */
-object Main {
-    /**
-     * Creates new [Routing].
-     *
-     * @return the new instance
-     */
-    private fun createRouting(): Routing {
-        return Routing.builder()
-                .any("/", Handler { _: ServerRequest?, res: ServerResponse ->
-                    res.status(Http.Status.MOVED_PERMANENTLY_301)
-                    res.headers().put(Http.Header.LOCATION, "/ui")
-                    res.send()
-                })
-                .register("/ui", StaticContentSupport.builder("WEB")
-                        .welcomeFileName("index.html")
-                        .build())
-                .register("/api", FileService())
-                .build()
-    }
+fun main() {
+    val config = ServerConfiguration.builder()
+        .port(8080)
+        .build()
+    val server = WebServer.builder(createRouting())
+        .config(config)
+        .addMediaSupport(MultiPartSupport.create())
+        .addMediaSupport(JsonpSupport.create())
+        .build()
 
-    /**
-     * Executes the example.
-     *
-     * @param args command line arguments.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val config = ServerConfiguration.builder()
-                .port(8080)
-                .build()
-        val server = WebServer.builder(createRouting())
-                .config(config)
-                .addMediaSupport(MultiPartSupport.create())
-                .addMediaSupport(JsonpSupport.create())
-                .build()
+    // Start the server and print some info.
+    server.start().thenAccept { ws: WebServer -> println("WEB server is up! http://localhost:" + ws.port()) }
 
-        // Start the server and print some info.
-        server.start().thenAccept { ws: WebServer -> println("WEB server is up! http://localhost:" + ws.port()) }
-
-        // Server threads are not demon. NO need to block. Just react.
-        server.whenShutdown()
-                .thenRun { println("WEB server is DOWN. Good bye!") }
-    }
+    // Server threads are not demon. NO need to block. Just react.
+    server.whenShutdown()
+        .thenRun { println("WEB server is DOWN. Good bye!") }
 }

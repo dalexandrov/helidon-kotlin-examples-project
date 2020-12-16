@@ -38,4 +38,12 @@
     <modules>
         <module>multipart</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.helidon.kotlin.examples</groupId>
+            <artifactId>kotlin-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

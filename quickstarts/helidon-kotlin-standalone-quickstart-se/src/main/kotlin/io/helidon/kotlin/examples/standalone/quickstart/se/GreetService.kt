@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.examples.standalone.quickstart.se
 
+import asSingle
 import io.helidon.common.http.Http
 import io.helidon.common.reactive.Single
 import io.helidon.config.Config
@@ -133,11 +134,3 @@ class GreetService internal constructor(config: Config) : Service {
         greeting.set(config["app.greeting"].asString().orElse("Ciao"))
     }
 }
-
-/**
- * Extension function to hide keyword as.
- */
-fun <T> MessageBodyReadableContent.asSingle(type:Class<T> ): Single<T> {
-    return this.`as`(type)
-}
-

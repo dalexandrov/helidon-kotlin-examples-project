@@ -20,23 +20,15 @@ import io.helidon.microprofile.server.Server
 /**
  * IDCS example.
  */
-object IdcsMain {
-    /**
-     * Start the server and use the application picked up by CDI.
-     *
-     * @param args command line arguments, ignored
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        Server.create().start()
-        println("Endpoints:")
-        println("Login")
-        println("  http://localhost:7987/rest/login")
-        println("Full security with scopes and roles (see IdcsResource.java)")
-        println("  http://localhost:7987/rest/scopes")
-        println("A protected reactive service (see application.yaml - security.web-server)")
-        println("  http://localhost:7987/reactive")
-        println("A protected static resource (see application.yaml - security.web-server")
-        println("  http://localhost:7987/web/resource.html")
-    }
+fun main() {
+    Server.create().start()
+    println("Endpoints:")
+    println("Login")
+    println("  http://localhost:7987/rest/login")
+    println("Full security with scopes and roles (see IdcsResource.java)")
+    println("  http://localhost:7987/rest/scopes")
+    println("A protected reactive service (see application.yaml - security.web-server)")
+    println("  http://localhost:7987/reactive")
+    println("A protected static resource (see application.yaml - security.web-server")
+    println("  http://localhost:7987/web/resource.html")
 }

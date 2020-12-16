@@ -20,80 +20,73 @@ import io.helidon.common.http.Http
 import io.helidon.common.pki.KeyConfig
 import io.helidon.webserver.*
 
+
 /**
- * Setting up [WebServer] to support mutual TLS via builder.
+ * Start the example.
+ * This will start Helidon [WebServer] which is configured by the [WebServer.Builder].
+ * There will be two sockets running:
+ *
+ *
+ *  * `8080` - without TLS protection
+ *  * `443` - with TLS protection
+ *
+ *
+ * Both of the ports mentioned above are default ports for this example and can be changed by updating
+ * values in this method.
+ *
  */
-object ServerBuilderMain {
-    /**
-     * Start the example.
-     * This will start Helidon [WebServer] which is configured by the [WebServer.Builder].
-     * There will be two sockets running:
-     *
-     *
-     *  * `8080` - without TLS protection
-     *  * `443` - with TLS protection
-     *
-     *
-     * Both of the ports mentioned above are default ports for this example and can be changed by updating
-     * values in this method.
-     *
-     * @param args start arguments are ignored
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        startServer(8080, 443)
-    }
+fun main() {
+    startServer(8080, 443)
+}
 
-    @JvmStatic
-    fun startServer(unsecured: Int, secured: Int): WebServer {
-        val socketConf = SocketConfiguration.builder()
-                .name("secured")
-                .port(secured)
-                .tls(tlsConfig())
-                .build()
-        val webServer = WebServer.builder()
-                .port(unsecured)
-                .routing(createPlainRouting())
-                .addSocket(socketConf, createMtlsRouting())
-                .build()
-        webServer.start()
-                .thenAccept { ws: WebServer ->
-                    println("WebServer is up!")
-                    println("Unsecured: http://localhost:" + ws.port() + "/")
-                    println("Secured: https://localhost:" + ws.port("secured") + "/")
-                    ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
-                }
-                .exceptionally { t: Throwable ->
-                    System.err.println("Startup failed: " + t.message)
-                    t.printStackTrace(System.err)
-                    null
-                }
-        return webServer
-    }
+fun startServer(unsecured: Int, secured: Int): WebServer {
+    val socketConf = SocketConfiguration.builder()
+        .name("secured")
+        .port(secured)
+        .tls(tlsConfig())
+        .build()
+    val webServer = WebServer.builder()
+        .port(unsecured)
+        .routing(createPlainRouting())
+        .addSocket(socketConf, createMtlsRouting())
+        .build()
+    webServer.start()
+        .thenAccept { ws: WebServer ->
+            println("WebServer is up!")
+            println("Unsecured: http://localhost:" + ws.port() + "/")
+            println("Secured: https://localhost:" + ws.port("secured") + "/")
+            ws.whenShutdown().thenRun { println("WEB server is DOWN. Good bye!") }
+        }
+        .exceptionally { t: Throwable ->
+            System.err.println("Startup failed: " + t.message)
+            t.printStackTrace(System.err)
+            null
+        }
+    return webServer
+}
 
-    private fun tlsConfig(): WebServerTls {
-        val keyConfig = KeyConfig.keystoreBuilder()
-                .trustStore()
-                .keystore(Resource.create("server.p12"))
-                .keystorePassphrase("password")
-                .build()
-        return WebServerTls.builder()
-                .clientAuth(ClientAuthentication.REQUIRE)
-                .trust(keyConfig)
-                .privateKey(keyConfig)
-                .build()
-    }
+private fun tlsConfig(): WebServerTls {
+    val keyConfig = KeyConfig.keystoreBuilder()
+        .trustStore()
+        .keystore(Resource.create("server.p12"))
+        .keystorePassphrase("password")
+        .build()
+    return WebServerTls.builder()
+        .clientAuth(ClientAuthentication.REQUIRE)
+        .trust(keyConfig)
+        .privateKey(keyConfig)
+        .build()
+}
 
-    private fun createPlainRouting(): Routing {
-        return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello world unsecured!") }]
-                .build()
-    }
+private fun createPlainRouting(): Routing {
+    return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello world unsecured!") }]
+        .build()
+}
 
-    private fun createMtlsRouting(): Routing {
-        return Routing.builder()["/", Handler { req: ServerRequest, res: ServerResponse ->
-            val cn = req.headers().first(Http.Header.X_HELIDON_CN).orElse("Unknown CN")
-            res.send("Hello $cn!")
-        }]
-                .build()
-    }
+private fun createMtlsRouting(): Routing {
+    return Routing.builder()["/", Handler { req: ServerRequest, res: ServerResponse ->
+        val cn = req.headers().first(Http.Header.X_HELIDON_CN).orElse("Unknown CN")
+        res.send("Hello $cn!")
+    }]
+        .build()
 }

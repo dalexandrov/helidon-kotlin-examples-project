@@ -28,6 +28,7 @@ import java.util.function.Consumer
 import javax.ws.rs.client.Client
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.Response
+import org.hamcrest.CoreMatchers.`is` as If
 
 /**
  * Common unit tests for builder, config and programmatic security.
@@ -38,7 +39,7 @@ abstract class JerseyMainTest {
         val response = client.target(baseUri())
                 .request()
                 .get()
-        MatcherAssert.assertThat(response.status, CoreMatchers.`is`(200))
+        MatcherAssert.assertThat(response.status, If(200))
         MatcherAssert.assertThat(response.readEntity(String::class.java), CoreMatchers.containsString("<ANONYMOUS>"))
     }
 
@@ -47,20 +48,22 @@ abstract class JerseyMainTest {
         testProtected(baseUri() + "/protected",
                 "jack",
                 "password",
-                java.util.Set.of("user", "admin"),
-                java.util.Set.of())
+                mutableSetOf("user", "admin"),
+                mutableSetOf()
+        )
         testProtected(baseUri() + "/protected",
                 "jill",
                 "password",
-                java.util.Set.of("user"),
-                java.util.Set.of("admin"))
+                mutableSetOf("user"),
+                mutableSetOf("admin")
+        )
     }
 
     @Test
     fun testWrongPwd() {
         // here we call the endpoint
         val response = callProtected(baseUri() + "/protected", "jack", "somePassword")
-        MatcherAssert.assertThat(response.status, CoreMatchers.`is`(401))
+        MatcherAssert.assertThat(response.status, If(401))
     }
 
     @Test
@@ -73,8 +76,9 @@ abstract class JerseyMainTest {
         testProtected(baseUri() + "/outbound",
                 "jill",
                 "password",
-                java.util.Set.of("user"),
-                java.util.Set.of("admin"))
+                mutableSetOf("user"),
+                mutableSetOf("admin")
+        )
     }
 
     protected abstract val port: Int
@@ -95,7 +99,7 @@ abstract class JerseyMainTest {
                                     username: String,
                                     password: String) {
         val response = callProtected(uri, username, password)
-        MatcherAssert.assertThat(response.status, CoreMatchers.`is`(403))
+        MatcherAssert.assertThat(response.status, If(403))
     }
 
     private fun testProtected(uri: String,
@@ -105,7 +109,7 @@ abstract class JerseyMainTest {
                               invalidRoles: Set<String>) {
         val response = callProtected(uri, username, password)
         val entity = response.readEntity(String::class.java)
-        MatcherAssert.assertThat(response.status, CoreMatchers.`is`(200))
+        MatcherAssert.assertThat(response.status, If(200))
 
         // check login
         MatcherAssert.assertThat(entity, CoreMatchers.containsString("id='$username'"))
@@ -144,7 +148,7 @@ abstract class JerseyMainTest {
             }
             val cdl = CountDownLatch(1)
             val t = System.nanoTime()
-            server.shutdown().thenAccept { webServer: WebServer? ->
+            server.shutdown().thenAccept {
                 val time = System.nanoTime() - t
                 println("Server shutdown in " + TimeUnit.NANOSECONDS.toMillis(time) + " ms")
                 cdl.countDown()

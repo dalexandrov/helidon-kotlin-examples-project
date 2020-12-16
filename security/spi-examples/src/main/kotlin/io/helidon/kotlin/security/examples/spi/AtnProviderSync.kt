@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.security.examples.spi
 
+import asType
 import io.helidon.config.Config
 import io.helidon.security.*
 import io.helidon.security.spi.AuthenticationProvider
@@ -57,7 +58,7 @@ class AtnProviderSync : SynchronousProvider(), AuthenticationProvider {
 
         // 2) configuration in request
         opt = epConfig.config("atn-object")
-            .flatMap { conf: Config -> conf.`as` { config: Config -> AtnObject.from(config) }.asOptional() }
+            .flatMap { conf: Config -> conf.asType() { config: Config -> AtnObject.from(config) }.asOptional() }
         if (opt.isPresent) {
             return opt.get()
         }

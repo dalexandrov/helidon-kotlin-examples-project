@@ -15,37 +15,20 @@
  */
 package io.helidon.kotlin.config.examples.changes
 
-import java.io.IOException
 import java.util.concurrent.TimeUnit
-import java.util.logging.Logger
 
-/**
- * Config changes examples.
- */
-object Main {
-    private val LOGGER = Logger.getLogger(Main::class.java.name)
 
-    /**
-     * Executes the example.
-     *
-     * @param args arguments
-     * @throws InterruptedException in case you cannot sleep
-     * @throws IOException          in case of IO error
-     */
-    @Throws(IOException::class, InterruptedException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        // subscribe using simple onChange function
-        OnChangeExample().run()
-        // use same Supplier instances to get up-to-date value
-        val asSupplier = AsSupplierExample()
-        asSupplier.run()
+fun main() {
+    // subscribe using simple onChange function
+    OnChangeExample().run()
+    // use same Supplier instances to get up-to-date value
+    val asSupplier = AsSupplierExample()
+    asSupplier.run()
 
-        // waiting for user made changes in config files
-        val sleep: Long = 60
-        LOGGER.info("Application is waiting $sleep seconds for change...")
-        TimeUnit.SECONDS.sleep(sleep)
-        asSupplier.shutdown()
-        LOGGER.info("Goodbye.")
-    }
+    // waiting for user made changes in config files
+    val sleep: Long = 60
+    print("Application is waiting $sleep seconds for change...")
+    TimeUnit.SECONDS.sleep(sleep)
+    asSupplier.shutdown()
+    print("Goodbye.")
 }

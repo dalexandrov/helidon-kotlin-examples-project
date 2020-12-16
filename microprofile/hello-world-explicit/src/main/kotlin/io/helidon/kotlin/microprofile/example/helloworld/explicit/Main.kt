@@ -20,22 +20,15 @@ import io.helidon.microprofile.server.Server
 /**
  * Explicit example.
  */
-object Main {
-    /**
-     * Starts server manually.
-     *
-     * @param args command line arguments (ignored)
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val server = Server.builder()
-                .host("localhost") // use a random free port
-                .port(0)
-                .build()
-        server.start()
-        val endpoint = "http://" + server.host() + ":" + server.port()
-        println("Started application on     $endpoint/helloworld")
-        println("Metrics available on       $endpoint/metrics")
-        println("Heatlh checks available on $endpoint/health")
-    }
+
+fun main() {
+    val server = Server.builder()
+        .host("localhost") // use a random free port
+        .port(0)
+        .build()
+    server.start()
+    val endpoint = "http://" + server.host() + ":" + server.port()
+    println("Started application on     $endpoint/helloworld")
+    println("Metrics available on       $endpoint/metrics")
+    println("Heatlh checks available on $endpoint/health")
 }

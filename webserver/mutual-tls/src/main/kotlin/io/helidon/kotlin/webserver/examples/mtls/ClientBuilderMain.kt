@@ -21,57 +21,51 @@ import io.helidon.webclient.WebClient
 import io.helidon.webclient.WebClientTls
 
 /**
- * Setting up [WebClient] to support mutual TLS via builder.
+ * Start the example.
+ * This example executes two requests by Helidon [WebClient] which are configured
+ * by the [WebClient.Builder].
+ *
+ * You have to execute either [ServerBuilderMain] or [ServerConfigMain] for this to work.
+ *
+ * If any of the ports has been changed, you have to update ports in this main method also.
+ *
+ * @param args start arguments are ignored
  */
-object ClientBuilderMain {
-    /**
-     * Start the example.
-     * This example executes two requests by Helidon [WebClient] which are configured
-     * by the [WebClient.Builder].
-     *
-     * You have to execute either [ServerBuilderMain] or [ServerConfigMain] for this to work.
-     *
-     * If any of the ports has been changed, you have to update ports in this main method also.
-     *
-     * @param args start arguments are ignored
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val webClient = createWebClient()
-        println("Contacting unsecured endpoint!")
-        println("Response: " + callUnsecured(webClient, 8080))
-        println("Contacting secured endpoint!")
-        println("Response: " + callSecured(webClient, 443))
-    }
 
-    @JvmStatic
-    fun createWebClient(): WebClient {
-        val keyConfig = KeyConfig.keystoreBuilder()
-                .trustStore()
-                .keystore(Resource.create("client.p12"))
-                .keystorePassphrase("password")
+fun main(args: Array<String>) {
+    val webClient = createWebClient()
+    println("Contacting unsecured endpoint!")
+    println("Response: " + callUnsecured(webClient, 8080))
+    println("Contacting secured endpoint!")
+    println("Response: " + callSecured(webClient, 443))
+}
+
+fun createWebClient(): WebClient {
+    val keyConfig = KeyConfig.keystoreBuilder()
+        .trustStore()
+        .keystore(Resource.create("client.p12"))
+        .keystorePassphrase("password")
+        .build()
+    return WebClient.builder()
+        .tls(
+            WebClientTls.builder()
+                .certificateTrustStore(keyConfig)
+                .clientKeyStore(keyConfig)
                 .build()
-        return WebClient.builder()
-                .tls(WebClientTls.builder()
-                        .certificateTrustStore(keyConfig)
-                        .clientKeyStore(keyConfig)
-                        .build())
-                .build()
-    }
+        )
+        .build()
+}
 
-    @JvmStatic
-    fun callUnsecured(webClient: WebClient, port: Int): String {
-        return webClient.get()
-                .uri("http://localhost:$port")
-                .request(String::class.java)
-                .await()
-    }
+fun callUnsecured(webClient: WebClient, port: Int): String {
+    return webClient.get()
+        .uri("http://localhost:$port")
+        .request(String::class.java)
+        .await()
+}
 
-    @JvmStatic
-    fun callSecured(webClient: WebClient, port: Int): String {
-        return webClient.get()
-                .uri("https://localhost:$port")
-                .request(String::class.java)
-                .await()
-    }
+fun callSecured(webClient: WebClient, port: Int): String {
+    return webClient.get()
+        .uri("https://localhost:$port")
+        .request(String::class.java)
+        .await()
 }

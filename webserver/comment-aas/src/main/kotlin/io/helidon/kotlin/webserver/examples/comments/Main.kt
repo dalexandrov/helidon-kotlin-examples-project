@@ -33,53 +33,48 @@ import java.util.concurrent.CompletionException
  *
  * This WEB application provides possibility to store and read comment related to various topics.
  */
-object Main {
-    /**
-     * A java main class.
-     *
-     * @param args command line arguments.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        // Load configuration
-        val config = Config.create()
-        val acceptAnonymousUsers = config["anonymous-enabled"].asBoolean().orElse(false)
-        val server = WebServer.create(createRouting(acceptAnonymousUsers),
-                config["webserver"])
 
-        // Start the server and print some info.
-        server.start().thenAccept { ws: WebServer ->
-            println(
-                    "WEB server is up! http://localhost:" + ws.port() + "/comments")
+fun main() {
+    // Load configuration
+    val config = Config.create()
+    val acceptAnonymousUsers = config["anonymous-enabled"].asBoolean().orElse(false)
+    val server = WebServer.create(
+        createRouting(acceptAnonymousUsers),
+        config["webserver"]
+    )
+
+    // Start the server and print some info.
+    server.start().thenAccept { ws: WebServer ->
+        println(
+            "WEB server is up! http://localhost:" + ws.port() + "/comments"
+        )
+    }
+    server.whenShutdown()
+        .thenRun { println("WEB server is DOWN. Good bye!") }
+}
+
+fun createRouting(acceptAnonymousUsers: Boolean): Routing {
+    return Routing.builder() // Filter that translates user identity header into the contextual "user" information
+        .any(Handler { req: ServerRequest, _: ServerResponse? ->
+            val user = req.headers().first("user-identity")
+                .or { if (acceptAnonymousUsers) Optional.of("anonymous") else Optional.empty() }
+                .orElseThrow { HttpException("Anonymous access is forbidden!", Http.Status.FORBIDDEN_403) }
+            req.context().register("user", user)
+            req.next()
+        }) // Main service logic part is registered as a separated class to "/comments" context root
+        .register("/comments", CommentsService()) // Error handling for argot expressions.
+        .error(CompletionException::class.java) { req: ServerRequest, _: ServerResponse?, ex: CompletionException -> req.next(ex.cause) }
+        .error(ProfanityException::class.java) { _: ServerRequest?, res: ServerResponse, ex: ProfanityException ->
+            res.status(Http.Status.NOT_ACCEPTABLE_406)
+            res.send("Expressions like '" + ex.obfuscatedProfanity + "' are unacceptable!")
         }
-        server.whenShutdown()
-                .thenRun { println("WEB server is DOWN. Good bye!") }
-    }
-
-    @JvmStatic
-    fun createRouting(acceptAnonymousUsers: Boolean): Routing {
-        return Routing.builder() // Filter that translates user identity header into the contextual "user" information
-                .any(Handler { req: ServerRequest, _: ServerResponse? ->
-                    val user = req.headers().first("user-identity")
-                            .or { if (acceptAnonymousUsers) Optional.of("anonymous") else Optional.empty() }
-                            .orElseThrow { HttpException("Anonymous access is forbidden!", Http.Status.FORBIDDEN_403) }
-                    req.context().register("user", user)
-                    req.next()
-                }) // Main service logic part is registered as a separated class to "/comments" context root
-                .register("/comments", CommentsService()) // Error handling for argot expressions.
-                .error(CompletionException::class.java) { req: ServerRequest, _: ServerResponse?, ex: CompletionException -> req.next(ex.cause) }
-                .error(ProfanityException::class.java) { _: ServerRequest?, res: ServerResponse, ex: ProfanityException ->
-                    res.status(Http.Status.NOT_ACCEPTABLE_406)
-                    res.send("Expressions like '" + ex.obfuscatedProfanity + "' are unacceptable!")
-                }
-                .error(HttpException::class.java) { req: ServerRequest, res: ServerResponse, ex: HttpException ->
-                    if (ex.status() === Http.Status.FORBIDDEN_403) {
-                        res.status(ex.status())
-                        res.send(ex.message)
-                    } else {
-                        req.next()
-                    }
-                }
-                .build()
-    }
+        .error(HttpException::class.java) { req: ServerRequest, res: ServerResponse, ex: HttpException ->
+            if (ex.status() === Http.Status.FORBIDDEN_403) {
+                res.status(ex.status())
+                res.send(ex.message)
+            } else {
+                req.next()
+            }
+        }
+        .build()
 }

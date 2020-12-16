@@ -16,6 +16,7 @@
  */
 package io.helidon.kotlin.microprofile.examples.cors
 
+import asSingle
 import io.helidon.common.http.Headers
 import io.helidon.common.http.MediaType
 import io.helidon.config.Config
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import java.util.concurrent.ExecutionException
 import javax.json.Json
 import javax.json.JsonObject
+import org.hamcrest.Matchers.`is` as Is
 
 @TestMethodOrder(OrderAnnotation::class)
 class TestCORS {
@@ -40,20 +42,20 @@ class TestCORS {
     @Throws(Exception::class)
     fun testHelloWorld() {
         var r = getResponse("/greet")
-        MatcherAssert.assertThat("HTTP response1", r.status().code(), Matchers.`is`(200))
-        MatcherAssert.assertThat("default message", fromPayload(r), Matchers.`is`("Hello World!"))
+        MatcherAssert.assertThat("HTTP response1", r.status().code(), Is(200))
+        MatcherAssert.assertThat("default message", fromPayload(r), Is("Hello World!"))
         r = getResponse("/greet/Joe")
-        MatcherAssert.assertThat("HTTP response2", r.status().code(), Matchers.`is`(200))
-        MatcherAssert.assertThat("Hello Joe message", fromPayload(r), Matchers.`is`("Hello Joe!"))
+        MatcherAssert.assertThat("HTTP response2", r.status().code(), Is(200))
+        MatcherAssert.assertThat("Hello Joe message", fromPayload(r), Is("Hello Joe!"))
         r = putResponse("/greet/greeting", "Hola")
-        MatcherAssert.assertThat("HTTP response3", r.status().code(), Matchers.`is`(204))
+        MatcherAssert.assertThat("HTTP response3", r.status().code(), Is(204))
         r = getResponse("/greet/Jose")
-        MatcherAssert.assertThat("HTTP response4", r.status().code(), Matchers.`is`(200))
-        MatcherAssert.assertThat("Hola Jose message", fromPayload(r), Matchers.`is`("Hola Jose!"))
+        MatcherAssert.assertThat("HTTP response4", r.status().code(), Is(200))
+        MatcherAssert.assertThat("Hola Jose message", fromPayload(r), Is("Hola Jose!"))
         r = getResponse("/health")
-        MatcherAssert.assertThat("HTTP response health", r.status().code(), Matchers.`is`(200))
+        MatcherAssert.assertThat("HTTP response health", r.status().code(), Is(200))
         r = getResponse("/metrics")
-        MatcherAssert.assertThat("HTTP response metrics", r.status().code(), Matchers.`is`(200))
+        MatcherAssert.assertThat("HTTP response metrics", r.status().code(), Is(200))
     }
 
     @Order(10) // Run after the non-CORS tests (so the greeting is Hola) but before the CORS test that changes the greeting again.
@@ -65,14 +67,17 @@ class TestCORS {
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
         val r = getResponse("/greet", builder)
-        MatcherAssert.assertThat("HTTP response", r.status().code(), Matchers.`is`(200))
+        MatcherAssert.assertThat("HTTP response", r.status().code(), Is(200))
         val payload = fromPayload(r)
-        MatcherAssert.assertThat("HTTP response payload", payload, Matchers.`is`("Hola World!"))
+        MatcherAssert.assertThat("HTTP response payload", payload, Is("Hola World!"))
         headers = r.headers()
         val allowOrigin = headers.value(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
         MatcherAssert.assertThat("Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " is absent",
-                allowOrigin.isPresent, Matchers.`is`(true))
-        MatcherAssert.assertThat("CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigin.get(), Matchers.`is`("*"))
+                allowOrigin.isPresent, Is(true)
+        )
+        MatcherAssert.assertThat("CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigin.get(),
+            Is("*")
+        )
     }
 
     @Order(11) // Run after the non-CORS tests but before other CORS tests.
@@ -90,15 +95,17 @@ class TestCORS {
                 .submit()
                 .toCompletableFuture()
                 .get()
-        MatcherAssert.assertThat("pre-flight status", r.status().code(), Matchers.`is`(200))
+        MatcherAssert.assertThat("pre-flight status", r.status().code(), Is(200))
         val preflightResponseHeaders: Headers = r.headers()
         val allowMethods = preflightResponseHeaders.values(CrossOriginConfig.ACCESS_CONTROL_ALLOW_METHODS)
         MatcherAssert.assertThat("pre-flight response check for " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_METHODS,
-                allowMethods, Matchers.`is`(Matchers.not(Matchers.empty())))
+                allowMethods, Is(Matchers.not(Matchers.empty()))
+        )
         MatcherAssert.assertThat("Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_METHODS, allowMethods, Matchers.contains("PUT"))
         var allowOrigins = preflightResponseHeaders.values(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
         MatcherAssert.assertThat("pre-flight response check for " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN,
-                allowOrigins, Matchers.`is`(Matchers.not(Matchers.empty())))
+                allowOrigins, Is(Matchers.not(Matchers.empty()))
+        )
         MatcherAssert.assertThat("Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigins, Matchers.contains("http://foo.com"))
 
         // Send the follow-up request.
@@ -108,11 +115,12 @@ class TestCORS {
         headers.add("Host", "here.com")
         headers.addAll(preflightResponseHeaders)
         r = putResponse("/greet/greeting", "Cheers", builder)
-        MatcherAssert.assertThat("HTTP response3", r.status().code(), Matchers.`is`(204))
+        MatcherAssert.assertThat("HTTP response3", r.status().code(), Is(204))
         headers = r.headers()
         allowOrigins = headers.values(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
         MatcherAssert.assertThat("Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN,
-                allowOrigins, Matchers.`is`(Matchers.not(Matchers.empty())))
+                allowOrigins, Is(Matchers.not(Matchers.empty()))
+        )
         MatcherAssert.assertThat("Header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigins, Matchers.contains("http://foo.com"))
     }
 
@@ -125,13 +133,14 @@ class TestCORS {
         headers.add("Origin", "http://foo.com")
         headers.add("Host", "here.com")
         val r = getResponse("/greet/Maria", builder)
-        MatcherAssert.assertThat("HTTP response", r.status().code(), Matchers.`is`(200))
+        MatcherAssert.assertThat("HTTP response", r.status().code(), Is(200))
         MatcherAssert.assertThat(fromPayload(r), Matchers.containsString("Cheers Maria"))
         headers = r.headers()
         val allowOrigin = headers.value(CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN)
         MatcherAssert.assertThat("Expected CORS header " + CrossOriginConfig.ACCESS_CONTROL_ALLOW_ORIGIN + " presence check",
-                allowOrigin.isPresent, Matchers.`is`(true))
-        MatcherAssert.assertThat(allowOrigin.get(), Matchers.`is`("*"))
+                allowOrigin.isPresent, Is(true)
+        )
+        MatcherAssert.assertThat(allowOrigin.get(), Is("*"))
     }
 
     @Order(100) // After all other tests so we can rely on deterministic greetings.
@@ -145,7 +154,7 @@ class TestCORS {
         val r = putResponse("/greet/greeting", "Ahoy", builder)
         // Result depends on whether we are using overrides or not.
         val isOverriding = Config.create()["cors"].exists()
-        MatcherAssert.assertThat("HTTP response3", r.status().code(), Matchers.`is`(if (isOverriding) 204 else 403))
+        MatcherAssert.assertThat("HTTP response3", r.status().code(), Is(if (isOverriding) 204 else 403))
     }
 
     companion object {
@@ -196,7 +205,7 @@ class TestCORS {
         private fun fromPayload(response: WebClientResponse): String {
             val json = response
                     .content()
-                    .`as`(JsonObject::class.java)
+                    .asSingle(JsonObject::class.java)
                     .toCompletableFuture()
                     .get()
             return json.getString(JSON_MESSAGE_RESPONSE_LABEL)

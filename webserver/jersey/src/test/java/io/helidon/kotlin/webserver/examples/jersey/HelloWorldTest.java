@@ -28,11 +28,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static io.helidon.kotlin.webserver.examples.jersey.MainKt.startServer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The Jersey Client based example that tests the {@link HelloWorld} resource
- * that gets served by running {@link Main#startServer(int)}
+ * that gets served by running }
  *
  * @see HelloWorld
  * @see Main
@@ -43,7 +44,7 @@ public class HelloWorldTest {
 
     @BeforeAll
     public static void startTheServer() throws Exception {
-        webServer = Main.startServer(0)
+        webServer = startServer(0)
                                        .toCompletableFuture()
                                        .get(10, TimeUnit.SECONDS);
     }
@@ -58,7 +59,7 @@ public class HelloWorldTest {
     }
 
     @Test
-    public void testHelloWorld() throws Exception {
+    public void testHelloWorld() {
         Client client = ClientBuilder.newClient();
         try {
             Response response = client.target("http://localhost:" + webServer.port())

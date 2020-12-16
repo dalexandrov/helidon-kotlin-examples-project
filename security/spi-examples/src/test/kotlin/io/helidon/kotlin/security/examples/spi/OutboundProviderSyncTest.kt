@@ -16,11 +16,12 @@
 package io.helidon.kotlin.security.examples.spi
 
 import io.helidon.security.*
-import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import java.util.*
+import org.hamcrest.CoreMatchers.`is` as Is
+import org.mockito.Mockito.`when` as When
 
 /**
  * Unit test for [OutboundProviderSync].
@@ -29,15 +30,15 @@ class OutboundProviderSyncTest {
     @Test
     fun testAbstain() {
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.user()).thenReturn(Optional.empty())
-        Mockito.`when`(context.service()).thenReturn(Optional.empty())
+        When(context.user()).thenReturn(Optional.empty())
+        When(context.service()).thenReturn(Optional.empty())
         val se = SecurityEnvironment.create()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
         val ops = OutboundProviderSync()
         val response = ops.syncOutbound(request, SecurityEnvironment.create(), EndpointConfig.create())
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.ABSTAIN))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.ABSTAIN))
     }
 
     @Test
@@ -45,15 +46,15 @@ class OutboundProviderSyncTest {
         val username = "aUser"
         val subject = Subject.create(Principal.create(username))
         val context = Mockito.mock(SecurityContext::class.java)
-        Mockito.`when`(context.user()).thenReturn(Optional.of(subject))
-        Mockito.`when`(context.service()).thenReturn(Optional.empty())
+        When(context.user()).thenReturn(Optional.of(subject))
+        When(context.service()).thenReturn(Optional.empty())
         val se = SecurityEnvironment.create()
         val request = Mockito.mock(ProviderRequest::class.java)
-        Mockito.`when`(request.securityContext()).thenReturn(context)
-        Mockito.`when`(request.env()).thenReturn(se)
+        When(request.securityContext()).thenReturn(context)
+        When(request.env()).thenReturn(se)
         val ops = OutboundProviderSync()
         val response = ops.syncOutbound(request, SecurityEnvironment.create(), EndpointConfig.create())
-        MatcherAssert.assertThat(response.status(), CoreMatchers.`is`(SecurityResponse.SecurityStatus.SUCCESS))
-        MatcherAssert.assertThat(response.requestHeaders()["X-AUTH-USER"], CoreMatchers.`is`(listOf(username)))
+        MatcherAssert.assertThat(response.status(), Is(SecurityResponse.SecurityStatus.SUCCESS))
+        MatcherAssert.assertThat(response.requestHeaders()["X-AUTH-USER"], Is(listOf(username)))
     }
 }
