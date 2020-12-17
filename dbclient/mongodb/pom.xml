@@ -31,7 +31,7 @@
     <name>Helidon Examples DB Client MongoDB in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.dbclient.mongo.MongoDbExampleMain</mainClass>
+        <mainClass>io.helidon.kotlin.examples.dbclient.mongo.MongoDbExampleMainKt</mainClass>
     </properties>
 
     <dependencies>

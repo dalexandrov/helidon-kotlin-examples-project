@@ -36,7 +36,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.microprofile.example.staticc.Main</mainClass>
+        <mainClass>io.helidon.kotlin.microprofile.example.staticc.MainKt</mainClass>
     </properties>
 
     <dependencies>

@@ -30,7 +30,7 @@
     <name>Helidon WebClient Standalone Example in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.webclient.standalone.ServerMain</mainClass>
+        <mainClass>io.helidon.kotlin.examples.webclient.standalone.ServerMainKt</mainClass>
     </properties>
 
     <dependencies>

@@ -10,7 +10,7 @@ has a branch named `test` that contains `application.conf` which sets the key
 `greeting` to value `hello`. (The Helidon team has created and populated this 
 repository.)
 
-The code in [`Main.kt`](src/main/kotlin/io/helidon/kotlin/config/examples/git/Main.kt)
+The code in [`Main.kt`](src/main/java/io/helidon/kotlin/config/examples/git/Main.kt)
 uses the environment variable `ENVIRONMENT_NAME` to fetch the branch name
 in the GitHub repository to use; it uses `master` by default (which does _not_ 
 contain the expected value).

@@ -33,7 +33,7 @@
     <description>Comments As A Service example application written in Kotlin</description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.comments.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.comments.MainKt</mainClass>
     </properties>
 
     <dependencies>
@@ -67,6 +67,11 @@
             <groupId>io.helidon.webserver</groupId>
             <artifactId>helidon-webserver-test-support</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.kotlin.examples</groupId>
+            <artifactId>kotlin-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

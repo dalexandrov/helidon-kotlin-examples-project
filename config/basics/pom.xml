@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.config.examples.basics.Main</mainClass>
+        <mainClass>io.helidon.kotlin.config.examples.basics.MainKt</mainClass>
     </properties>
 
     <dependencies>

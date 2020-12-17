@@ -30,7 +30,7 @@
     <name>Helidon Examples DB Client Pokemons Database in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.dbclient.pokemons.PokemonMain</mainClass>
+        <mainClass>io.helidon.kotlin.examples.dbclient.pokemons.PokemonMainKt</mainClass>
         <arg>jdbc</arg>
     </properties>
 

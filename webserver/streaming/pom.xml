@@ -36,7 +36,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.streaming.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.streaming.MainKt</mainClass>
     </properties>
 
     <dependencies>

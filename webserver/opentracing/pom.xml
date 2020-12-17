@@ -35,7 +35,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.opentracing.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.opentracing.MainKt</mainClass>
     </properties>
 
     <dependencies>

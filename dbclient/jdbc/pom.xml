@@ -30,7 +30,7 @@
     <name>Helidon Examples DB Client JDBC in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.dbclient.jdbc.JdbcExampleMain</mainClass>
+        <mainClass>io.helidon.kotlin.examples.dbclient.jdbc.JdbcExampleMainKt</mainClass>
     </properties>
 
     <dependencies>

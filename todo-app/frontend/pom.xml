@@ -35,7 +35,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.demo.todos.frontend.Main</mainClass>
+        <mainClass>io.helidon.kotlin.demo.todos.frontend.MainKt</mainClass>
         <exec.mainClass>${mainClass}</exec.mainClass>
         <version.nodejs>v12.16.1</version.nodejs>
         <version.npm>6.13.4</version.npm>

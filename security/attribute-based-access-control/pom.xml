@@ -35,7 +35,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.security.examples.abac.AbacJerseyMain</mainClass>
+        <mainClass>io.helidon.kotlin.security.examples.abac.AbacJerseyMainKt</mainClass>
     </properties>
 
     <dependencies>

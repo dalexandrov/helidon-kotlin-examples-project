@@ -35,7 +35,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.demo.todos.backend.Main</mainClass>
+        <mainClass>io.helidon.kotlin.demo.todos.backend.MainKt</mainClass>
         <version.lib.cassandra>3.4.0</version.lib.cassandra>
     </properties>
 

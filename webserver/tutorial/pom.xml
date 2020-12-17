@@ -36,7 +36,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.tutorial.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.tutorial.MainKt</mainClass>
     </properties>
 
     <dependencies>

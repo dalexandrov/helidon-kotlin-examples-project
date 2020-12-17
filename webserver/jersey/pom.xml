@@ -35,7 +35,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.jersey.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.jersey.MainKt</mainClass>
     </properties>
 
     <dependencies>

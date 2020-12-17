@@ -32,7 +32,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.mtls.ServerConfigMain</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.mtls.ServerConfigMainKt</mainClass>
     </properties>
 
     <dependencies>

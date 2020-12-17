@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.microprofile.security.oidc.OidcMain</mainClass>
+        <mainClass>io.helidon.kotlin.examples.microprofile.security.oidc.OidcMainKt</mainClass>
     </properties>
 
     <dependencies>

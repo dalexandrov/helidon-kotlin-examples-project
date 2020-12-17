@@ -33,7 +33,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.config.examples.overrides.Main</mainClass>
+        <mainClass>io.helidon.kotlin.config.examples.overrides.MainKt</mainClass>
     </properties>
 
     <dependencies>

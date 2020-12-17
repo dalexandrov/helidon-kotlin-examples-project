@@ -36,7 +36,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.examples.microprofile.security.idcs.IdcsMain</mainClass>
+        <mainClass>io.helidon.examples.microprofile.security.idcs.IdcsMainKt</mainClass>
     </properties>
 
     <dependencies>

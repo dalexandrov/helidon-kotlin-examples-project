@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.faulttolerance.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.faulttolerance.MainKt</mainClass>
     </properties>
 
     <dependencies>

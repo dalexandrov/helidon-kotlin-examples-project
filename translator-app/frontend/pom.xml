@@ -35,7 +35,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.translator.frontend.Main</mainClass>
+        <mainClass>io.helidon.kotlin.examples.translator.frontend.MainKt</mainClass>
     </properties>
 
     <dependencies>

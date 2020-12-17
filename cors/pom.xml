@@ -33,7 +33,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.cors.Main</mainClass>
+        <mainClass>io.helidon.kotlin.examples.cors.MainKt</mainClass>
     </properties>
 
     <build>

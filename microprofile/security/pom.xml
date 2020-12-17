@@ -36,7 +36,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.microprofile.example.security.Main</mainClass>
+        <mainClass>io.helidon.kotlin.microprofile.example.security.MainKt</mainClass>
     </properties>
 
     <dependencies>

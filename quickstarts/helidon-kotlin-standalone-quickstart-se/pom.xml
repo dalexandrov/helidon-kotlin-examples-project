@@ -27,7 +27,7 @@
 
     <properties>
         <helidon.version>2.1.0</helidon.version>
-        <mainClass>io.helidon.kotlin.examples.standalone.quickstart.se.Main</mainClass>
+        <mainClass>io.helidon.kotlin.examples.standalone.quickstart.se.MainKt</mainClass>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>

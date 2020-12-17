@@ -33,7 +33,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.health.basics.Main</mainClass>
+        <mainClass>io.helidon.kotlin.examples.health.basics.MainKt</mainClass>
     </properties>
 
     <dependencies>

@@ -32,7 +32,7 @@
     <name>Helidon Quickstart SE Example in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.standalone.quickstart.se.Main</mainClass>
+        <mainClass>io.helidon.kotlin.examples.standalone.quickstart.se.MainKt</mainClass>
     </properties>
 
     <dependencies>
@@ -69,6 +69,11 @@
             <groupId>io.helidon.webclient</groupId>
             <artifactId>helidon-webclient</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.kotlin.examples</groupId>
+            <artifactId>kotlin-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

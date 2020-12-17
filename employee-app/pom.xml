@@ -32,7 +32,7 @@
     <name>Helidon Examples Employee App in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.service.employee.Main</mainClass>
+        <mainClass>io.helidon.kotlin.service.employee.MainKt</mainClass>
     </properties>
 
     <dependencies>

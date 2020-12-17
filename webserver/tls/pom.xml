@@ -33,7 +33,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.tls.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.tls.MainKt</mainClass>
     </properties>
 
     <dependencies>

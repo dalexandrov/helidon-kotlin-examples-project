@@ -35,7 +35,7 @@
     </description>
 
     <properties>
-        <mainClass>io.helidon.kotlin.webserver.examples.websocket.Main</mainClass>
+        <mainClass>io.helidon.kotlin.webserver.examples.websocket.MainKt</mainClass>
     </properties>
 
     <dependencies>
