@@ -58,9 +58,8 @@ security:
 #            some-key: "some value"
 #            another-key: "another value"
     - atn:
-      class: "io.helidon.security.examples.abac.AtnProvider"
+      class: "io.helidon.kotlin.security.examples.abac.AtnProvider"
   web-server:
-    defaults:
     paths:
       - path: "/query"
         audit: true

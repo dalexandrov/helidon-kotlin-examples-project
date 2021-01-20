@@ -38,7 +38,7 @@ import javax.ws.rs.Path
 //@RoleValidator.Roles(value = ["service_role"], subjectType = SubjectType.SERVICE) !NOT SUPPORTED IN KOTLIN!
 @PolicyValidator.PolicyStatement("\${env.time.year >= 2017}")
 @Authenticated
-class AbacResource {
+open class AbacResource {
     /**
      * A resource method to demonstrate if access was successful or not.
      *
@@ -47,7 +47,7 @@ class AbacResource {
     @GET
     @Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"])
     //@Authentication(value = "service", type = SubjectType.SERVICE, roles = ["service_role"], scopes = ["calendar_read", "calendar_edit"]) !NOT SUPPORTED IN KOTLIN!
-    fun process(): String {
+    open fun process(): String {
         return "hello"
     }
 
@@ -61,7 +61,7 @@ class AbacResource {
     @PolicyValidator.PolicyStatement("\${env.time.year < 2017}")
     @Authentication(value = "user", scopes = ["calendar_read"])
     //@Authentication(value = "service", type = SubjectType.SERVICE, roles = ["service_role"], scopes = ["calendar_read", "calendar_edit"]) !NOT SUPPORTED IN KOTLIN!
-    fun deny(): String {
+    open fun deny(): String {
         return "hello"
     }
 }
