@@ -26,7 +26,7 @@ import java.util.function.Consumer
 /**
  * Example authentication provider that reads annotation to create a subject.
  */
-class AtnProvider : SynchronousProvider(), AuthenticationProvider {
+open class AtnProvider : SynchronousProvider(), AuthenticationProvider {
     override fun syncAuthenticate(providerRequest: ProviderRequest): AuthenticationResponse {
         val securityLevels = providerRequest.endpointConfig().securityLevels()
         val listIterator: ListIterator<SecurityLevel> = securityLevels.listIterator(securityLevels.size)
@@ -78,7 +78,7 @@ class AtnProvider : SynchronousProvider(), AuthenticationProvider {
     @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
     @MustBeDocumented
     @Inherited
-    //@Repeatable(Authentications::class)
+    @Repeatable
     annotation class Authentication(
             /**
              * Name of the principal.

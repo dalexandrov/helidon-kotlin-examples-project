@@ -22,6 +22,7 @@ import io.helidon.security.abac.time.TimeValidator
 import io.helidon.security.annotations.Authenticated
 import io.helidon.security.annotations.Authorized
 import io.helidon.kotlin.security.examples.abac.AtnProvider.Authentication
+import io.helidon.security.SubjectType
 import java.time.DayOfWeek
 import javax.json.JsonString
 import javax.ws.rs.Consumes
@@ -36,11 +37,15 @@ import javax.ws.rs.core.Response
  * Explicit authorization resource - authorization must be called by programmer.
  */
 @Path("/explicit")
-@TimeValidator.TimeOfDay(from = "08:15:00", to = "12:00:00")
-//@TimeValidator.TimeOfDay(from = "12:30:00", to = "17:30:00") !NOT SUPPORTED IN KOTLIN!
+@TimeValidator.TimesOfDay(
+    TimeValidator.TimeOfDay(from = "08:15:00", to = "12:00:00"),
+    TimeValidator.TimeOfDay(from = "12:30:00", to = "17:30:00")
+)
 @TimeValidator.DaysOfWeek(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
-@ScopeValidator.Scope("calendar_read")
-//@ScopeValidator.Scope("calendar_edit")!NOT SUPPORTED IN KOTLIN!
+@ScopeValidator.Scopes(
+    ScopeValidator.Scope("calendar_read"),
+    ScopeValidator.Scope("calendar_edit")//!NOT SUPPORTED IN KOTLIN!
+)
 @PolicyValidator.PolicyStatement("\${env.time.year >= 2017 && object.owner == subject.principal.id}")
 @Authenticated
 open class AbacExplicitResource {
@@ -52,9 +57,16 @@ open class AbacExplicitResource {
      */
     @GET
     @Authorized(explicit = true)
-    @Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"])
-    //@Authentication(value = "service", type = SubjectType.SERVICE, roles = ["service_role"], scopes = ["calendar_read", "calendar_edit"]) !NOT SUPPORTED IN KOTLIN!
-    fun process(@Context context: SecurityContext): Response {
+    @AtnProvider.Authentications(
+        Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"]),
+        Authentication(
+            value = "service",
+            type = SubjectType.SERVICE,
+            roles = ["service_role"],
+            scopes = ["calendar_read", "calendar_edit"]
+        )/// !NOT SUPPORTED IN KOTLIN!
+    )
+    open fun process(@Context context: SecurityContext): Response {
         val res = SomeResource("user")
         val atzResponse = context.authorize(res)
         return if (atzResponse.isPermitted) {
@@ -62,8 +74,8 @@ open class AbacExplicitResource {
             Response.ok().entity("fine, sir").build()
         } else {
             Response.status(Response.Status.FORBIDDEN)
-                    .entity(atzResponse.description().orElse("Access not granted"))
-                    .build()
+                .entity(atzResponse.description().orElse("Access not granted"))
+                .build()
         }
     }
 
@@ -77,10 +89,17 @@ open class AbacExplicitResource {
     @POST
     @Path("/deny")
     @Authorized(explicit = true)
-    @Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"])
-    //@Authentication(value = "service", type = SubjectType.SERVICE, roles = ["service_role"], scopes = ["calendar_read", "calendar_edit"]) !NOT SUPPORTED IN KOTLIN!
+    @AtnProvider.Authentications(
+        Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"]),
+        Authentication(
+            value = "service",
+            type = SubjectType.SERVICE,
+            roles = ["service_role"],
+            scopes = ["calendar_read", "calendar_edit"]
+        )///
+    )// !NOT SUPPORTED IN KOTLIN!
     @Consumes(MediaType.APPLICATION_JSON)
-    fun fail(@Context context: SecurityContext?, `object`: JsonString?): Response {
+    open fun fail(@Context context: SecurityContext?, `object`: JsonString?): Response {
         return Response.ok("This should not work").build()
     }
 
