@@ -17,7 +17,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: helidon-examples-todo-backend
+  name: helidon-kotlin-examples-todo-backend
   namespace: default
 data:
   env: k8s
@@ -33,17 +33,17 @@ data:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: helidon-examples-todo-backend
+  name: helidon-kotlin-examples-todo-backend
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: helidon-examples-todo-backend
+        app: helidon-kotlin-examples-todo-backend
     spec:
       containers:
-      - name: helidon-examples-todo-backend
-        image: helidon-examples-todo-backend
+      - name: helidon-kotlin-examples-todo-backend
+        image: helidon-kotlin-examples-todo-backend
         imagePullPolicy: Never
         ports:
         - containerPort: 8854
@@ -53,18 +53,18 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: helidon-examples-todo-backend
+          name: helidon-kotlin-examples-todo-backend
 
 ---
 
 kind: Service
 apiVersion: v1
 metadata:
-  name: helidon-examples-todo-backend
+  name: helidon-kotlin-examples-todo-backend
 spec:
   type: ClusterIP
   selector:
-    app: helidon-examples-todo-backend
+    app: helidon-kotlin-examples-todo-backend
   ports:
   - name: http
     port: 8854

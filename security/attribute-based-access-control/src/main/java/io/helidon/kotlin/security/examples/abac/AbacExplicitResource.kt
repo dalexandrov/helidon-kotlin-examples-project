@@ -15,13 +15,13 @@
  */
 package io.helidon.kotlin.security.examples.abac
 
+import io.helidon.kotlin.security.examples.abac.AtnProvider.*
 import io.helidon.security.SecurityContext
 import io.helidon.security.abac.policy.PolicyValidator
 import io.helidon.security.abac.scope.ScopeValidator
 import io.helidon.security.abac.time.TimeValidator
 import io.helidon.security.annotations.Authenticated
 import io.helidon.security.annotations.Authorized
-import io.helidon.kotlin.security.examples.abac.AtnProvider.Authentication
 import io.helidon.security.SubjectType
 import java.time.DayOfWeek
 import javax.json.JsonString
@@ -57,7 +57,7 @@ open class AbacExplicitResource {
      */
     @GET
     @Authorized(explicit = true)
-    @AtnProvider.Authentications(
+    @Authentications(
         Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"]),
         Authentication(
             value = "service",
@@ -89,7 +89,7 @@ open class AbacExplicitResource {
     @POST
     @Path("/deny")
     @Authorized(explicit = true)
-    @AtnProvider.Authentications(
+    @Authentications(
         Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"]),
         Authentication(
             value = "service",

@@ -37,11 +37,11 @@ FROM openjdk:11-jre-slim
 WORKDIR /helidon
 
 # Copy the binary built in the 1st stage
-COPY --from=build /helidon/target/helidon-examples-translator-backend.jar ./
+COPY --from=build /helidon/target/helidon-kotlin-examples-translator-backend.jar ./
 COPY --from=build /helidon/target/libs ./libs
 
 ENV tracing.host="zipkin"
 
-CMD ["java", "-jar", "helidon-examples-translator-backend.jar"]
+CMD ["java", "-jar", "helidon-kotlin-examples-translator-backend.jar"]
 
 EXPOSE 9080

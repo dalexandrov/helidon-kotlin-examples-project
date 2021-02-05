@@ -25,17 +25,17 @@ kubectl apply -f ../k8s/ingress.yaml -f ../k8s/zipkin.yaml
 
 With Docker:
 ```bash
-docker build -t helidon-examples-translator-backend backend/
+docker build -t helidon-kotlin-examples-translator-backend backend/
 docker build -t helidon-examples--translator-frontend frontend/
 docker run --rm -d -p 9080:9080 \
     --link zipkin \
-    --name helidon-examples-translator-backend \
-     helidon-examples-translator-backend:latest
+    --name helidon-kotlin-examples-translator-backend \
+     helidon-kotlin-examples-translator-backend:latest
 docker run --rm -d -p 8080:8080 \
     --link zipkin \
-    --link helidon-examples-translator-backend \
-    --name helidon-examples-translator-frontend \
-     helidon-examples-translator-frontend:latest
+    --link helidon-kotlin-examples-translator-backend \
+    --name helidon-kotlin-examples-translator-frontend \
+     helidon-kotlin-examples-translator-frontend:latest
 ```
 
 With Java 8+:

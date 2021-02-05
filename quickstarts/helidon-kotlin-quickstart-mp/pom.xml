@@ -30,10 +30,6 @@
     <artifactId>helidon-kotlin-quickstart-mp</artifactId>
     <name>Helidon Quickstart MP Example in Kotlin</name>
 
-    <properties>
-        <kotlin.version>1.4.20</kotlin.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.helidon.microprofile.bundles</groupId>
@@ -59,15 +55,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-libs</id>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.jboss.jandex</groupId>
                 <artifactId>jandex-maven-plugin</artifactId>

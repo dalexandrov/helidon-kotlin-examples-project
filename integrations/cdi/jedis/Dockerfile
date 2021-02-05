@@ -36,9 +36,9 @@ FROM openjdk:11-jre-slim
 WORKDIR /helidon
 
 # Copy the binary built in the 1st stage
-COPY --from=build /helidon/target/helidon-examples-integrations-cdi-jedis.jar ./
+COPY --from=build /helidon/target/helidon-kotlin-examples-integrations-cdi-jedis.jar ./
 COPY --from=build /helidon/target/libs ./libs
 
-CMD [ "java",  "-jar", "helidon-examples-integrations-cdi-jedis.jar" ]
+CMD [ "java",  "-jar", "helidon-kotlin-examples-integrations-cdi-jedis.jar" ]
 
 EXPOSE 8080

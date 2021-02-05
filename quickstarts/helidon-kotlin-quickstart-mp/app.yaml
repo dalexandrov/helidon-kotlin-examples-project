@@ -17,13 +17,13 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: helidon-quickstart-mp
+  name: helidon-kotlin-quickstart-mp
   labels:
-    app: helidon-quickstart-mp
+    app: helidon-kotlin-quickstart-mp
 spec:
   type: NodePort
   selector:
-    app: helidon-quickstart-mp
+    app: helidon-kotlin-quickstart-mp
   ports:
   - port: 8080
     targetPort: 8080
@@ -32,18 +32,18 @@ spec:
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
-  name: helidon-quickstart-mp
+  name: helidon-kotlin-quickstart-mp
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: helidon-quickstart-mp
+        app: helidon-kotlin-quickstart-mp
         version: v1
     spec:
       containers:
-      - name: helidon-quickstart-mp
-        image: helidon-quickstart-mp
+      - name: helidon-kotlin-quickstart-mp
+        image: helidon-kotlin-quickstart-mp
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080

@@ -34,7 +34,7 @@ import javax.ws.rs.core.MediaType
  */
 @Path("helloworld")
 @RequestScoped
-class HelloWorldResource
+open class HelloWorldResource
 /**
  * Constructor injection of field values.
  *
@@ -53,7 +53,7 @@ class HelloWorldResource
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    fun message(): String {
+    open fun message(): String {
         return "Hello World from application $applicationName"
     }
 
@@ -66,7 +66,7 @@ class HelloWorldResource
     @Path("/{name}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun getHello(@PathParam("name") name: String?): JsonObject {
+    open fun getHello(@PathParam("name") name: String?): JsonObject {
         return JSON.createObjectBuilder()
                 .add("name", name)
                 .add("appName", applicationName)

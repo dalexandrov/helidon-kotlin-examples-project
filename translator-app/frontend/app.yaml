@@ -18,18 +18,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: helidon-examples-translator-frontend
+  name: helidon-kotlin-examples-translator-frontend
   labels:
-    app: helidon-examples-translator-frontend
+    app: helidon-kotlin-examples-translator-frontend
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: helidon-examples-translator-frontend
+        app: helidon-kotlin-examples-translator-frontend
     spec:
       containers:
-      - image: helidon-examples-translator-frontend:latest
+      - image: helidon-kotlin-examples-translator-frontend:latest
         imagePullPolicy: IfNotPresent
         name: translator-frontend
         ports:
@@ -45,16 +45,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: helidon-examples-translator-frontend
+  name: helidon-kotlin-examples-translator-frontend
   labels:
-    app: helidon-examples-translator-frontend
+    app: helidon-kotlin-examples-translator-frontend
 spec:
   type: ClusterIP
   ports:
   - name: http
     port: 8080
   selector:
-    app: helidon-examples-translator-frontend
+    app: helidon-kotlin-examples-translator-frontend
   sessionAffinity: None
 
 ---
@@ -62,7 +62,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: helidon-examples-translator-frontend
+  name: helidon-kotlin-examples-translator-frontend
 spec:
   rules:
   - host: localhost
@@ -70,5 +70,5 @@ spec:
       paths:
       - path: /translator
         backend:
-          serviceName: helidon-examples-translator-frontend
+          serviceName: helidon-kotlin-examples-translator-frontend
           servicePort: 8080

@@ -35,7 +35,7 @@ class OnChangeExample {
      */
     fun run() {
         val secrets = Config
-                .builder(ConfigSources.directory("config/changes/conf/secrets")
+                .builder(ConfigSources.directory("/config/changes/conf/secrets")
                         .pollingStrategy(PollingStrategies.regular(Duration.ofSeconds(5))))
                 .disableEnvironmentVariablesSource()
                 .disableSystemPropertiesSource()

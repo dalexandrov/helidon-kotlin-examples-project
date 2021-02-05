@@ -37,9 +37,9 @@ FROM openjdk:11-jre-slim
 WORKDIR /helidon
 
 # Copy the binary built in the 1st stage
-COPY --from=build /helidon/target/helidon-quickstart-se.jar ./
+COPY --from=build /helidon/target/helidon-kotlin-quickstart-se.jar ./
 COPY --from=build /helidon/target/libs ./libs
 
-CMD ["java", "-jar", "helidon-quickstart-se.jar"]
+CMD ["java", "-jar", "helidon-kotlin-quickstart-se.jar"]
 
 EXPOSE 8080

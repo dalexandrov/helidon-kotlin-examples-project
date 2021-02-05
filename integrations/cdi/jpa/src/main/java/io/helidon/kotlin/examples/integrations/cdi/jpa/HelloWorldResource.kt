@@ -51,7 +51,7 @@ open class HelloWorldResource
      * in effect, because there is.
      */
     @PersistenceContext(unitName = "test")
-    private val entityManager: EntityManager? = null
+    private lateinit var entityManager: EntityManager
 
     /**
      * A [Transaction] that is guaranteed to be non-`null`
@@ -60,7 +60,7 @@ open class HelloWorldResource
      * @see .post
      */
     @Inject
-    private val transaction: Transaction? = null
+    private lateinit var transaction: Transaction
 
     /**
      * Returns a [Response] with a status of `404` when
@@ -90,8 +90,7 @@ open class HelloWorldResource
     @Produces(MediaType.TEXT_PLAIN)
     open operator fun get(@PathParam("firstPart") firstPart: String): String {
         Objects.requireNonNull(firstPart)
-        assert(entityManager != null)
-        val greeting = entityManager!!.find(Greeting::class.java, firstPart)!!
+        val greeting = entityManager.find(Greeting::class.java, firstPart)!!
         return greeting.toString()
     }
 
@@ -123,10 +122,8 @@ open class HelloWorldResource
              secondPart: String): Response {
         Objects.requireNonNull(firstPart)
         Objects.requireNonNull(secondPart)
-        assert(transaction != null)
-        assert(transaction!!.status == Status.STATUS_ACTIVE)
-        assert(entityManager != null)
-        assert(entityManager!!.isJoinedToTransaction)
+        assert(transaction.status == Status.STATUS_ACTIVE)
+        assert(entityManager.isJoinedToTransaction)
         var greeting = entityManager.find(Greeting::class.java, firstPart)
         val created: Boolean
         if (greeting == null) {

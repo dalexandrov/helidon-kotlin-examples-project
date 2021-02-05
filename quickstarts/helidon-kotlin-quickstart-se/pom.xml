@@ -32,7 +32,7 @@
     <name>Helidon Quickstart SE Example in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.examples.standalone.quickstart.se.MainKt</mainClass>
+        <mainClass>io.helidon.kotlin.examples.quickstart.se.MainKt</mainClass>
     </properties>
 
     <dependencies>
@@ -79,15 +79,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-libs</id>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

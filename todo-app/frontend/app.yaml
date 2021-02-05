@@ -17,7 +17,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: helidon-examples-todo-frontend
+  name: helidon-kotlin-examples-todo-frontend
   namespace: default
 data:
   env: k8s
@@ -29,17 +29,17 @@ data:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: helidon-examples-todo-frontend
+  name: helidon-kotlin-examples-todo-frontend
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: helidon-examples-todo-frontend
+        app: helidon-kotlin-examples-todo-frontend
     spec:
       containers:
-      - name: helidon-examples-todo-frontend
-        image: helidon-examples-todo-frontend
+      - name: helidon-kotlin-examples-todo-frontend
+        image: helidon-kotlin-examples-todo-frontend
         imagePullPolicy: Never
         ports:
           - containerPort: 8080
@@ -49,21 +49,21 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: helidon-examples-todo-frontend
+          name: helidon-kotlin-examples-todo-frontend
 
 ---
 
 kind: Service
 apiVersion: v1
 metadata:
-  name: helidon-examples-todo-frontend
+  name: helidon-kotlin-examples-todo-frontend
 spec:
   type: ClusterIP
   ports:
   - name: http
     port: 8080
   selector:
-    app: helidon-examples-todo-frontend
+    app: helidon-kotlin-examples-todo-frontend
   sessionAffinity: None
 ---
 
@@ -72,7 +72,7 @@ kind: Ingress
 metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
-  name: helidon-examples-todo-frontend
+  name: helidon-kotlin-examples-todo-frontend
 spec:
   rules:
   - host: localhost
@@ -80,5 +80,5 @@ spec:
       paths:
       - path: /todo/(.*)
         backend:
-          serviceName: helidon-examples-todo-frontend
+          serviceName: helidon-kotlin-examples-todo-frontend
           servicePort: 8080

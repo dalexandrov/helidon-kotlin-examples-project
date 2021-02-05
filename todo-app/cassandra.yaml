@@ -17,11 +17,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: helidon-examples-todo-cassandra
+  name: helidon-kotlin-examples-todo-cassandra
 spec:
   type: ClusterIP
   selector:
-    app: helidon-examples-todo-cassandra
+    app: helidon-kotlin-examples-todo-cassandra
   ports:
   - name: http
     port: 9042
@@ -32,17 +32,17 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: helidon-examples-todo-cassandra
+  name: helidon-kotlin-examples-todo-cassandra
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: helidon-examples-todo-cassandra
+        app: helidon-kotlin-examples-todo-cassandra
     spec:
       containers:
       - name: todo-cassandra-container
-        image: helidon-examples-todo-cassandra
+        image: helidon-kotlin-examples-todo-cassandra
         imagePullPolicy: Never
         ports:
           - containerPort: 9042

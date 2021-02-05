@@ -36,7 +36,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /helidon
 
 # Copy the binary built in the 1st stage
-COPY --from=build /helidon/target/helidon-examples-integrations-cdi-oci-objectstorage.jar ./
+COPY --from=build /helidon/target/helidon-kotlin-examples-integrations-cdi-oci-objectstorage.jar ./
 COPY --from=build /helidon/target/libs ./libs
 
 CMD [ "sh", "-c", "exec java \

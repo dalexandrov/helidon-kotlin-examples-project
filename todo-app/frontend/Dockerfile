@@ -43,9 +43,9 @@ FROM openjdk:11-jre-slim
 WORKDIR /helidon
 
 # Copy the binary built in the 1st stage
-COPY --from=build /helidon/target/helidon-examples-todo-frontend.jar ./
+COPY --from=build /helidon/target/helidon-kotlin-examples-todo-frontend.jar ./
 COPY --from=build /helidon/target/libs ./libs
 
-CMD ["java", "-jar", "helidon-examples-todo-frontend.jar"]
+CMD ["java", "-jar", "helidon-kotlin-examples-todo-frontend.jar"]
 
 EXPOSE 8080

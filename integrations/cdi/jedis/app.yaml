@@ -18,18 +18,18 @@
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
-  name: helidon-examples-integrations-cdi-jedis
+  name: helidon-kotlin-examples-integrations-cdi-jedis
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: helidon-examples-integrations-cdi-jedis
+        app: helidon-kotlin-examples-integrations-cdi-jedis
         version: v1
     spec:
       containers:
-      - name: helidon-examples-integrations-cdi-jedis
-        image: helidon-examples-integrations-cdi-jedis
+      - name: helidon-kotlin-examples-integrations-cdi-jedis
+        image: helidon-kotlin-examples-integrations-cdi-jedis
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -40,22 +40,22 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: helidon-examples-integrations-cdi-jedis
+  name: helidon-kotlin-examples-integrations-cdi-jedis
   labels:
-    app: helidon-examples-integrations-cdi-jedis
+    app: helidon-kotlin-examples-integrations-cdi-jedis
 spec:
   type: ClusterIP
   ports:
   - name: http
     port: 8080
   selector:
-    app: helidon-examples-integrations-cdi-jedis
+    app: helidon-kotlin-examples-integrations-cdi-jedis
   sessionAffinity: None
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: helidon-examples-integrations-cdi-jedis
+  name: helidon-kotlin-examples-integrations-cdi-jedis
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
@@ -65,5 +65,5 @@ spec:
       paths:
       - path: /helidon-cdi-jedis/(.*)
         backend:
-          serviceName: helidon-examples-integrations-cdi-jedis
+          serviceName: helidon-kotlin-examples-integrations-cdi-jedis
           servicePort: 8080
