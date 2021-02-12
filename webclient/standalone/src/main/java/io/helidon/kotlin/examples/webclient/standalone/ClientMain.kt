@@ -19,10 +19,11 @@ import asSingle
 import io.helidon.common.http.Http
 import io.helidon.config.Config
 import io.helidon.media.common.MessageBodyReadableContent
-import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.webclient.FileSubscriber
 import io.helidon.webclient.WebClient
 import io.helidon.webclient.WebClientResponse
+import jsonpSupport
+import webClient
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -63,11 +64,18 @@ fun main(args: Array<String>) {
     } else {
         "http://localhost:" + args[0].toInt() + "/greet"
     }
-    val webClient = WebClient.builder()
-        .baseUri(url)
-        .config(config["client"]) //Since JSON processing support is not present by default, we have to add it.
-        .addMediaSupport(JsonpSupport.create())
-        .build()
+//    val webClient = WebClient.builder()
+//        .baseUri(url)
+//        .config(config["client"]) //Since JSON processing support is not present by default, we have to add it.
+//        .addMediaSupport(JsonpSupport.create())
+//        .build()
+
+    val webClient = webClient {
+        baseUri(url)
+        config(config["client"])
+        addMediaSupport(jsonpSupport{})
+    }
+
     performPutMethod(webClient)
         .thenCompose { performGetMethod(webClient) }
         .thenCompose { followRedirects(webClient) }
@@ -76,6 +84,7 @@ fun main(args: Array<String>) {
         .toCompletableFuture()
         .get()
 }
+
 
 fun performPutMethod(webClient: WebClient): CompletionStage<Void> {
     println("Put request execution.")

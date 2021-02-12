@@ -24,6 +24,8 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.ServerRequest
 import io.helidon.webserver.ServerResponse
 import io.helidon.webserver.WebServer
+import routing
+import webServer
 import java.util.concurrent.TimeoutException
 
 /**
@@ -36,40 +38,39 @@ fun main() {
 }
 
 fun startServer(port: Int): Single<WebServer> {
-    return WebServer.builder()
-        .routing(routing())
-        .port(port)
-        .build()
-        .start()
+    return webServer {
+        routing(getRouting())
+        port(port)
+    }.start()
         .peek { server: WebServer ->
             val url = "http://localhost:" + server.port()
             println("Server started on $url")
         }
 }
 
-private fun routing(): Routing {
-    return Routing.builder()
-        .register("/ft", FtService())
-        .error(
+private fun getRouting(): Routing {
+    return routing {
+        register("/ft", FtService())
+        error(
             BulkheadException::class.java
         ) { _: ServerRequest?, res: ServerResponse, _: BulkheadException? ->
             res.status(Http.Status.SERVICE_UNAVAILABLE_503).send("bulkhead")
         }
-        .error(
+        error(
             CircuitBreakerOpenException::class.java
         ) { _: ServerRequest?, res: ServerResponse, _: CircuitBreakerOpenException? ->
             res.status(Http.Status.SERVICE_UNAVAILABLE_503).send("circuit breaker")
         }
-        .error(
+        error(
             TimeoutException::class.java
         ) { _: ServerRequest?, res: ServerResponse, _: TimeoutException? ->
             res.status(Http.Status.REQUEST_TIMEOUT_408).send("timeout")
         }
-        .error(
+        error(
             Throwable::class.java
         ) { _: ServerRequest?, res: ServerResponse, ex: Throwable ->
             res.status(Http.Status.INTERNAL_SERVER_ERROR_500)
                 .send(ex.javaClass.name + ": " + ex.message)
         }
-        .build()
+    }
 }

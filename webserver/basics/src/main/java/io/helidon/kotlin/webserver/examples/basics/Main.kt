@@ -22,6 +22,11 @@ import io.helidon.media.common.MediaContext
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.webserver.*
 import io.helidon.webserver.jersey.JerseySupport
+import jerseySupport
+import mediaContext
+import requestPredicate
+import routing
+import webServer
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Modifier
 import javax.json.Json
@@ -53,15 +58,16 @@ open class Main {
      * writes to the [response][io.helidon.webserver.ServerResponse].
      */
     fun firstRouting() {
-        val routing = Routing.builder()
-                .post("/post-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
-                    res.status(Http.Status.CREATED_201)
-                            .send()
-                })["/get-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
-            res.status(Http.Status.NO_CONTENT_204)
+        val routing = routing {
+            post("/post-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
+                res.status(Http.Status.CREATED_201)
+                    .send()
+            })
+            get("/get-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
+                res.status(Http.Status.NO_CONTENT_204)
                     .send("Hello World!")
-        }]
-                .build()
+            })
+        }
         startServer(routing)
     }
 
@@ -73,19 +79,19 @@ open class Main {
      * @param routing the routing to drive by WebServer instance
      * @param mediaContext media support
      */
-    protected open fun startServer(routing: Routing?, mediaContext: MediaContext?) {
-        WebServer.builder(routing)
-                .mediaContext(mediaContext)
-                .build()
-                .start() // All lifecycle operations are non-blocking and provides CompletionStage
-                .whenComplete { ws: WebServer, thr: Throwable? ->
-                    if (thr == null) {
-                        println("Server is UP: http://localhost:" + ws.port())
-                    } else {
-                        println("Can NOT start WebServer!")
-                        thr.printStackTrace(System.out)
-                    }
+    protected open fun startServer(routing: Routing, mediaContext: MediaContext?) {
+        webServer {
+            routing(routing)
+            mediaContext(mediaContext)
+        }.start() // All lifecycle operations are non-blocking and provides CompletionStage
+            .whenComplete { ws: WebServer, thr: Throwable? ->
+                if (thr == null) {
+                    println("Server is UP: http://localhost:" + ws.port())
+                } else {
+                    println("Can NOT start WebServer!")
+                    thr.printStackTrace(System.out)
                 }
+            }
     }
 
     /**
@@ -95,7 +101,7 @@ open class Main {
      *
      * @param routing the routing to drive by WebServer instance
      */
-    private fun startServer(routing: Routing?) {
+    private fun startServer(routing: Routing) {
         startServer(routing, null)
     }
 
@@ -121,20 +127,20 @@ open class Main {
      * thread.
      */
     fun routingAsFilter() {
-        val routing = Routing.builder()
-                .any(Handler { req: ServerRequest, _: ServerResponse? ->
-                    println(req.method().toString() + " " + req.path())
-                    // Filters are just routing handlers which calls next()
-                    req.next()
-                })
-                .post("/post-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
-                    res.status(Http.Status.CREATED_201)
-                            .send()
-                })["/get-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
-            res.status(Http.Status.NO_CONTENT_204)
+        val routing = routing {
+            any(Handler { req: ServerRequest, _: ServerResponse? ->
+                println(req.method().toString() + " " + req.path())
+                // Filters are just routing handlers which calls next()
+                req.next()
+            })
+            post("/post-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
+                res.status(Http.Status.CREATED_201)
+                    .send()
+            })["/get-endpoint", Handler { _: ServerRequest?, res: ServerResponse ->
+                res.status(Http.Status.NO_CONTENT_204)
                     .send("Hello World!")
-        }]
-                .build()
+            }]
+        }
         startServer(routing)
     }
 
@@ -154,24 +160,25 @@ open class Main {
      * *query parameters* can contain multiple values.
      */
     fun parametersAndHeaders() {
-        val routing = Routing.builder()["/context/{id}", Handler { req: ServerRequest, res: ServerResponse ->
-            val sb = StringBuilder()
-            // Request headers
-            req.headers()
+        val routing = routing {
+            get("/context/{id}", Handler { req: ServerRequest, res: ServerResponse ->
+                val sb = StringBuilder()
+                // Request headers
+                req.headers()
                     .first("foo")
                     .ifPresent { v: String? -> sb.append("foo: ").append(v).append("\n") }
-            // Request parameters
-            req.queryParams()
+                // Request parameters
+                req.queryParams()
                     .first("bar")
                     .ifPresent { v: String? -> sb.append("bar: ").append(v).append("\n") }
-            // Path parameters
-            sb.append("id: ").append(req.path().param("id"))
-            // Response headers
-            res.headers().contentType(MediaType.TEXT_PLAIN)
-            // Response entity (payload)
-            res.send(sb.toString())
-        }]
-                .build()
+                // Path parameters
+                sb.append("id: ").append(req.path().param("id"))
+                // Response headers
+                res.headers().contentType(MediaType.TEXT_PLAIN)
+                // Response entity (payload)
+                res.send(sb.toString())
+            })
+        }
         startServer(routing)
     }
 
@@ -180,11 +187,15 @@ open class Main {
      * to specify more complex criteria.
      */
     fun advancedRouting() {
-        val routing = Routing.builder()["/foo", RequestPredicate.create()
-                .accepts(MediaType.TEXT_PLAIN)
-                .containsHeader("bar")
-                .thenApply { _: ServerRequest?, res: ServerResponse -> res.send() }]
-                .build()
+        val routing = routing {
+            get("/foo", requestPredicate {
+                accepts(MediaType.TEXT_PLAIN)
+                containsHeader("bar")
+            }
+                .thenApply { _: ServerRequest, res: ServerResponse ->
+                    res.send()
+                })
+        }
         startServer(routing)
     }
 
@@ -194,9 +205,9 @@ open class Main {
      * the code into services and resources. `Service` is an interface which can register more routing rules (routes).
      */
     fun organiseCode() {
-        val routing = Routing.builder()
-                .register("/catalog-context-path", Catalog())
-                .build()
+        val routing = routing {
+            register("/catalog-context-path", Catalog())
+        }
         startServer(routing)
     }
 
@@ -216,23 +227,25 @@ open class Main {
      */
     fun readContentEntity() {
         val routing = Routing.builder()
-                .post("/foo", Handler { req: ServerRequest, res: ServerResponse ->
-                    req.content()
-                            .asSingle(String::class.java) // The whole entity can be read when all request chunks are processed - CompletionStage
-                            .whenComplete { data: String, thr: Throwable? ->
-                                if (thr == null) {
-                                    println("/foo DATA: $data")
-                                    res.send(data)
-                                } else {
-                                    res.status(Http.Status.BAD_REQUEST_400)
-                                }
-                            }
-                }) // It is possible to use Handler.of() method to automatically cover all error states.
-                .post("/bar", Handler.create(String::class.java) { _: ServerRequest?, res: ServerResponse, data: String ->
+            .post("/foo", Handler { req: ServerRequest, res: ServerResponse ->
+                req.content()
+                    .asSingle(String::class.java) // The whole entity can be read when all request chunks are processed - CompletionStage
+                    .whenComplete { data: String, thr: Throwable? ->
+                        if (thr == null) {
+                            println("/foo DATA: $data")
+                            res.send(data)
+                        } else {
+                            res.status(Http.Status.BAD_REQUEST_400)
+                        }
+                    }
+            }) // It is possible to use Handler.of() method to automatically cover all error states.
+            .post(
+                "/bar",
+                Handler.create(String::class.java) { _: ServerRequest?, res: ServerResponse, data: String ->
                     println("/foo DATA: $data")
                     res.send(data)
                 })
-                .build()
+            .build()
         startServer(routing)
     }
 
@@ -241,17 +254,19 @@ open class Main {
      */
     fun mediaReader() {
         val routing = Routing.builder()
-                .post("/create-record", Handler.create(Name::class.java) { _: ServerRequest?, res: ServerResponse, name: Name ->
+            .post(
+                "/create-record",
+                Handler.create(Name::class.java) { _: ServerRequest?, res: ServerResponse, name: Name ->
                     println("Name: $name")
                     res.status(Http.Status.CREATED_201)
-                            .send(name.toString())
+                        .send(name.toString())
                 })
-                .build()
+            .build()
 
         // Create a media support that contains the defaults and our custom Name reader
         val mediaContext = MediaContext.builder()
-                .addReader(NameReader.create())
-                .build()
+            .addReader(NameReader.create())
+            .build()
         startServer(routing, mediaContext)
     }
 
@@ -261,21 +276,28 @@ open class Main {
      * including *static content*, JSON and Jersey. See `POM.xml` for requested dependencies.
      */
     fun supports() {
-        val routing = Routing.builder()
-                .register(StaticContentSupport.create("/static"))["/hello/{what}", Handler { req: ServerRequest, res: ServerResponse ->
-            res.send(JSON.createObjectBuilder()
-                    .add("message",
+        val routing = routing {
+            register(StaticContentSupport.create("/static"))
+            get("/hello/{what}", Handler { req: ServerRequest, res: ServerResponse ->
+                res.send(
+                    JSON.createObjectBuilder()
+                        .add(
+                            "message",
                             "Hello " + req.path()
-                                    .param("what"))
-                    .build())
-        }]
-                .register("/api", JerseySupport.builder()
-                        .register(HelloWorldResource::class.java)
-                        .build())
-                .build()
-        val mediaContext = MediaContext.builder()
-                .addWriter(JsonpSupport.writer())
-                .build()
+                                .param("what")
+                        )
+                        .build()
+                )
+            })
+            register(
+                "/api", jerseySupport {
+                    register(HelloWorldResource::class.java)
+                }
+            )
+        }
+        val mediaContext = mediaContext {
+            addWriter(JsonpSupport.writer())
+        }
         startServer(routing, mediaContext)
     }
 
@@ -289,20 +311,28 @@ open class Main {
      * by [HttpException]. In such case it reflects its content.
      */
     fun errorHandling() {
-        val routing = Routing.builder()
-                .post("/compute", Handler.create(String::class.java) { _: ServerRequest?, res: ServerResponse, str: String ->
+        val routing = routing {
+            post(
+                "/compute",
+                Handler.create(String::class.java) { _: ServerRequest?, res: ServerResponse, str: String ->
                     val result = 100 / str.toInt()
                     res.send("100 / $str = $result")
                 })
-                .error(Throwable::class.java) { req: ServerRequest, _: ServerResponse?, ex: Throwable ->
-                    ex.printStackTrace(System.out)
-                    req.next()
-                }
-                .error(NumberFormatException::class.java
-                ) { _: ServerRequest?, res: ServerResponse, _: NumberFormatException? -> res.status(Http.Status.BAD_REQUEST_400).send() }
-                .error(ArithmeticException::class.java
-                ) { _: ServerRequest?, res: ServerResponse, _: ArithmeticException? -> res.status(Http.Status.PRECONDITION_FAILED_412).send() }
-                .build()
+            error(Throwable::class.java) { req: ServerRequest, _: ServerResponse?, ex: Throwable ->
+                ex.printStackTrace(System.out)
+                req.next()
+            }
+            error(
+                NumberFormatException::class.java
+            ) { _: ServerRequest?, res: ServerResponse, _: NumberFormatException? ->
+                res.status(Http.Status.BAD_REQUEST_400).send()
+            }
+            error(
+                ArithmeticException::class.java
+            ) { _: ServerRequest?, res: ServerResponse, _: ArithmeticException? ->
+                res.status(Http.Status.PRECONDITION_FAILED_412).send()
+            }
+        }
         startServer(routing)
     }
 
@@ -359,10 +389,12 @@ open class Main {
                     System.getenv(ENVVAR_EXAMPLE_NAME)
                 }
                 else -> {
-                    println("""Missing example name. It can be provided as a 
+                    println(
+                        """Missing example name. It can be provided as a 
             - first command line argument.
             - -D$SYSPROP_EXAMPLE_NAME jvm property.
-            - $ENVVAR_EXAMPLE_NAME environment variable.""")
+            - $ENVVAR_EXAMPLE_NAME environment variable."""
+                    )
                     exitProcess(1)
                 }
             }

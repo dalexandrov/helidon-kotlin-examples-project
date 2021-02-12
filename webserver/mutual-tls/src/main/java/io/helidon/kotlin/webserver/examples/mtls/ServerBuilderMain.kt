@@ -19,6 +19,11 @@ import io.helidon.common.configurable.Resource
 import io.helidon.common.http.Http
 import io.helidon.common.pki.KeyConfig
 import io.helidon.webserver.*
+import keystoreBuilder
+import routing
+import socketConfiguration
+import webServer
+import webServerTls
 
 
 /**
@@ -40,16 +45,16 @@ fun main() {
 }
 
 fun startServer(unsecured: Int, secured: Int): WebServer {
-    val socketConf = SocketConfiguration.builder()
-        .name("secured")
-        .port(secured)
-        .tls(tlsConfig())
-        .build()
-    val webServer = WebServer.builder()
-        .port(unsecured)
-        .routing(createPlainRouting())
-        .addSocket(socketConf, createMtlsRouting())
-        .build()
+    val socketConf = socketConfiguration {
+        name("secured")
+        port(secured)
+        tls(tlsConfig())
+    }
+    val webServer = webServer {
+        port(unsecured)
+        routing(createPlainRouting())
+        addSocket(socketConf, createMtlsRouting())
+    }
     webServer.start()
         .thenAccept { ws: WebServer ->
             println("WebServer is up!")
@@ -66,27 +71,29 @@ fun startServer(unsecured: Int, secured: Int): WebServer {
 }
 
 private fun tlsConfig(): WebServerTls {
-    val keyConfig = KeyConfig.keystoreBuilder()
-        .trustStore()
-        .keystore(Resource.create("server.p12"))
-        .keystorePassphrase("password")
-        .build()
-    return WebServerTls.builder()
-        .clientAuth(ClientAuthentication.REQUIRE)
-        .trust(keyConfig)
-        .privateKey(keyConfig)
-        .build()
+    val keyConfig = keystoreBuilder {
+        trustStore()
+        keystore(Resource.create("server.p12"))
+        keystorePassphrase("password")
+    }
+    return webServerTls {
+        clientAuth(ClientAuthentication.REQUIRE)
+        trust(keyConfig)
+        privateKey(keyConfig)
+    }
 }
 
 private fun createPlainRouting(): Routing {
-    return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello world unsecured!") }]
-        .build()
+    return routing {
+        get("/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello world unsecured!") })
+    }
 }
 
 private fun createMtlsRouting(): Routing {
-    return Routing.builder()["/", Handler { req: ServerRequest, res: ServerResponse ->
-        val cn = req.headers().first(Http.Header.X_HELIDON_CN).orElse("Unknown CN")
-        res.send("Hello $cn!")
-    }]
-        .build()
+    return routing {
+        get("/", Handler { req: ServerRequest, res: ServerResponse ->
+            val cn = req.headers().first(Http.Header.X_HELIDON_CN).orElse("Unknown CN")
+            res.send("Hello $cn!")
+        })
+    }
 }

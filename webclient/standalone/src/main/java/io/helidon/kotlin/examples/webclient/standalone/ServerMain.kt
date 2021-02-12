@@ -26,7 +26,7 @@ import java.util.concurrent.CompletionStage
  * The application main .
  */
 
-var serverPort = -1
+var serverPort = 8080
     private set
 
 /**

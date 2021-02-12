@@ -15,10 +15,11 @@
  */
 package io.helidon.kotlin.webserver.examples.jersey
 
-import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.jersey.JerseySupport
 import org.glassfish.jersey.server.ResourceConfig
+import webServer
+import routing as setRouting
 import java.util.concurrent.CompletionStage
 import java.util.logging.LogManager
 
@@ -48,16 +49,15 @@ fun main() {
  * accept http requests
  */
 fun startServer(port: Int): CompletionStage<WebServer> {
-    val webServer = WebServer.builder(
-        Routing.builder() // register a Jersey Application at the '/jersey' context path
-            .register(
+    val webServer = webServer {
+        routing(setRouting {  // register a Jersey Application at the '/jersey' context path
+            register(
                 "/jersey",
                 JerseySupport.create(ResourceConfig(HelloWorld::class.java))
             )
-            .build()
-    )
-        .port(port)
-        .build()
+        })
+        port(port)
+    }
     return webServer.start()
         .whenComplete { server: WebServer, _: Throwable? ->
             println("Jersey WebServer started.")
