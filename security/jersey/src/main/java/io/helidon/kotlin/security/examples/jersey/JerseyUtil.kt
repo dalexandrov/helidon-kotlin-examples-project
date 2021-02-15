@@ -17,6 +17,7 @@ package io.helidon.kotlin.security.examples.jersey
 
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import webServer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -27,10 +28,11 @@ import java.util.function.Supplier
  */
 internal object JerseyUtil {
     private const val START_TIMEOUT_SECONDS = 10
-    fun startIt(routing: Supplier<out Routing?>?, port: Int): WebServer {
-        val server = WebServer.builder(routing)
-                .port(port)
-                .build()
+    fun startIt(routingSetup: Routing, port: Int): WebServer {
+        val server = webServer {
+            routing(routingSetup)
+            port(port)
+        }
         val t = System.nanoTime()
         val cdl = CountDownLatch(1)
         val throwableRef = AtomicReference<Throwable>()
@@ -40,7 +42,10 @@ internal object JerseyUtil {
                 throwableRef.set(throwable)
             } else {
                 val time = System.nanoTime() - t
-                System.out.printf("Server started in %d ms%n", TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS))
+                System.out.printf(
+                    "Server started in %d ms%n",
+                    TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS)
+                )
                 System.out.printf("Started server on localhost:%d%n", webServer.port())
                 println()
                 println("Users:")

@@ -1,4 +1,5 @@
 import io.helidon.common.pki.KeyConfig
+import io.helidon.config.Config
 import io.helidon.health.HealthSupport
 import io.helidon.media.common.MediaContext
 import io.helidon.webserver.*
@@ -6,6 +7,8 @@ import io.helidon.webserver.cors.CorsSupport
 import io.helidon.webserver.jersey.JerseySupport
 import io.helidon.security.Security
 import io.helidon.microprofile.server.Server
+import io.helidon.security.providers.httpsign.InboundClientDefinition
+import io.helidon.security.providers.oidc.common.OidcConfig
 
 fun webServer(block: WebServer.Builder.() -> Unit): WebServer = WebServer.builder().apply(block).build()
 
@@ -33,6 +36,10 @@ fun healthSupport(block: HealthSupport.Builder.() -> Unit): HealthSupport = Heal
 
 fun corsSupport(block: CorsSupport.Builder.() -> Unit): CorsSupport = CorsSupport.builder().apply(block).build()
 
-fun mpServer(block:Server.Builder.() -> Unit):Server = Server.builder().apply(block).build()
+fun server(block:Server.Builder.() -> Unit):Server = Server.builder().apply(block).build()
 
 fun security(block:Security.Builder.() -> Unit):Security = Security.builder().apply(block).build()
+
+fun config(block: Config.Builder.() -> Unit):Config = Config.builder().apply(block).build()
+
+fun oidcConfig(block: OidcConfig.Builder.() -> Unit):OidcConfig = OidcConfig.builder().apply(block).build()

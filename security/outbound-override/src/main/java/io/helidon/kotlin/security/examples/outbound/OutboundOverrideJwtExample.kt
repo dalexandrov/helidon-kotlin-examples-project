@@ -21,6 +21,7 @@ import io.helidon.security.Subject
 import io.helidon.security.integration.webserver.WebSecurity
 import io.helidon.security.providers.jwt.JwtProvider
 import io.helidon.webserver.*
+import routing
 import java.util.concurrent.CompletionStage
 
 /**
@@ -63,38 +64,48 @@ object OutboundOverrideJwtExample {
 
     private fun startServingService(): CompletionStage<Void> {
         val config = OutboundOverrideUtil.createConfig("serving-service-jwt")
-        val routing = Routing.builder()
-                .register(WebSecurity.create(config["security"]))["/hello", Handler { req: ServerRequest, res: ServerResponse ->
-            // This is the token. It should be bearer <signed JWT base64 encoded>
-            req.headers().first("Authorization")
+        val routing = routing {
+            register(WebSecurity.create(config["security"]))
+            get("/hello", Handler { req: ServerRequest, res: ServerResponse ->
+                // This is the token. It should be bearer <signed JWT base64 encoded>
+                req.headers().first("Authorization")
                     .ifPresent { x: String? -> println(x) }
-            res.send(req.context().get(SecurityContext::class.java).flatMap { obj: SecurityContext -> obj.user() }.map { obj: Subject -> obj.principal() }.map { obj: Principal -> obj.name }.orElse("Anonymous"))
-        }].build()
+                res.send(req.context().get(SecurityContext::class.java).flatMap { obj: SecurityContext -> obj.user() }
+                    .map { obj: Subject -> obj.principal() }.map { obj: Principal -> obj.name }.orElse("Anonymous"))
+            })
+        }
         return OutboundOverrideUtil.startServer(routing, 9080, { server: WebServer -> servingPort = server.port() })
     }
 
     private fun startClientService(): CompletionStage<Void> {
         val config = OutboundOverrideUtil.createConfig("client-service-jwt")
-        val routing = Routing.builder()
-                .register(WebSecurity.create(config["security"]))["/override", Handler { req: ServerRequest, res: ServerResponse -> override(req,res) }]["/propagate", Handler { req: ServerRequest, res: ServerResponse -> propagate(req,res) }]
-                .build()
+        val routing = routing {
+            register(WebSecurity.create(config["security"]))
+            get("/override", Handler { req: ServerRequest, res: ServerResponse ->
+                override(
+                    req,
+                    res
+                )
+            })
+            get("/propagate", Handler { req: ServerRequest, res: ServerResponse -> propagate(req, res) })
+        }
         return OutboundOverrideUtil.startServer(routing, 8080, { server: WebServer -> clientPort = server.port() })
     }
 
     private fun override(req: ServerRequest, res: ServerResponse) {
         val context = OutboundOverrideUtil.getSecurityContext(req)
         OutboundOverrideUtil.webTarget(servingPort)
-                .property(JwtProvider.EP_PROPERTY_OUTBOUND_USER, "jill")
-                .request(String::class.java)
-                .thenAccept { result: String -> res.send("You are: " + context.userName() + ", backend service returned: " + result) }
-                .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
+            .property(JwtProvider.EP_PROPERTY_OUTBOUND_USER, "jill")
+            .request(String::class.java)
+            .thenAccept { result: String -> res.send("You are: " + context.userName() + ", backend service returned: " + result) }
+            .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
     }
 
     private fun propagate(req: ServerRequest, res: ServerResponse) {
         val context = OutboundOverrideUtil.getSecurityContext(req)
         OutboundOverrideUtil.webTarget(servingPort)
-                .request(String::class.java)
-                .thenAccept { result: String -> res.send("You are: " + context.userName() + ", backend service returned: " + result) }
-                .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
+            .request(String::class.java)
+            .thenAccept { result: String -> res.send("You are: " + context.userName() + ", backend service returned: " + result) }
+            .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
     }
 }

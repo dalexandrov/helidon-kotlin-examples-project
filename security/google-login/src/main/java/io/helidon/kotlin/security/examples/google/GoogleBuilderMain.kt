@@ -22,6 +22,8 @@ import io.helidon.security.Subject
 import io.helidon.security.integration.webserver.WebSecurity
 import io.helidon.security.providers.google.login.GoogleTokenProvider
 import io.helidon.webserver.*
+import routing
+import security
 
 /**
  * Google login button example main class using builders.
@@ -44,22 +46,26 @@ object GoogleBuilderMain {
 
     @JvmStatic
     fun start(port: Int): Int {
-        val security = Security.builder()
-                .addProvider(GoogleTokenProvider.builder()
-                        .clientId("your-client-id.apps.googleusercontent.com"))
-                .build()
+        val security = security {
+            addProvider(
+                GoogleTokenProvider.builder()
+                    .clientId("your-client-id.apps.googleusercontent.com")
+            )
+        }
         val ws = WebSecurity.create(security)
-        val routing = Routing.builder()
-                .register(ws)["/rest/profile", WebSecurity.authenticate(), Handler { req: ServerRequest, res: ServerResponse ->
-            val securityContext = req.context().get(SecurityContext::class.java)
-            res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
-            res.send("Response from builder based service, you are: \n" + securityContext
+        val routing = routing {
+            register(ws)
+            get("/rest/profile", WebSecurity.authenticate(), Handler { req: ServerRequest, res: ServerResponse ->
+                val securityContext = req.context().get(SecurityContext::class.java)
+                res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
+                res.send("Response from builder based service, you are: \n" + securityContext
                     .flatMap { obj: SecurityContext -> obj.user() }
                     .map { obj: Subject -> obj.toString() }
                     .orElse("Security context is null"))
-            req.next()
-        }]
-                .register(StaticContentSupport.create("/WEB"))
+                req.next()
+            })
+            register(StaticContentSupport.create("/WEB"))
+        }
         theServer = GoogleUtil.startIt(port, routing)
         return theServer.port()
     }

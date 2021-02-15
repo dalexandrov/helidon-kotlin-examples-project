@@ -26,6 +26,8 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.ServerRequest
 import io.helidon.webserver.ServerResponse
 import io.helidon.webserver.WebServer
+import webClient
+import webServer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -35,9 +37,9 @@ import java.util.concurrent.TimeUnit
 internal object SignatureExampleUtil {
 
     @JvmStatic
-    private val CLIENT = WebClient.builder()
-        .addService(WebClientSecurity.create())
-        .build()
+    private val CLIENT = webClient {
+        addService(WebClientSecurity.create())
+    }
 
     private const val START_TIMEOUT_SECONDS = 10
 
@@ -48,9 +50,10 @@ internal object SignatureExampleUtil {
      * @return started web server instance
      */
     fun startServer(routing: Routing?, port: Int): WebServer {
-        val server = WebServer.builder(routing)
-            .port(port)
-            .build()
+        val server = webServer {
+            routing(routing)
+            port(port)
+        }
         val t = System.nanoTime()
         val cdl = CountDownLatch(1)
         server.start().thenAccept { webServer: WebServer ->

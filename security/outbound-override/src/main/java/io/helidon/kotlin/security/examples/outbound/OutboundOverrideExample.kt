@@ -21,6 +21,7 @@ import io.helidon.security.Subject
 import io.helidon.security.integration.webserver.WebSecurity
 import io.helidon.security.providers.httpauth.HttpBasicAuthProvider
 import io.helidon.webserver.*
+import routing
 import java.util.concurrent.CompletionStage
 
 /**
@@ -58,46 +59,64 @@ object OutboundOverrideExample {
     @JvmStatic
     fun startServingService(port: Int): CompletionStage<Void> {
         val config = OutboundOverrideUtil.createConfig("serving-service")
-        val routing = Routing.builder()
-                .register(WebSecurity.create(config["security"]))["/hello", Handler { req: ServerRequest, res: ServerResponse -> res.send(req.context().get(SecurityContext::class.java).flatMap { obj: SecurityContext -> obj.user() }.map { obj: Subject -> obj.principal() }.map { obj: Principal -> obj.name }.orElse("Anonymous")) }].build()
+        val routing = routing {
+            register(WebSecurity.create(config["security"]))
+            get("/hello", Handler { req: ServerRequest, res: ServerResponse ->
+                res.send(
+                    req.context().get(SecurityContext::class.java).flatMap { obj: SecurityContext -> obj.user() }
+                        .map { obj: Subject -> obj.principal() }.map { obj: Principal -> obj.name }.orElse("Anonymous")
+                )
+            })
+        }
         return OutboundOverrideUtil.startServer(routing, port, { server: WebServer -> servingPort = server.port() })
     }
 
     @JvmStatic
     fun startClientService(port: Int): CompletionStage<Void> {
         val config = OutboundOverrideUtil.createConfig("client-service")
-        val routing = Routing.builder()
-                .register(WebSecurity.create(config["security"]))["/override", Handler { req: ServerRequest, res: ServerResponse -> override(req, res) }]["/propagate", Handler { req: ServerRequest, res: ServerResponse -> propagate(req, res) }]
-                .build()
+        val routing = routing {
+            register(WebSecurity.create(config["security"]))
+            get("/override", Handler { req: ServerRequest, res: ServerResponse ->
+                override(
+                    req,
+                    res
+                )
+            })
+            get("/propagate", Handler { req: ServerRequest, res: ServerResponse -> propagate(req, res) })
+        }
         return OutboundOverrideUtil.startServer(routing, port, { server: WebServer -> clientPort = server.port() })
     }
 
     private fun override(req: ServerRequest, res: ServerResponse) {
         val context = OutboundOverrideUtil.getSecurityContext(req)
         OutboundOverrideUtil.webTarget(servingPort)
-                .property(HttpBasicAuthProvider.EP_PROPERTY_OUTBOUND_USER, "jill")
-                .property(HttpBasicAuthProvider.EP_PROPERTY_OUTBOUND_PASSWORD, "anotherPassword")
-                .request(String::class.java)
-                .thenAccept { result: String ->
-                    res.send("""
+            .property(HttpBasicAuthProvider.EP_PROPERTY_OUTBOUND_USER, "jill")
+            .property(HttpBasicAuthProvider.EP_PROPERTY_OUTBOUND_PASSWORD, "anotherPassword")
+            .request(String::class.java)
+            .thenAccept { result: String ->
+                res.send(
+                    """
     You are: ${context.userName()}, backend service returned: $result
     
-    """.trimIndent())
-                }
-                .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
+    """.trimIndent()
+                )
+            }
+            .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
     }
 
     private fun propagate(req: ServerRequest, res: ServerResponse) {
         val context = OutboundOverrideUtil.getSecurityContext(req)
         OutboundOverrideUtil.webTarget(servingPort)
-                .request(String::class.java)
-                .thenAccept { result: String ->
-                    res.send("""
+            .request(String::class.java)
+            .thenAccept { result: String ->
+                res.send(
+                    """
     You are: ${context.userName()}, backend service returned: $result
     
-    """.trimIndent())
-                }
-                .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
+    """.trimIndent()
+                )
+            }
+            .exceptionally { throwable: Throwable? -> OutboundOverrideUtil.sendError(throwable, res) }
     }
 
     @JvmStatic

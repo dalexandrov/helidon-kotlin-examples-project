@@ -27,6 +27,9 @@ import io.helidon.security.providers.oidc.OidcProvider
 import io.helidon.security.providers.oidc.OidcSupport
 import io.helidon.security.providers.oidc.common.OidcConfig
 import io.helidon.webserver.*
+import oidcConfig
+import routing
+import security
 import java.io.IOException
 import java.net.URI
 import java.util.logging.LogManager
@@ -49,40 +52,50 @@ object IdcsBuilderMain {
     @JvmStatic
     fun main(args: Array<String>) {
         // load logging configuration
-        LogManager.getLogManager().readConfiguration(IdcsBuilderMain::class.java.getResourceAsStream("/logging.properties"))
+        LogManager.getLogManager()
+            .readConfiguration(IdcsBuilderMain::class.java.getResourceAsStream("/logging.properties"))
         val config = buildConfig()
-        val oidcConfig = OidcConfig.builder()
-                .clientId("clientId.of.your.application")
-                .clientSecret("clientSecret.of.your.application")
-                .identityUri(URI.create(
-                        "https://idcs-tenant-id.identity.oracle.com")) //.proxyHost("proxy.proxy.com")
-                .frontendUri("http://your.host:your.port") // tell us it is IDCS, so we can modify the behavior
-                .serverType("idcs")
-                .build()
-        val security = Security.builder()
-                .addProvider(OidcProvider.create(oidcConfig))
-                .addProvider(IdcsRoleMapperProvider.builder()
-                        .config(config)
-                        .oidcConfig(oidcConfig))
-                .build()
-        val routing = Routing.builder()
-                .register(WebSecurity.create(security, config["security"])) // IDCS requires a web resource for redirects
-                .register(OidcSupport.create(config))["/rest/profile", Handler { req: ServerRequest, res: ServerResponse ->
-            val securityContext = req.context().get(SecurityContext::class.java)
-            res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
-            res.send("Response from builder based service, you are: \n" + securityContext
+        val oidcConfig = oidcConfig {
+            clientId("clientId.of.your.application")
+            clientSecret("clientSecret.of.your.application")
+            identityUri(
+                URI.create(
+                    "https://idcs-tenant-id.identity.oracle.com"
+                )
+            ) //.proxyHost("proxy.proxy.com")
+            frontendUri("http://your.host:your.port") // tell us it is IDCS, so we can modify the behavior
+            serverType("idcs")
+        }
+        val security = security {
+            addProvider(OidcProvider.create(oidcConfig))
+            addProvider(
+                IdcsRoleMapperProvider.builder()
+                    .config(config)
+                    .oidcConfig(oidcConfig)
+            )
+        }
+        val routing = routing {
+            register(WebSecurity.create(security, config["security"])) // IDCS requires a web resource for redirects
+            register(OidcSupport.create(config))
+            get("/rest/profile", Handler { req: ServerRequest, res: ServerResponse ->
+                val securityContext = req.context().get(SecurityContext::class.java)
+                res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
+                res.send("Response from builder based service, you are: \n" + securityContext
                     .flatMap { obj: SecurityContext -> obj.user() }
                     .map { obj: Subject -> obj.toString() }
                     .orElse("Security context is null"))
-        }]
+            })
+        }
         theServer = IdcsUtil.startIt(routing)
     }
 
     private fun buildConfig(): Config {
         return Config.builder()
-                .sources( // you can use this file to override the defaults built-in
-                        ConfigSources.file(System.getProperty("user.home") + "/helidon/conf/examples.yaml").optional(),  // in jar file (see src/main/resources/application.yaml)
-                        ConfigSources.classpath("application.yaml"))
-                .build()
+            .sources( // you can use this file to override the defaults built-in
+                ConfigSources.file(System.getProperty("user.home") + "/helidon/conf/examples.yaml")
+                    .optional(),  // in jar file (see src/main/resources/application.yaml)
+                ConfigSources.classpath("application.yaml")
+            )
+            .build()
     }
 }

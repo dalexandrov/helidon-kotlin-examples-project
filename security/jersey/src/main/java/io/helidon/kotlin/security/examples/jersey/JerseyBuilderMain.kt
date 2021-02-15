@@ -25,6 +25,9 @@ import io.helidon.security.providers.httpauth.SecureUserStore
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.jersey.JerseySupport
+import jerseySupport
+import routing
+import security
 import java.util.*
 import javax.ws.rs.core.Response
 import javax.ws.rs.ext.ExceptionMapper
@@ -62,13 +65,16 @@ object JerseyBuilderMain {
 
     private fun buildSecurity(): SecurityFeature {
         return SecurityFeature(
-                Security.builder() // add the security provider to use
-                        .addProvider(HttpBasicAuthProvider.builder()
-                                .realm("helidon")
-                                .userStore(users())
-                                .addOutboundTarget(OutboundTarget.builder("propagate-all").build()))
-                        .addProvider(AbacProvider.create())
-                        .build())
+            security {  // add the security provider to use
+                addProvider(
+                    HttpBasicAuthProvider.builder()
+                        .realm("helidon")
+                        .userStore(users())
+                        .addOutboundTarget(OutboundTarget.builder("propagate-all").build())
+                )
+                addProvider(AbacProvider.create())
+            }
+        )
     }
 
     private fun users(): SecureUserStore {
@@ -76,15 +82,15 @@ object JerseyBuilderMain {
     }
 
     private fun buildJersey(): JerseySupport {
-        return JerseySupport.builder() // register JAX-RS resource
-                .register(JerseyResources.HelloWorldResource::class.java) // register JAX-RS resource demonstrating identity propagation
-                .register(OutboundSecurityResource::class.java) // integrate security
-                .register(buildSecurity())
-                .register(ExceptionMapper<Exception> { exception ->
-                    exception.printStackTrace()
-                    Response.serverError().build()
-                })
-                .build()
+        return jerseySupport {   // register JAX-RS resource
+            register(JerseyResources.HelloWorldResource::class.java) // register JAX-RS resource demonstrating identity propagation
+            register(OutboundSecurityResource::class.java) // integrate security
+            register(buildSecurity())
+            register(ExceptionMapper<Exception> { exception ->
+                exception.printStackTrace()
+                Response.serverError().build()
+            })
+        }
     }
 
     /**
@@ -96,8 +102,9 @@ object JerseyBuilderMain {
     @JvmStatic
     @Throws(Throwable::class)
     fun main(args: Array<String>?) {
-        val routing = Routing.builder()
-                .register("/rest", buildJersey())
+        val routing = routing {
+            register("/rest", buildJersey())
+        }
         httpServer = JerseyUtil.startIt(routing, 8080)
         JerseyResources.setPort(httpServer.port())
     }

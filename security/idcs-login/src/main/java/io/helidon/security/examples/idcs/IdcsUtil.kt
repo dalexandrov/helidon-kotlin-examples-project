@@ -17,6 +17,7 @@ package io.helidon.security.examples.idcs
 
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import webServer
 import java.net.UnknownHostException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -30,20 +31,22 @@ object IdcsUtil {
     // of IDCS application redirect URI
     private const val PORT = 7987
     private const val START_TIMEOUT_SECONDS = 10
+
     @Throws(UnknownHostException::class)
-    fun startIt(routing: Supplier<out Routing?>?): WebServer {
-        return WebServer.builder(routing)
-                .port(PORT)
-                .bindAddress("localhost")
-                .build()
+    fun startIt(routeSetup: Routing): WebServer {
+        return webServer {
+            routing(routeSetup)
+            port(PORT)
+            bindAddress("localhost")
+        }
     }
 
     fun start(webServer: WebServer): WebServer {
         val t = System.nanoTime()
         val cdl = CountDownLatch(1)
         webServer.start()
-                .thenAccept { whenStarted(it, t) }
-                .thenRun { cdl.countDown() }
+            .thenAccept { whenStarted(it, t) }
+            .thenRun { cdl.countDown() }
         try {
             cdl.await(START_TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         } catch (e: InterruptedException) {

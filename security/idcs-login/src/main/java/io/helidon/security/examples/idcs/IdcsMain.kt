@@ -15,6 +15,7 @@
  */
 package io.helidon.security.examples.idcs
 
+import config
 import io.helidon.common.http.MediaType
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
@@ -24,6 +25,7 @@ import io.helidon.security.Subject
 import io.helidon.security.integration.webserver.WebSecurity
 import io.helidon.security.providers.oidc.OidcSupport
 import io.helidon.webserver.*
+import routing
 import java.io.IOException
 import java.util.logging.LogManager
 
@@ -48,25 +50,29 @@ object IdcsMain {
         LogManager.getLogManager().readConfiguration(IdcsMain::class.java.getResourceAsStream("/logging.properties"))
         val config = buildConfig()
         val security = Security.create(config["security"])
-        val routing = Routing.builder()
-                .register(WebSecurity.create(security, config["security"])) // IDCS requires a web resource for redirects
-                .register(OidcSupport.create(config))["/rest/profile", Handler { req: ServerRequest, res: ServerResponse ->
-            val securityContext = req.context().get(SecurityContext::class.java)
-            res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
-            res.send("Response from config based service, you are: \n" + securityContext
+        val routing = routing {
+            register(WebSecurity.create(security, config["security"])) // IDCS requires a web resource for redirects
+            register(OidcSupport.create(config))
+            get("/rest/profile", Handler { req: ServerRequest, res: ServerResponse ->
+                val securityContext = req.context().get(SecurityContext::class.java)
+                res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
+                res.send("Response from config based service, you are: \n" + securityContext
                     .flatMap { obj: SecurityContext -> obj.user() }
                     .map { obj: Subject -> obj.toString() }
                     .orElse("Security context is null"))
-        }]
+            })
+        }
         theServer = WebServer.create(routing, config["server"])
         IdcsUtil.start(theServer)
     }
 
     private fun buildConfig(): Config {
-        return Config.builder()
-                .sources( // you can use this file to override the defaults built-in
-                        ConfigSources.file(System.getProperty("user.home") + "/helidon/conf/examples.yaml").optional(),  // in jar file (see src/main/resources/application.yaml)
-                        ConfigSources.classpath("application.yaml"))
-                .build()
+        return config {
+            sources( // you can use this file to override the defaults built-in
+                ConfigSources.file(System.getProperty("user.home") + "/helidon/conf/examples.yaml")
+                    .optional(),  // in jar file (see src/main/resources/application.yaml)
+                ConfigSources.classpath("application.yaml")
+            )
+        }
     }
 }

@@ -28,6 +28,8 @@ import io.helidon.security.providers.httpsign.HttpSignProvider
 import io.helidon.security.providers.httpsign.InboundClientDefinition
 import io.helidon.security.providers.httpsign.OutboundTargetDefinition
 import io.helidon.webserver.*
+import routing
+import security
 import java.nio.file.Paths
 import java.util.*
 
@@ -99,102 +101,160 @@ object SignatureExampleBuilderMain {
     private fun routing2(): Routing {
 
         // build routing (security is loaded from config)
-        return Routing.builder() // helper method to load both security and web server security from configuration
-                .register(WebSecurity.create(security2()).securityDefaults(WebSecurity.authenticate()))["/service2", WebSecurity.rolesAllowed("user")]["/service2-rsa", WebSecurity.rolesAllowed("user")]["/{*}", Handler { req: ServerRequest, res: ServerResponse ->
-            val securityContext = req.context().get(SecurityContext::class.java)
-            res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
-            res.send("Response from service2, you are: \n" + securityContext
+        return routing {  // helper method to load both security and web server security from configuration
+            register(
+                WebSecurity.create(security2()).securityDefaults(WebSecurity.authenticate())
+            )
+            get("/service2", WebSecurity.rolesAllowed("user"))
+            get("/service2-rsa", WebSecurity.rolesAllowed("user"))
+            get("/{*}", Handler { req: ServerRequest, res: ServerResponse ->
+                val securityContext = req.context().get(SecurityContext::class.java)
+                res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
+                res.send("Response from service2, you are: \n" + securityContext
                     .flatMap { obj: SecurityContext -> obj.user() }
                     .map { obj: Subject -> obj.toString() }
                     .orElse("Security context is null") + ", service: " + securityContext
                     .flatMap { obj: SecurityContext -> obj.service() }
                     .map { obj: Subject -> obj.toString() })
-        }]
-                .build()
+            })
+        }
     }
 
     private fun routing1(): Routing {
         // build routing (security is loaded from config)
-        return Routing.builder()
-                .register(WebSecurity.create(security1()).securityDefaults(WebSecurity.authenticate()))["/service1", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest, res: ServerResponse -> SignatureExampleUtil.processService1Request(req, res, "/service2", service2Server.port()) }]["/service1-rsa", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest, res: ServerResponse -> SignatureExampleUtil.processService1Request(req, res, "/service2-rsa", service2Server.port()) }]
-                .build()
+        return routing {
+            register(
+                WebSecurity.create(security1()).securityDefaults(WebSecurity.authenticate())
+            )
+            get("/service1", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest, res: ServerResponse ->
+                SignatureExampleUtil.processService1Request(
+                    req,
+                    res,
+                    "/service2",
+                    service2Server.port()
+                )
+            })
+            get("/service1-rsa", WebSecurity.rolesAllowed("user"), Handler { req: ServerRequest, res: ServerResponse ->
+                SignatureExampleUtil.processService1Request(
+                    req,
+                    res,
+                    "/service2-rsa",
+                    service2Server.port()
+                )
+            })
+        }
     }
 
     private fun security2(): Security {
-        return Security.builder()
-                .providerSelectionPolicy(CompositeProviderSelectionPolicy.builder()
-                        .addAuthenticationProvider("http-signatures", CompositeProviderFlag.OPTIONAL)
-                        .addAuthenticationProvider("basic-auth")
-                        .build())
-                .addProvider(HttpBasicAuthProvider.builder()
-                        .realm("mic")
-                        .userStore(users()),
-                        "basic-auth")
-                .addProvider(HttpSignProvider.builder()
-                        .addInbound(InboundClientDefinition.builder("service1-hmac")
-                                .principalName("Service1 - HMAC signature")
-                                .hmacSecret("somePasswordForHmacShouldBeEncrypted")
-                                .build())
-                        .addInbound(InboundClientDefinition.builder("service1-rsa")
-                                .principalName("Service1 - RSA signature")
-                                .publicKeyConfig(KeyConfig.keystoreBuilder()
-                                        .keystore(Resource.create(Paths.get(
-                                                "src/main/resources/keystore.p12")))
-                                        .keystorePassphrase("password".toCharArray())
-                                        .certAlias("service_cert")
-                                        .build())
-                                .build())
-                        .build(),
-                        "http-signatures")
-                .build()
+        return security {
+            providerSelectionPolicy(
+                CompositeProviderSelectionPolicy.builder()
+                    .addAuthenticationProvider("http-signatures", CompositeProviderFlag.OPTIONAL)
+                    .addAuthenticationProvider("basic-auth")
+                    .build()
+            )
+            addProvider(
+                HttpBasicAuthProvider.builder()
+                    .realm("mic")
+                    .userStore(users()),
+                "basic-auth"
+            )
+            addProvider(
+                HttpSignProvider.builder()
+                    .addInbound(
+                        InboundClientDefinition.builder("service1-hmac")
+                            .principalName("Service1 - HMAC signature")
+                            .hmacSecret("somePasswordForHmacShouldBeEncrypted")
+                            .build()
+                    )
+                    .addInbound(
+                        InboundClientDefinition.builder("service1-rsa")
+                            .principalName("Service1 - RSA signature")
+                            .publicKeyConfig(
+                                KeyConfig.keystoreBuilder()
+                                    .keystore(
+                                        Resource.create(
+                                            Paths.get(
+                                                "src/main/resources/keystore.p12"
+                                            )
+                                        )
+                                    )
+                                    .keystorePassphrase("password".toCharArray())
+                                    .certAlias("service_cert")
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build(),
+                "http-signatures"
+            )
+        }
     }
 
     private fun security1(): Security {
-        return Security.builder()
-                .providerSelectionPolicy(CompositeProviderSelectionPolicy.builder()
-                        .addOutboundProvider("basic-auth")
-                        .addOutboundProvider("http-signatures")
-                        .build())
-                .addProvider(HttpBasicAuthProvider.builder()
-                        .realm("mic")
-                        .userStore(users())
-                        .addOutboundTarget(OutboundTarget.builder("propagate-all").build()),
-                        "basic-auth")
-                .addProvider(HttpSignProvider.builder()
-                        .outbound(OutboundConfig.builder()
-                                .addTarget(hmacTarget())
-                                .addTarget(rsaTarget())
-                                .build()),
-                        "http-signatures")
-                .build()
+        return security {
+            providerSelectionPolicy(
+                CompositeProviderSelectionPolicy.builder()
+                    .addOutboundProvider("basic-auth")
+                    .addOutboundProvider("http-signatures")
+                    .build()
+            )
+            addProvider(
+                HttpBasicAuthProvider.builder()
+                    .realm("mic")
+                    .userStore(users())
+                    .addOutboundTarget(OutboundTarget.builder("propagate-all").build()),
+                "basic-auth"
+            )
+            addProvider(
+                HttpSignProvider.builder()
+                    .outbound(
+                        OutboundConfig.builder()
+                            .addTarget(hmacTarget())
+                            .addTarget(rsaTarget())
+                            .build()
+                    ),
+                "http-signatures"
+            )
+        }
     }
 
     private fun rsaTarget(): OutboundTarget {
         return OutboundTarget.builder("service2-rsa")
-                .addHost("localhost")
-                .addPath("/service2-rsa.*")
-                .customObject(OutboundTargetDefinition::class.java,
-                        OutboundTargetDefinition.builder("service1-rsa")
-                                .privateKeyConfig(KeyConfig.keystoreBuilder()
-                                        .keystore(Resource.create(Paths.get(
-                                                "src/main/resources/keystore.p12")))
-                                        .keystorePassphrase("password".toCharArray())
-                                        .keyAlias("myPrivateKey")
-                                        .build())
-                                .build())
-                .build()
+            .addHost("localhost")
+            .addPath("/service2-rsa.*")
+            .customObject(
+                OutboundTargetDefinition::class.java,
+                OutboundTargetDefinition.builder("service1-rsa")
+                    .privateKeyConfig(
+                        KeyConfig.keystoreBuilder()
+                            .keystore(
+                                Resource.create(
+                                    Paths.get(
+                                        "src/main/resources/keystore.p12"
+                                    )
+                                )
+                            )
+                            .keystorePassphrase("password".toCharArray())
+                            .keyAlias("myPrivateKey")
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
     }
 
     private fun hmacTarget(): OutboundTarget {
         return OutboundTarget.builder("service2")
-                .addHost("localhost")
-                .addPath("/service2")
-                .customObject(
-                        OutboundTargetDefinition::class.java,
-                        OutboundTargetDefinition.builder("service1-hmac")
-                                .hmacSecret("somePasswordForHmacShouldBeEncrypted")
-                                .build())
-                .build()
+            .addHost("localhost")
+            .addPath("/service2")
+            .customObject(
+                OutboundTargetDefinition::class.java,
+                OutboundTargetDefinition.builder("service1-hmac")
+                    .hmacSecret("somePasswordForHmacShouldBeEncrypted")
+                    .build()
+            )
+            .build()
     }
 
     private fun users(): SecureUserStore {

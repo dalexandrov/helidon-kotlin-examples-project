@@ -19,6 +19,7 @@ import io.helidon.security.Security
 import io.helidon.security.SecurityContext
 import io.helidon.security.SecurityResponse
 import io.helidon.security.Subject
+import security
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ExecutionException
@@ -93,9 +94,9 @@ class ProgrammaticSecurity {
 
     private fun init() {
         //binds security context to current thread
-        security = Security.builder()
-                .addProvider(MyProvider(), "FirstProvider")
-                .build()
+        security = security {
+            addProvider(MyProvider(), "FirstProvider")
+        }
         CONTEXT.set(security.contextBuilder("mainThread").build())
     }
 

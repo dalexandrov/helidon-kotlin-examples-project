@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.demo.todos.frontend
 
+import config
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.config.FileSystemWatcher
@@ -30,6 +31,8 @@ import io.helidon.webserver.WebServer
 import io.helidon.webserver.accesslog.AccessLogSupport
 import io.opentracing.Tracer
 import org.glassfish.jersey.logging.LoggingFeature
+import routing
+import webServer
 import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -68,17 +71,18 @@ fun main() {
     val bsc = BackendServiceClient(client, config)
 
     // create a web server
-    val server = WebServer.builder(
-        createRouting(
-            Security.create(config["security"]),
-            config,
-            bsc
+    val server = webServer {
+        routing(
+            createRouting(
+                Security.create(config["security"]),
+                config,
+                bsc
+            )
         )
-    )
-        .config(config["webserver"])
-        .addMediaSupport(JsonpSupport.create())
-        .tracer(registerTracer(config))
-        .build()
+        config(config["webserver"])
+        addMediaSupport(JsonpSupport.create())
+        tracer(registerTracer(config))
+    }
 
     // start the web server
     server.start()
@@ -106,16 +110,16 @@ private fun createRouting(
     config: Config,
     bsc: BackendServiceClient
 ): Routing {
-    return Routing.builder()
-        .register(AccessLogSupport.create()) // register metrics features (on "/metrics")
-        .register(MetricsSupport.create()) // register security features
-        .register(WebSecurity.create(security, config)) // register static content support (on "/")
-        .register(
+    return routing {
+        register(AccessLogSupport.create()) // register metrics features (on "/metrics")
+        register(MetricsSupport.create()) // register security features
+        register(WebSecurity.create(security, config)) // register static content support (on "/")
+        register(
             StaticContentSupport.builder("/WEB").welcomeFileName("index.html")
         ) // register API handler (on "/api") - this path is secured (see application.yaml)
-        .register("/api", TodosHandler(bsc)) // and a simple environment handler to see where we are
-        .register("/env", EnvHandler(config))
-        .build()
+        register("/api", TodosHandler(bsc)) // and a simple environment handler to see where we are
+        register("/env", EnvHandler(config))
+    }
 }
 
 /**
@@ -142,8 +146,8 @@ private fun started(
  * @return the configuration root
  */
 private fun buildConfig(): Config {
-    return Config.builder()
-        .sources(
+    return config {
+        sources(
             listOf(
                 ConfigSources.environmentVariables(),  // expected on development machine
                 // to override props for dev
@@ -162,5 +166,5 @@ private fun buildConfig(): Config {
                 ConfigSources.classpath("application.yaml")
             )
         )
-        .build()
+    }
 }

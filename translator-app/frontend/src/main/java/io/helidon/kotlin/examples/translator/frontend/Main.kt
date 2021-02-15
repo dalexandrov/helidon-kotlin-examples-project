@@ -15,11 +15,14 @@
  */
 package io.helidon.kotlin.examples.translator.frontend
 
+import config
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import webServer
+import routing as routingBuilder
 import java.util.concurrent.CompletionStage
 import java.util.logging.LogManager
 
@@ -31,26 +34,26 @@ class Main
 fun startFrontendServer(): CompletionStage<WebServer?> {
     // configure logging in order to not have the standard JVM defaults
     LogManager.getLogManager().readConfiguration(Main::class.java.getResourceAsStream("/logging.properties"))
-    val config = Config.builder()
-        .sources(ConfigSources.environmentVariables())
-        .build()
-    val webServer = WebServer.builder(
-        Routing.builder()
-            .register(
+    val config = config {
+        sources(ConfigSources.environmentVariables())
+    }
+    val webServer = webServer {
+        routing(routingBuilder {
+            register(
                 TranslatorFrontendService(
                     config["backend.host"].asString().orElse("localhost"),
                     9080
                 )
             )
-    )
-        .port(8080)
-        .tracer(
+        })
+        port(8080)
+        tracer(
             TracerBuilder.create(config["tracing"])
                 .serviceName("helidon-webserver-translator-frontend")
                 .registerGlobal(false)
                 .build()
         )
-        .build()
+    }
     return webServer.start()
         .thenApply { ws: WebServer ->
             println(

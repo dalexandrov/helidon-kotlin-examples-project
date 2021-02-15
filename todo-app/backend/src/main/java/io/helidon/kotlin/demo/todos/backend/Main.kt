@@ -15,9 +15,10 @@
  */
 package io.helidon.kotlin.demo.todos.backend
 
+import config
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
-import io.helidon.microprofile.server.Server
+import server
 import java.util.logging.LogManager
 
 /**
@@ -35,9 +36,9 @@ fun main() {
 
     // as we need to use custom filter
     // we need to build Server with custom config
-    val server = Server.builder()
-        .config(config)
-        .build()
+    val server = server {
+        config(config)
+    }
     server.start()
 }
 
@@ -46,8 +47,8 @@ fun main() {
  * @return the configuration root
  */
 fun buildConfig(): Config {
-    return Config.builder()
-        .sources(
+    return config {
+        sources(
             listOf(
                 ConfigSources.environmentVariables(),  // expected on development machine
                 // to override props for dev
@@ -59,5 +60,5 @@ fun buildConfig(): Config {
             )
         ) // support for passwords in configuration
         //                .addFilter(SecureConfigFilter.fromConfig())
-        .build()
+    }
 }

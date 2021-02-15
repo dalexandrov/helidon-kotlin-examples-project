@@ -22,6 +22,8 @@ import io.helidon.security.integration.jersey.SecurityFeature
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.jersey.JerseySupport
+import jerseySupport
+import routing
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
 import javax.ws.rs.ext.ExceptionMapper
@@ -39,23 +41,23 @@ object JerseyConfigMain {
         val config = Config.create()["security"]
         val security = Security.create(config)
         return SecurityFeature.builder(security)
-                .config(config["jersey"])
-                .build()
+            .config(config["jersey"])
+            .build()
     }
 
     private fun buildJersey(): JerseySupport {
-        return JerseySupport.builder() // register JAX-RS resource
-                .register(JerseyResources.HelloWorldResource::class.java) // register JAX-RS resource demonstrating identity propagation
-                .register(OutboundSecurityResource::class.java) // integrate security
-                .register(buildSecurity())
-                .register(ExceptionMapper<Exception> { exception ->
-                    if (exception is WebApplicationException) {
-                        return@ExceptionMapper exception.response
-                    }
-                    exception.printStackTrace()
-                    Response.serverError().build()
-                })
-                .build()
+        return jerseySupport {  // register JAX-RS resource
+            register(JerseyResources.HelloWorldResource::class.java) // register JAX-RS resource demonstrating identity propagation
+            register(OutboundSecurityResource::class.java) // integrate security
+            register(buildSecurity())
+            register(ExceptionMapper<Exception> { exception ->
+                if (exception is WebApplicationException) {
+                    return@ExceptionMapper exception.response
+                }
+                exception.printStackTrace()
+                Response.serverError().build()
+            })
+        }
     }
 
     /**
@@ -67,8 +69,9 @@ object JerseyConfigMain {
     @JvmStatic
     @Throws(Throwable::class)
     fun main(args: Array<String>?) {
-        val routing = Routing.builder()
-                .register("/rest", buildJersey())
+        val routing = routing {
+            register("/rest", buildJersey())
+        }
         httpServer = JerseyUtil.startIt(routing, 8080)
         JerseyResources.setPort(httpServer.port())
     }

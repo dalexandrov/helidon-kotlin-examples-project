@@ -18,6 +18,7 @@ package io.helidon.kotlin.security.examples.google
 import io.helidon.common.Builder
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import webServer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -29,10 +30,11 @@ object GoogleUtil {
     // of Google application redirect URI
     const val PORT = 8080
     private const val START_TIMEOUT_SECONDS = 10
-    fun startIt(port: Int, routing: Builder<out Routing>): WebServer {
-        val server = WebServer.builder(routing)
-                .port(port)
-                .build()
+    fun startIt(port: Int, routingSetup: Routing): WebServer {
+        val server = webServer {
+            routing(routingSetup)
+            port(port)
+        }
         val t = System.nanoTime()
         val cdl = CountDownLatch(1)
         server.start().thenAccept { webServer: WebServer ->
