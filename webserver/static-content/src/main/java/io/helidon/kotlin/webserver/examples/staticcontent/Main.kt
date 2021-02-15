@@ -18,6 +18,8 @@ package io.helidon.kotlin.webserver.examples.staticcontent
 import io.helidon.common.http.Http
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.webserver.*
+import routing
+import webServer
 
 /**
  * Application demonstrates combination of the static content with a simple REST API. It counts accesses and display it
@@ -26,29 +28,29 @@ import io.helidon.webserver.*
 
 
 private fun createRouting(): Routing {
-    return Routing.builder()
-        .any("/", Handler { _: ServerRequest?, res: ServerResponse ->
+    return routing {
+        any("/", Handler { _: ServerRequest?, res: ServerResponse ->
             // showing the capability to run on any path, and redirecting from root
             res.status(Http.Status.MOVED_PERMANENTLY_301)
             res.headers().put(Http.Header.LOCATION, "/ui")
             res.send()
         })
-        .register("/ui", CounterService())
-        .register(
+        register("/ui", CounterService())
+        register(
             "/ui", StaticContentSupport.builder("WEB")
                 .welcomeFileName("index.html")
                 .build()
         )
-        .build()
+    }
 }
 
 
 fun main() {
-    val server = WebServer.builder(createRouting())
-        .port(8080)
-        .addMediaSupport(JsonpSupport.create())
-        .build()
-
+    val server = webServer {
+        routing(createRouting())
+        port(8080)
+        addMediaSupport(JsonpSupport.create())
+    }
     // Start the server and print some info.
     server.start().thenAccept { ws: WebServer -> println("WEB server is up! http://localhost:" + ws.port()) }
 

@@ -17,6 +17,8 @@ package io.helidon.kotlin.webserver.examples.streaming
 
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import routing
+import webServer
 
 
 const val LARGE_FILE_RESOURCE = "/large-file.bin"
@@ -27,9 +29,9 @@ const val LARGE_FILE_RESOURCE = "/large-file.bin"
  * @return the new instance
  */
 private fun createRouting(): Routing {
-    return Routing.builder()
-        .register(StreamingService())
-        .build()
+    return routing {
+        register(StreamingService())
+    }
 }
 
 /**
@@ -37,9 +39,10 @@ private fun createRouting(): Routing {
  *
  */
 fun main() {
-    val server = WebServer.builder(createRouting())
-        .port(8080)
-        .build()
+    val server = webServer {
+        routing(createRouting())
+        port(8080)
+    }
     server.start().thenAccept { ws: WebServer -> println("Steaming service is up at http://localhost:" + ws.port()) }
     server.whenShutdown().thenRun { println("Streaming service is down") }
 }

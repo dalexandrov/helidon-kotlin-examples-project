@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.examples.standalone.quickstart.se
 
+import healthSupport
 import io.helidon.config.Config
 import io.helidon.health.HealthSupport
 import io.helidon.health.checks.HealthChecks
@@ -22,6 +23,8 @@ import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import routing
+import webServer
 import java.io.IOException
 import java.lang.System.err
 import java.util.logging.LogManager
@@ -49,10 +52,11 @@ fun startServer(): WebServer {
     val config = Config.create()
 
     // Get webserver config from the "server" section of application.yaml and register JSON support
-    val server = WebServer.builder(createRouting(config))
-        .config(config["server"])
-        .addMediaSupport(JsonpSupport.create())
-        .build()
+    val server = webServer {
+        routing(createRouting(config))
+        config(config["server"])
+        addMediaSupport(JsonpSupport.create())
+    }
 
     // Try to start the server. If successful, print some info and arrange to
     // print a message at shutdown. If unsuccessful, print the exception.
@@ -82,14 +86,14 @@ fun startServer(): WebServer {
 private fun createRouting(config: Config): Routing {
     val metrics = MetricsSupport.create()
     val greetService = GreetService(config)
-    val health = HealthSupport.builder()
-        .addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
-        .build()
-    return Routing.builder()
-        .register(health) // Health at "/health"
-        .register(metrics) // Metrics at "/metrics"
-        .register("/greet", greetService)
-        .build()
+    val health = healthSupport {
+        addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
+    }
+    return routing {
+        register(health) // Health at "/health"
+        register(metrics) // Metrics at "/metrics"
+        register("/greet", greetService)
+    }
 }
 
 /**

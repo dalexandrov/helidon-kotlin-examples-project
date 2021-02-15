@@ -15,6 +15,8 @@
  */
 package io.helidon.kotlin.examples.dbclient.mongo
 
+import dbClient
+import healthSupport
 import io.helidon.config.Config
 import io.helidon.dbclient.DbClient
 import io.helidon.dbclient.DbStatementType
@@ -28,6 +30,8 @@ import io.helidon.metrics.MetricsSupport
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import routing
+import webServer
 import java.io.IOException
 import java.util.logging.LogManager
 
@@ -54,12 +58,13 @@ fun startServer(): WebServer {
 
     // By default this will pick up application.yaml from the classpath
     val config = Config.create()
-    val server = WebServer.builder(createRouting(config))
-        .config(config["server"])
-        .tracer(TracerBuilder.create("mongo-db").build())
-        .addMediaSupport(JsonpSupport.create())
-        .addMediaSupport(JsonbSupport.create())
-        .build()
+    val server = webServer {
+        routing(createRouting(config))
+        config(config["server"])
+        tracer(TracerBuilder.create("mongo-db").build())
+        addMediaSupport(JsonpSupport.create())
+        addMediaSupport(JsonbSupport.create())
+    }
 
     // Start the server and print some info.
     server.start().thenAccept { ws: WebServer ->
@@ -81,24 +86,25 @@ fun startServer(): WebServer {
  */
 private fun createRouting(config: Config): Routing {
     val dbConfig = config["db"]
-    val dbClient = DbClient.builder(dbConfig) // add an interceptor to named statement(s)
-        .addService(
+    val dbClient = dbClient {
+        config(dbConfig) // add an interceptor to named statement(s)
+        addService(
             DbClientMetrics.counter().statementNames("select-all", "select-one")
         ) // add an interceptor to statement type(s)
-        .addService(
+        addService(
             DbClientMetrics.timer()
                 .statementTypes(DbStatementType.DELETE, DbStatementType.UPDATE, DbStatementType.INSERT)
         ) // add an interceptor to all statements
-        .addService(DbClientTracing.create())
-        .build()
-    val health = HealthSupport.builder()
-        .addLiveness(DbClientHealthCheck.create(dbClient))
-        .build()
-    return Routing.builder()
-        .register(health) // Health at "/health"
-        .register(MetricsSupport.create()) // Metrics at "/metrics"
-        .register("/db", PokemonService(dbClient))
-        .build()
+        addService(DbClientTracing.create())
+    }
+    val health = healthSupport {
+        addLiveness(DbClientHealthCheck.create(dbClient))
+    }
+    return routing {
+        register(health) // Health at "/health"
+        register(MetricsSupport.create()) // Metrics at "/metrics"
+        register("/db", PokemonService(dbClient))
+    }
 }
 
 private fun noConfigError(key: String): IllegalStateException {

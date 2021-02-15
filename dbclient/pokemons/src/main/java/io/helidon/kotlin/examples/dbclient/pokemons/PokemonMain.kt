@@ -15,6 +15,8 @@
  */
 package io.helidon.kotlin.examples.dbclient.pokemons
 
+import dbClient
+import healthSupport
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.dbclient.DbClient
@@ -27,6 +29,8 @@ import io.helidon.metrics.MetricsSupport
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import routing
+import webServer
 import java.io.IOException
 import java.util.logging.LogManager
 
@@ -76,12 +80,13 @@ fun startServer(): WebServer {
 
     // Prepare routing for the server
     val routing = createRouting(config)
-    val server = WebServer.builder(routing)
-        .addMediaSupport(JsonpSupport.create())
-        .addMediaSupport(JsonbSupport.create())
-        .config(config["server"])
-        .tracer(TracerBuilder.create(config["tracing"]).build())
-        .build()
+    val server = webServer {
+        routing(routing)
+        addMediaSupport(JsonpSupport.create())
+        addMediaSupport(JsonbSupport.create())
+        config(config["server"])
+        tracer(TracerBuilder.create(config["tracing"]).build())
+    }
 
     // Start the server and print some info.
     server.start()
@@ -103,17 +108,18 @@ private fun createRouting(config: Config): Routing {
     val dbConfig = config["db"]
 
     // Client services are added through a service loader - see mongoDB example for explicit services
-    val dbClient = DbClient.builder(dbConfig)
-        .build()
-    val health = HealthSupport.builder()
-        .addLiveness(DbClientHealthCheck.create(dbClient))
-        .build()
+    val dbClient = dbClient {
+        config(dbConfig)
+    }
+    val health = healthSupport {
+        addLiveness(DbClientHealthCheck.create(dbClient))
+    }
 
     // Initialize database schema
     init(dbClient)
-    return Routing.builder()
-        .register(health) // Health at "/health"
-        .register(MetricsSupport.create()) // Metrics at "/metrics"
-        .register("/db", PokemonService(dbClient))
-        .build()
+    return routing {
+        register(health) // Health at "/health"
+        register(MetricsSupport.create()) // Metrics at "/metrics"
+        register("/db", PokemonService(dbClient))
+    }
 }

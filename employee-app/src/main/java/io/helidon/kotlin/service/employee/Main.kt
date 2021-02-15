@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.service.employee
 
+import healthSupport
 import io.helidon.config.Config
 import io.helidon.health.HealthSupport
 import io.helidon.health.checks.HealthChecks
@@ -23,6 +24,8 @@ import io.helidon.metrics.MetricsSupport
 import io.helidon.webserver.Routing
 import io.helidon.webserver.StaticContentSupport
 import io.helidon.webserver.WebServer
+import routing
+import webServer
 import java.util.logging.LogManager
 
 /**
@@ -47,10 +50,11 @@ fun startServer(): WebServer {
     val config = Config.create()
 
     // Get webserver config from the "server" section of application.yaml and JSON support registration
-    val server = WebServer.builder(createRouting(config))
-        .config(config["server"])
-        .addMediaSupport(JsonbSupport.create())
-        .build()
+    val server = webServer {
+        routing(createRouting(config))
+        config(config["server"])
+        addMediaSupport(JsonbSupport.create())
+    }
 
     // Try to start the server. If successful, print some info and arrange to
     // print a message at shutdown. If unsuccessful, print the exception.
@@ -80,15 +84,13 @@ fun startServer(): WebServer {
 private fun createRouting(config: Config): Routing {
     val metrics = MetricsSupport.create()
     val employeeService = EmployeeService(config)
-    val health = HealthSupport.builder().addLiveness(*HealthChecks.healthChecks())
-        .build() // Adds a convenient set of checks
-    return Routing.builder()
-        .register(
-            "/public", StaticContentSupport.builder("public")
-                .welcomeFileName("index.html")
-        )
-        .register(health) // Health at "/health"
-        .register(metrics) // Metrics at "/metrics"
-        .register("/employees", employeeService)
-        .build()
+    val health = healthSupport {
+        addLiveness(*HealthChecks.healthChecks())
+    }// Adds a convenient set of checks
+    return routing {
+        register("/public", StaticContentSupport.builder("public").welcomeFileName("index.html"))
+        register(health) // Health at "/health"
+        register(metrics) // Metrics at "/metrics"
+        register("/employees", employeeService)
+    }
 }

@@ -15,8 +15,8 @@
  */
 package io.helidon.kotlin.examples.cors
 
+import healthSupport
 import io.helidon.config.Config
-import io.helidon.health.HealthSupport
 import io.helidon.health.checks.HealthChecks
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
@@ -24,11 +24,15 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.cors.CorsSupport
 import io.helidon.webserver.cors.CrossOriginConfig
+import routing
+import webServer
+import corsSupport
 import java.io.IOException
 import java.util.logging.LogManager
 import java.util.logging.Logger
 
 class Main
+
 /**
  * Simple Hello World rest application.
  */
@@ -50,10 +54,11 @@ fun startServer(): WebServer {
     val config = Config.create()
 
     // Get webserver config from the "server" section of application.yaml
-    val server = WebServer.builder(createRouting(config))
-        .config(config["server"])
-        .addMediaSupport(JsonpSupport.create())
-        .build()
+    val server = webServer {
+        routing(createRouting(config))
+        config(config["server"])
+        addMediaSupport(JsonpSupport.create())
+    }
 
     // Try to start the server. If successful, print some info and arrange to
     // print a message at shutdown. If unsuccessful, print the exception.
@@ -83,16 +88,16 @@ fun startServer(): WebServer {
 private fun createRouting(config: Config): Routing {
     val metrics = MetricsSupport.create()
     val greetService = GreetService(config)
-    val health = HealthSupport.builder()
-        .addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
-        .build()
+    val health = healthSupport {
+        addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
+    }
 
     // Note: Add the CORS routing *before* registering the GreetService routing.
-    return Routing.builder()
-        .register(health) // Health at "/health"
-        .register(metrics) // Metrics at "/metrics"
-        .register("/greet", corsSupportForGreeting(config), greetService)
-        .build()
+    return routing {
+        register(health) // Health at "/health"
+        register(metrics) // Metrics at "/metrics"
+        register("/greet", corsSupportForGreeting(config), greetService)
+    }
 }
 
 private fun corsSupportForGreeting(config: Config): CorsSupport {
@@ -105,17 +110,16 @@ private fun corsSupportForGreeting(config: Config): CorsSupport {
         Logger.getLogger(Main::class.java.name)
             .warning("Missing restrictive config; continuing with default CORS support")
     }
-    val corsBuilder = CorsSupport.builder()
 
     // Use possible overrides first.
-    config["cors"]
-        .ifExists { c: Config? ->
-            Logger.getLogger(Main::class.java.name).info("Using the override configuration")
-            corsBuilder.mappedConfig(c)
-        }
-    corsBuilder
-        .config(restrictiveConfig) // restricted sharing for PUT, DELETE
-        .addCrossOrigin(CrossOriginConfig.create()) // open sharing for other methods
-        .build()
-    return corsBuilder.build()
+
+    return corsSupport {
+        config(restrictiveConfig) // restricted sharing for PUT, DELETE
+        addCrossOrigin(CrossOriginConfig.create()) // open sharing for other methods
+        config["cors"]
+            .ifExists { c: Config? ->
+                Logger.getLogger(Main::class.java.name).info("Using the override configuration")
+                mappedConfig(c)
+            }
+    };
 }

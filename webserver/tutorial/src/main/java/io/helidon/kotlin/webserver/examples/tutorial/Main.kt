@@ -18,6 +18,8 @@ package io.helidon.kotlin.webserver.examples.tutorial
 import io.helidon.common.http.MediaType
 import io.helidon.kotlin.webserver.examples.tutorial.user.UserFilter
 import io.helidon.webserver.*
+import routing
+import webServer
 
 /**
  * Application java main class.
@@ -30,20 +32,20 @@ import io.helidon.webserver.*
 
 fun createRouting(): Routing {
     val upperXFilter = UpperXFilter()
-    return Routing.builder()
-        .any(UserFilter())
-        .any(Handler { req: ServerRequest, res: ServerResponse ->
+    return routing {
+        any(UserFilter())
+        any(Handler { req: ServerRequest, res: ServerResponse ->
             res.registerFilter(upperXFilter)
             req.next()
         })
-        .register("/article", CommentService())
-        .post("/mgmt/shutdown", Handler { req: ServerRequest, res: ServerResponse ->
+        register("/article", CommentService())
+        post("/mgmt/shutdown", Handler { req: ServerRequest, res: ServerResponse ->
             res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
             res.send("Shutting down TUTORIAL server. Good bye!\n")
             // Use reactive API nature to stop the server AFTER the response was sent.
             res.whenSent().thenRun { req.webServer().shutdown() }
         })
-        .build()
+    }
 }
 
 /**
@@ -60,9 +62,10 @@ fun main(args: Array<String>) {
             0
         }
     }
-    val server = WebServer.builder(createRouting())
-        .port(port)
-        .build()
+    val server = webServer {
+        routing(createRouting())
+        port(port)
+    }
 
     // Start the server and print some info.
     server.start().thenAccept { ws: WebServer ->

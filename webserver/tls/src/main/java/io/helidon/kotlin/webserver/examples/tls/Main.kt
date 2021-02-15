@@ -16,9 +16,12 @@
 package io.helidon.kotlin.webserver.examples.tls
 
 import io.helidon.common.configurable.Resource
-import io.helidon.common.pki.KeyConfig
 import io.helidon.config.Config
 import io.helidon.webserver.*
+import keystoreBuilder
+import webServer
+import webServerTls
+import routing
 import java.io.IOException
 import java.util.concurrent.CompletionStage
 import java.util.logging.LogManager
@@ -33,7 +36,7 @@ import java.util.logging.LogManager
  */
 class Main
 
-fun main(args: Array<String>) {
+fun main() {
     setupLogging()
     val config = Config.create()
     startConfigBasedServer(config["config-based"])
@@ -43,32 +46,35 @@ fun main(args: Array<String>) {
 }
 
 fun startBuilderBasedServer(config: Config?): CompletionStage<WebServer> {
-    return WebServer.builder()
-        .config(config)
-        .routing(routing()) // now let's configure TLS
-        .tls(
-            WebServerTls.builder()
-                .privateKey(
-                    KeyConfig.keystoreBuilder()
-                        .keystore(Resource.create("certificate.p12"))
-                        .keystorePassphrase("helidon")
+    return webServer {
+        config(config)
+        routing(routing()) // now let's configure TLS
+        tls(
+            webServerTls {
+                privateKey(
+                    keystoreBuilder {
+                        keystore(Resource.create("certificate.p12"))
+                        keystorePassphrase("helidon")
+                    }
                 )
+            }
         )
-        .build()
+    }
         .start()
 }
 
 fun startConfigBasedServer(config: Config?): CompletionStage<WebServer> {
-    return WebServer.builder()
-        .config(config)
-        .routing(routing())
-        .build()
+    return webServer {
+        config(config)
+        routing(routing())
+    }
         .start()
 }
 
 private fun routing(): Routing {
-    return Routing.builder()["/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello!") }]
-        .build()
+    return routing {
+        get("/", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello!") })
+    }
 }
 
 /**

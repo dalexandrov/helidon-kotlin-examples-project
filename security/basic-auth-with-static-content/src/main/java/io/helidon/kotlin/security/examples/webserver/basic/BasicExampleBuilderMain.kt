@@ -24,6 +24,9 @@ import io.helidon.security.integration.webserver.WebSecurity
 import io.helidon.security.providers.httpauth.HttpBasicAuthProvider
 import io.helidon.security.providers.httpauth.SecureUserStore
 import io.helidon.webserver.*
+import routing
+import security
+import webServer
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -47,36 +50,47 @@ object BasicExampleBuilderMain {
     @JvmStatic
     fun startServer(): WebServer {
         LogConfig.initClass()
-        val routing = Routing.builder() // must be configured first, to protect endpoints
-                .register(buildWebSecurity().securityDefaults(WebSecurity.authenticate()))
-                .any("/static[/{*}]", WebSecurity.rolesAllowed("user"))
-                .register("/static", StaticContentSupport.create("/WEB"))["/noRoles", WebSecurity.enforce()]["/user[/{*}]", WebSecurity.rolesAllowed("user")]["/admin", WebSecurity.rolesAllowed("admin")]["/deny", WebSecurity.rolesAllowed("deny").audit()] // roles allowed imply authn and authz
-                .any("/noAuthn", WebSecurity.rolesAllowed("admin")
-                        .authenticationOptional()
-                        .audit())["/{*}", Handler { req: ServerRequest, res: ServerResponse ->
-            val securityContext = req.context().get(SecurityContext::class.java)
-            res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
-            res.send("Hello, you are: \n" + securityContext
+        val routing = routing {   // must be configured first, to protect endpoints
+            register(buildWebSecurity().securityDefaults(WebSecurity.authenticate()))
+            any("/static[/{*}]", WebSecurity.rolesAllowed("user"))
+            register(
+                "/static",
+                StaticContentSupport.create("/WEB")
+            )
+            get("/noRoles", WebSecurity.enforce())
+            get("/user[/{*}]", WebSecurity.rolesAllowed("user"))
+            get("/admin", WebSecurity.rolesAllowed("admin"))
+            get("/deny", WebSecurity.rolesAllowed("deny").audit()) // roles allowed imply authn and authz
+            any(
+                "/noAuthn", WebSecurity.rolesAllowed("admin")
+                    .authenticationOptional()
+                    .audit()
+            )
+            get("/{*}", Handler { req: ServerRequest, res: ServerResponse ->
+                val securityContext = req.context().get(SecurityContext::class.java)
+                res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
+                res.send("Hello, you are: \n" + securityContext
                     .map { ctx: SecurityContext -> ctx.user().orElse(SecurityContext.ANONYMOUS).toString() }
                     .orElse("Security context is null"))
-        }]
-                .build()
-        return WebServer.builder()
-                .routing(routing) // uncomment to use an explicit port
-                //.port(8080)
-                .build()
-                .start()
-                .await(10, TimeUnit.SECONDS)
+            })
+        }
+        return webServer {
+            routing(routing) // uncomment to use an explicit port
+            //.port(8080)
+        }
+            .start()
+            .await(10, TimeUnit.SECONDS)
     }
 
     private fun buildWebSecurity(): WebSecurity {
-        val security = Security.builder()
-                .addAuthenticationProvider(
-                        HttpBasicAuthProvider.builder()
-                                .realm("helidon")
-                                .userStore(buildUserStore()),
-                        "http-basic-auth")
-                .build()
+        val security = security {
+            addAuthenticationProvider(
+                HttpBasicAuthProvider.builder()
+                    .realm("helidon")
+                    .userStore(buildUserStore()),
+                "http-basic-auth"
+            )
+        }
         return WebSecurity.create(security)
     }
 
@@ -84,7 +98,8 @@ object BasicExampleBuilderMain {
         return SecureUserStore { login: String -> Optional.ofNullable(USERS[login]) }
     }
 
-    private class MyUser(private val login: String, private val password: CharArray, private val roles: Set<String>) : SecureUserStore.User {
+    private class MyUser(private val login: String, private val password: CharArray, private val roles: Set<String>) :
+        SecureUserStore.User {
         private fun password(): CharArray {
             return password
         }

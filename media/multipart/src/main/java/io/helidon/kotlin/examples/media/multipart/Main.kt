@@ -19,6 +19,9 @@ import io.helidon.common.http.Http
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.media.multipart.MultiPartSupport
 import io.helidon.webserver.*
+import routing
+import serverConfiguration
+import webServer
 
 
 /**
@@ -27,33 +30,35 @@ import io.helidon.webserver.*
  * @return the new instance
  */
 private fun createRouting(): Routing {
-    return Routing.builder()
-        .any("/", Handler { _: ServerRequest?, res: ServerResponse ->
+    return routing {
+        any("/", Handler { _: ServerRequest?, res: ServerResponse ->
             res.status(Http.Status.MOVED_PERMANENTLY_301)
             res.headers().put(Http.Header.LOCATION, "/ui")
             res.send()
         })
-        .register(
+        register(
             "/ui", StaticContentSupport.builder("WEB")
                 .welcomeFileName("index.html")
                 .build()
         )
-        .register("/api", FileService())
-        .build()
+        register("/api", FileService())
+    }
 }
 
 /**
  * This application provides a simple file upload service with a UI to exercise multipart.
  */
 fun main() {
-    val config = ServerConfiguration.builder()
-        .port(8080)
-        .build()
-    val server = WebServer.builder(createRouting())
-        .config(config)
-        .addMediaSupport(MultiPartSupport.create())
-        .addMediaSupport(JsonpSupport.create())
-        .build()
+    val config = serverConfiguration {
+        port(8080)
+    }
+    val server = webServer {
+        routing(createRouting())
+        config(config)
+        addMediaSupport(MultiPartSupport.create())
+        addMediaSupport(JsonpSupport.create())
+    }
+
 
     // Start the server and print some info.
     server.start().thenAccept { ws: WebServer -> println("WEB server is up! http://localhost:" + ws.port()) }

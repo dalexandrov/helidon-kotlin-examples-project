@@ -20,6 +20,8 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.StaticContentSupport
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.tyrus.TyrusSupport
+import routing
+import webServer
 import java.util.concurrent.CompletableFuture
 import javax.websocket.Encoder
 import javax.websocket.server.ServerEndpointConfig
@@ -31,9 +33,9 @@ import javax.websocket.server.ServerEndpointConfig
 
 fun createRouting(): Routing {
     val encoders: List<Class<out Encoder?>> = listOf(UppercaseEncoder::class.java)
-    return Routing.builder()
-        .register("/rest", MessageQueueService())
-        .register(
+    return routing {
+        register("/rest", MessageQueueService())
+        register(
             "/websocket",
             TyrusSupport.builder().register(
                 ServerEndpointConfig.Builder.create(MessageBoardEndpoint::class.java, "/board")
@@ -41,15 +43,16 @@ fun createRouting(): Routing {
             )
                 .build()
         )
-        .register("/web", StaticContentSupport.builder("/WEB").build())
-        .build()
+        register("/web", StaticContentSupport.builder("/WEB").build())
+    }
 }
 
 
 fun startWebServer(): WebServer {
-    val server = WebServer.builder(createRouting())
-        .port(8080)
-        .build()
+    val server = webServer {
+        routing(createRouting())
+        port(8080)
+    }
 
     // Start webserver
     val started = CompletableFuture<Void?>()

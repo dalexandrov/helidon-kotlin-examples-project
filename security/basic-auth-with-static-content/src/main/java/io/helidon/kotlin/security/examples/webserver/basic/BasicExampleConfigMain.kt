@@ -22,6 +22,8 @@ import io.helidon.kotlin.security.examples.webserver.basic.BasicExampleUtil.star
 import io.helidon.security.SecurityContext
 import io.helidon.security.integration.webserver.WebSecurity
 import io.helidon.webserver.*
+import routing
+import webServer
 import java.util.concurrent.TimeUnit
 
 /**
@@ -41,20 +43,24 @@ object BasicExampleConfigMain {
     fun startServer(): WebServer {
         LogConfig.initClass()
         val config = Config.create()
-        val routing = Routing.builder() // must be configured first, to protect endpoints
-            .register(WebSecurity.create(config["security"]))
-            .register("/static", StaticContentSupport.create("/WEB"))["/{*}", Handler { req: ServerRequest, res: ServerResponse ->
-            val securityContext = req.context().get(SecurityContext::class.java)
-            res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
-            res.send("Hello, you are: \n" + securityContext
-                .map { ctx: SecurityContext -> ctx.user().orElse(SecurityContext.ANONYMOUS).toString() }
-                .orElse("Security context is null"))
-        }]
-            .build()
-        return WebServer.builder()
-            .config(config["server"])
-            .routing(routing)
-            .build()
+        val routing = routing {   // must be configured first, to protect endpoints
+            register(WebSecurity.create(config["security"]))
+            register(
+                "/static",
+                StaticContentSupport.create("/WEB")
+            )
+            get("/{*}", Handler { req: ServerRequest, res: ServerResponse ->
+                val securityContext = req.context().get(SecurityContext::class.java)
+                res.headers().contentType(MediaType.TEXT_PLAIN.withCharset("UTF-8"))
+                res.send("Hello, you are: \n" + securityContext
+                    .map { ctx: SecurityContext -> ctx.user().orElse(SecurityContext.ANONYMOUS).toString() }
+                    .orElse("Security context is null"))
+            })
+        }
+        return webServer {
+            config(config["server"])
+            routing(routing)
+        }
             .start()
             .await(10, TimeUnit.SECONDS)
     }

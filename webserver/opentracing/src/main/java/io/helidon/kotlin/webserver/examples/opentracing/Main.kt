@@ -20,6 +20,8 @@ import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webserver.*
+import webServer
+import routing as routingBuilder
 import java.util.logging.LogManager
 
 /**
@@ -39,13 +41,14 @@ fun main() {
     val config = Config.builder()
         .sources(ConfigSources.environmentVariables())
         .build()
-    val webServer = WebServer.builder(
-        Routing.builder()
-            .any(Handler { req: ServerRequest, _: ServerResponse? ->
+    val webServer = webServer {
+        routing(routingBuilder {
+            any(Handler { req: ServerRequest, _: ServerResponse? ->
                 println("Received another request.")
                 req.next()
-            })["/test", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") }]
-            .post("/hello", Handler { req: ServerRequest, res: ServerResponse ->
+            })
+            get("/test", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") })
+            post("/hello", Handler { req: ServerRequest, res: ServerResponse ->
                 req.content()
                     .asSingle(String::class.java)
                     .thenAccept { s: String -> res.send("Hello: $s") }
@@ -54,15 +57,15 @@ fun main() {
                         null
                     }
             })
-    )
-        .port(8080)
-        .tracer(
-            TracerBuilder.create(config["tracing"])
-                .serviceName("demo-first")
-                .registerGlobal(true)
-                .build()
-        )
-        .build()
+        })
+            port(8080)
+            tracer(
+                TracerBuilder.create(config["tracing"])
+                    .serviceName("demo-first")
+                    .registerGlobal(true)
+                    .build()
+            )
+    }
     webServer.start()
-        .whenComplete { server: WebServer, _: Throwable? -> println("Started at http://localhost:" + server.port()) }
+        .whenComplete { server: WebServer, _: Throwable -> println("Started at http://localhost:" + server.port()) }
 }
