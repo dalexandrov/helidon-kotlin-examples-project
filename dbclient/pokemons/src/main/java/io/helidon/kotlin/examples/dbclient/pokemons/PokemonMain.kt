@@ -34,11 +34,6 @@ import webServer
 import java.io.IOException
 import java.util.logging.LogManager
 
-/**
- * Simple Hello World rest application.
- */
-class PokemonMain
-
 /** MongoDB configuration. Default configuration file `appliaction.yaml` contains JDBC configuration.  */
 private const val MONGO_CFG = "mongo.yaml"
 
@@ -73,7 +68,7 @@ fun main(args: Array<String>) {
 fun startServer(): WebServer {
 
     // load logging configuration
-    LogManager.getLogManager().readConfiguration(PokemonMain::class.java.getResourceAsStream("/logging.properties"))
+    LogManager.getLogManager().readConfiguration({}::class.java.getResourceAsStream("/logging.properties"))
 
     // By default this will pick up application.yaml from the classpath
     val config = if (isMongo) Config.create(ConfigSources.classpath(MONGO_CFG)) else Config.create()

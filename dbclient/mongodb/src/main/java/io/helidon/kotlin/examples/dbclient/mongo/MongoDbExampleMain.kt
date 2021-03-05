@@ -35,8 +35,6 @@ import webServer
 import java.io.IOException
 import java.util.logging.LogManager
 
-class MongoDbExampleMain
-
 /**
  * Simple Hello World rest application.
  */
@@ -53,7 +51,7 @@ fun startServer(): WebServer {
 
     // load logging configuration
     LogManager.getLogManager().readConfiguration(
-        MongoDbExampleMain::class.java.getResourceAsStream("/logging.properties")
+        {}::class.java.getResourceAsStream("/logging.properties")
     )
 
     // By default this will pick up application.yaml from the classpath

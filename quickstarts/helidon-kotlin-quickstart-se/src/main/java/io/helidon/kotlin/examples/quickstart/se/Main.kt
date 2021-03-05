@@ -28,8 +28,6 @@ import webServer
 import java.io.IOException
 import java.util.logging.LogManager
 
-class Main
-
 fun main() {
     startServer()
 }
@@ -95,6 +93,7 @@ private fun createRouting(config: Config): Routing {
  * Configure logging from logging.properties file.
  */
 private fun setupLogging() {
-    Main::class.java.getResourceAsStream("/logging.properties")
+    {}::class.java.getResourceAsStream("/logging.properties")
         .use { LogManager.getLogManager().readConfiguration(it) }
+
 }

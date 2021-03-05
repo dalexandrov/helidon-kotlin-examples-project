@@ -32,8 +32,6 @@ import webServer
 import java.io.IOException
 import java.util.logging.LogManager
 
-class JdbcExampleMain
-
 /**
  * Simple Hello World rest application.
  */
@@ -51,7 +49,7 @@ fun startServer(): WebServer {
 
     // load logging configuration
     LogManager.getLogManager().readConfiguration(
-        JdbcExampleMain::class.java.getResourceAsStream("/logging.properties")
+        {}::class.java.getResourceAsStream("/logging.properties")
     )
 
     // By default this will pick up application.yaml from the classpath

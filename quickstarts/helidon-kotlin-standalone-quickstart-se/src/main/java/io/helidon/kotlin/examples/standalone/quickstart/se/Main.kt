@@ -29,8 +29,6 @@ import java.io.IOException
 import java.lang.System.err
 import java.util.logging.LogManager
 
-class Main
-
 /**
  * Application main entry point.
  * @param args command line arguments.
@@ -101,5 +99,5 @@ private fun createRouting(config: Config): Routing {
  */
 @Throws(IOException::class)
 private fun setupLogging() {
-    Main::class.java.getResourceAsStream("/logging.properties").use(LogManager.getLogManager()::readConfiguration)
+    {}::class.java.getResourceAsStream("/logging.properties").use(LogManager.getLogManager()::readConfiguration)
 }
