@@ -10,6 +10,9 @@ import io.helidon.microprofile.server.Server
 import io.helidon.security.providers.httpsign.InboundClientDefinition
 import io.helidon.security.providers.oidc.common.OidcConfig
 
+/**
+ * DSL for the builder for WebServer and support objects.
+ */
 fun webServer(block: WebServer.Builder.() -> Unit): WebServer = WebServer.builder().apply(block).build()
 
 fun webServerTls(block: WebServerTls.Builder.() -> Unit): WebServerTls = WebServerTls.builder().apply(block).build()

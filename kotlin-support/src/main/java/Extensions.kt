@@ -10,7 +10,7 @@ import io.helidon.media.multipart.ReadableBodyPart
 import java.util.function.Function
 
 /**
- * Extension function to hide keyword as.
+ * Extension function to hide keyword `as`.
  */
 
 fun <T> MessageBodyReadableContent.asSingle(type:Class<T> ): Single<T> {
