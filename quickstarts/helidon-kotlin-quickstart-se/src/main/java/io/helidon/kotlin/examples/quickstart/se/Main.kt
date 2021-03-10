@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2021 Oracle and/or its affiliates.
+ * Copyright (c) 2018, 2020 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,42 @@
 package io.helidon.kotlin.examples.quickstart.se
 
 import healthSupport
+import io.helidon.common.LogConfig
 import io.helidon.config.Config
+import kotlin.jvm.JvmStatic
+import io.helidon.media.jsonp.JsonpSupport
+import java.lang.Runnable
+import io.helidon.metrics.MetricsSupport
 import io.helidon.health.HealthSupport
 import io.helidon.health.checks.HealthChecks
-import io.helidon.media.jsonp.JsonpSupport
-import io.helidon.metrics.MetricsSupport
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import routing
-import webServer
-import java.io.IOException
-import java.util.logging.LogManager
 
-fun main() {
+
+/**
+ * Application main entry point.
+ * @param args command line arguments.
+ */
+fun main(args: Array<String>) {
     startServer()
 }
-
 
 /**
  * Start the server.
  * @return the created [WebServer] instance
- * @throws IOException if there are problems reading logging properties
  */
 fun startServer(): WebServer {
 
     // load logging configuration
-    setupLogging()
+    LogConfig.configureRuntime()
 
     // By default this will pick up application.yaml from the classpath
     val config = Config.create()
-    val server = webServer {
-        routing(createRouting(config))
-        config(config["server"])
-        addMediaSupport(JsonpSupport.create())
-    }
+    val server = WebServer.builder(createRouting(config))
+        .config(config["server"])
+        .addMediaSupport(JsonpSupport.create())
+        .build()
 
     // Try to start the server. If successful, print some info and arrange to
     // print a message at shutdown. If unsuccessful, print the exception.
@@ -79,21 +81,14 @@ fun startServer(): WebServer {
 private fun createRouting(config: Config): Routing {
     val metrics = MetricsSupport.create()
     val greetService = GreetService(config)
+
+
     val health = healthSupport {
-        addLiveness(*HealthChecks.healthChecks()) // Adds a convenient set of checks
+        addLiveness(*HealthChecks.healthChecks())
     }
     return routing {
         register(health) // Health at "/health"
         register(metrics) // Metrics at "/metrics"
         register("/greet", greetService)
     }
-}
-
-/**
- * Configure logging from logging.properties file.
- */
-private fun setupLogging() {
-    {}::class.java.getResourceAsStream("/logging.properties")
-        .use { LogManager.getLogManager().readConfiguration(it) }
-
 }
