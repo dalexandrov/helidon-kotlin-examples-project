@@ -15,9 +15,9 @@
  */
 package io.helidon.kotlin.webserver.examples.websocket
 
-import asSingle
 import io.helidon.kotlin.webserver.examples.websocket.MessageQueue.Companion.instance
 import io.helidon.webserver.*
+import single
 
 /**
  * Class MessageQueueResource.
@@ -30,7 +30,7 @@ class MessageQueueService : Service {
 
     private fun handlePost(request: ServerRequest, response: ServerResponse) {
         request.content()
-            .asSingle(String::class.java)
+            .single<String>()
             .thenAccept {
                 messageQueue.push(it!!)
                 response.status(204).send()

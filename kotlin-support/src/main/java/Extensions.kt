@@ -12,6 +12,9 @@ import java.util.function.Function
 /**
  * Extension function to hide keyword `as`.
  */
+inline fun <reified T> MessageBodyReadableContent.single(): Single<T> {
+    return this.`as`(T::class.java)
+}
 
 fun <T> MessageBodyReadableContent.asSingle(type:Class<T> ): Single<T> {
     return this.`as`(type)

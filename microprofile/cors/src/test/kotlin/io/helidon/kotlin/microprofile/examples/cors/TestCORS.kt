@@ -205,7 +205,7 @@ class TestCORS {
         private fun fromPayload(response: WebClientResponse): String {
             val json = response
                     .content()
-                    .asSingle(JsonObject::class.java)
+                    .single<JsonObject>()
                     .toCompletableFuture()
                     .get()
             return json.getString(JSON_MESSAGE_RESPONSE_LABEL)

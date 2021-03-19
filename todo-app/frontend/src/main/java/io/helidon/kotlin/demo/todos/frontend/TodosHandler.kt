@@ -15,13 +15,13 @@
  */
 package io.helidon.kotlin.demo.todos.frontend
 
-import asSingle
 import io.helidon.common.http.Http
 import io.helidon.metrics.RegistryFactory
 import io.helidon.security.SecurityContext
 import io.helidon.webserver.*
 import io.opentracing.Span
 import org.eclipse.microprofile.metrics.*
+import single
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
@@ -207,7 +207,7 @@ class TodosHandler(bsc: BackendServiceClient) : Service {
                      res: ServerResponse,
                      json: Consumer<JsonObject>) {
         req.content()
-                .asSingle(JsonObject::class.java)
+                .single<JsonObject>()
                 .thenAccept(json)
                 .exceptionally { throwable: Throwable -> sendError(throwable, res) }
     }

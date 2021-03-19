@@ -15,7 +15,6 @@
  */
 package io.helidon.kotlin.examples.media.multipart
 
-import asSingle
 import asType
 import io.helidon.common.http.DataChunk
 import io.helidon.common.http.Http
@@ -25,6 +24,7 @@ import io.helidon.media.multipart.ContentDisposition
 import io.helidon.media.multipart.ReadableBodyPart
 import io.helidon.media.multipart.ReadableMultiPart
 import io.helidon.webserver.*
+import single
 import java.io.IOException
 import java.nio.channels.ByteChannel
 import java.nio.file.Files
@@ -84,7 +84,7 @@ class FileService internal constructor() : Service {
     }
 
     private fun bufferedUpload(req: ServerRequest, res: ServerResponse) {
-        req.content().asSingle(ReadableMultiPart::class.java).thenAccept { multiPart: ReadableMultiPart ->
+        req.content().single<ReadableMultiPart>().thenAccept { multiPart: ReadableMultiPart ->
             for (part in multiPart.fields("file[]")) {
                 writeBytes(storage, part.filename(), part.asType(ByteArray::class.java))
             }

@@ -26,6 +26,7 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.ServerRequest
 import io.helidon.webserver.ServerResponse
 import io.helidon.webserver.WebServer
+import single
 import webClient
 import webServer
 import java.util.concurrent.CountDownLatch
@@ -64,7 +65,7 @@ internal object SignatureExampleUtil {
             cdl.countDown()
         }.exceptionally { throwable: Throwable? -> throw RuntimeException("Failed to start server", throwable) }
         try {
-            cdl.await(START_TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
+        cdl.await(START_TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
         } catch (e: InterruptedException) {
             throw RuntimeException("Failed to start server within defined timeout: " + START_TIMEOUT_SECONDS + " seconds")
         }
@@ -80,10 +81,11 @@ internal object SignatureExampleUtil {
             CLIENT.get()
                 .uri("http://localhost:$svc2port$path")
                 .request()
-                .thenAccept { it: WebClientResponse ->
-                    if (it.status() === Http.Status.OK_200) {
-                        it.content().asSingle(String::class.java)
-                            .thenAccept { t: String? -> res.send(t) }
+                .thenAccept {
+                    if (it.status() == Http.Status.OK_200) {
+                        it.content()
+                            .single<String>()
+                            .thenAccept { res.send(it) }
                             .exceptionally {
                                 res.send("Getting server response failed!")
                                 null

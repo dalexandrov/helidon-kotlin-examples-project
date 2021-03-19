@@ -95,7 +95,7 @@ class GreetService internal constructor(config: Config) : Service {
      */
     private fun updateGreetingHandler(request: ServerRequest,
                                       response: ServerResponse) {
-        request.content().asSingle(JsonObject::class.java).thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
+        request.content().single<JsonObject>().thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
     }
 
     companion object {

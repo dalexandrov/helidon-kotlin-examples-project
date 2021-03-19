@@ -15,7 +15,6 @@
  */
 package io.helidon.kotlin.examples.cors
 
-import asSingle
 import io.helidon.common.http.Headers
 import io.helidon.common.http.MediaType
 import io.helidon.config.Config
@@ -28,6 +27,7 @@ import io.helidon.webserver.WebServer
 import io.helidon.webserver.cors.CrossOriginConfig
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
+import single
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import javax.json.JsonObject
@@ -240,7 +240,7 @@ class MainTest {
         private fun fromPayload(response: WebClientResponse): GreetingMessage {
             val json = response
                 .content()
-                .asSingle(JsonObject::class.java)
+                .single<JsonObject>()
                 .toCompletableFuture()
                 .get()
             return fromRest(json)

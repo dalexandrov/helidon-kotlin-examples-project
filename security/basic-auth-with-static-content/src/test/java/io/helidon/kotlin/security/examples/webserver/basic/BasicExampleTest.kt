@@ -15,7 +15,6 @@
  */
 package io.helidon.kotlin.security.examples.webserver.basic
 
-import asSingle
 import io.helidon.common.http.Http
 import io.helidon.security.Security
 import io.helidon.security.providers.httpauth.HttpBasicAuthProvider
@@ -28,6 +27,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import single
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 
@@ -46,7 +46,7 @@ abstract class BasicExampleTest {
             .request()
             .await(10, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response.status(), Is(Http.Status.OK_200))
-        val entity = response.content().asSingle(String::class.java).await(10, TimeUnit.SECONDS)
+        val entity = response.content().single<String>().await(10, TimeUnit.SECONDS)
         MatcherAssert.assertThat(entity, CoreMatchers.containsString("<ANONYMOUS>"))
     }
 
@@ -143,7 +143,7 @@ abstract class BasicExampleTest {
         invalidRoles: Set<String>
     ) {
         val response = callProtected(uri, username, password)
-        val entity = response.content().asSingle(String::class.java).await(5, TimeUnit.SECONDS)
+        val entity = response.content().single<String>().await(5, TimeUnit.SECONDS)
         MatcherAssert.assertThat(response.status(), Is(Http.Status.OK_200))
 
         // check login
