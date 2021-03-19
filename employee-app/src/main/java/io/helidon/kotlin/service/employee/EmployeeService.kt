@@ -15,11 +15,11 @@
  */
 package io.helidon.kotlin.service.employee
 
-import asSingle
 import io.helidon.config.Config
 import io.helidon.kotlin.service.employee.Employee.Companion.of
 import io.helidon.kotlin.service.employee.EmployeeRepository.Companion.create
 import io.helidon.webserver.*
+import single
 import java.util.*
 import java.util.logging.Logger
 
@@ -138,7 +138,7 @@ class EmployeeService internal constructor(config: Config) : Service {
     private fun save(request: ServerRequest, response: ServerResponse) {
         LOGGER.fine("save")
         request.content()
-                .asSingle(Employee::class.java)
+                .single<Employee>()
                 .thenApply { e: Employee ->
                     of(null,
                             e.firstName,
@@ -164,7 +164,7 @@ class EmployeeService internal constructor(config: Config) : Service {
         val id = request.path().param("id")
         if (isValidQueryStr(response, id)) {
             request.content()
-                    .asSingle(Employee::class.java)
+                    .single<Employee>()
                     .thenCompose { e: Employee? -> employees.update(e, id) }
                     .thenAccept { count: Long? ->
                         if (count == 0L) {

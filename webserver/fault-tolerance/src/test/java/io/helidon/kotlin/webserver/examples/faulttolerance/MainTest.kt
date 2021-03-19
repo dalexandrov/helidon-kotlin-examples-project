@@ -59,7 +59,7 @@ internal class MainTest {
         // registered an error handler in Main
         MatcherAssert.assertThat(third.status(), Is(Http.Status.SERVICE_UNAVAILABLE_503))
         MatcherAssert.assertThat(
-            third.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS),
+            third.content().single<String>().await(1, TimeUnit.SECONDS),
             Is("bulkhead")
         )
     }
@@ -94,7 +94,7 @@ internal class MainTest {
             .path("/circuitBreaker/true")
             .request()
             .await(1, TimeUnit.SECONDS)
-        response = clientResponse.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS)
+        response = clientResponse.content().single<String>().await(1, TimeUnit.SECONDS)
 
         // registered an error handler in Main
         MatcherAssert.assertThat(clientResponse.status(), Is(Http.Status.SERVICE_UNAVAILABLE_503))
@@ -136,7 +136,7 @@ internal class MainTest {
             .path("/retry/4")
             .request()
             .await(1, TimeUnit.SECONDS)
-        response = clientResponse.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS)
+        response = clientResponse.content().single<String>().await(1, TimeUnit.SECONDS)
         // no error handler specified
         MatcherAssert.assertThat(clientResponse.status(), Is(Http.Status.INTERNAL_SERVER_ERROR_500))
         MatcherAssert.assertThat(response, Is("java.lang.RuntimeException: reactive failure"))
@@ -153,7 +153,7 @@ internal class MainTest {
             .path("/timeout/105")
             .request()
             .await(1, TimeUnit.SECONDS)
-        response = clientResponse.content().asSingle(String::class.java).await(1, TimeUnit.SECONDS)
+        response = clientResponse.content().single<String>().await(1, TimeUnit.SECONDS)
         // error handler specified in Main
         MatcherAssert.assertThat(clientResponse.status(), Is(Http.Status.REQUEST_TIMEOUT_408))
         MatcherAssert.assertThat(response, Is("timeout"))

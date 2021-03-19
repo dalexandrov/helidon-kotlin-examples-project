@@ -15,7 +15,6 @@
  */
 package io.helidon.kotlin.webserver.examples.basics
 
-import asSingle
 import io.helidon.common.http.Http
 import io.helidon.common.http.MediaType
 import io.helidon.media.common.MediaContext
@@ -26,6 +25,7 @@ import jerseySupport
 import mediaContext
 import requestPredicate
 import routing
+import single
 import webServer
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Modifier
@@ -229,7 +229,7 @@ open class Main {
         val routing = Routing.builder()
             .post("/foo", Handler { req: ServerRequest, res: ServerResponse ->
                 req.content()
-                    .asSingle(String::class.java) // The whole entity can be read when all request chunks are processed - CompletionStage
+                    .single<String>() // The whole entity can be read when all request chunks are processed - CompletionStage
                     .whenComplete { data: String, thr: Throwable? ->
                         if (thr == null) {
                             println("/foo DATA: $data")

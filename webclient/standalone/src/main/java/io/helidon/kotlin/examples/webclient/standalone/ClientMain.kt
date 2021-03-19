@@ -23,6 +23,7 @@ import io.helidon.webclient.FileSubscriber
 import io.helidon.webclient.WebClient
 import io.helidon.webclient.WebClientResponse
 import jsonpSupport
+import single
 import webClient
 import java.io.IOException
 import java.nio.file.Files
@@ -112,7 +113,7 @@ fun followRedirects(webClient: WebClient): CompletionStage<String?> {
         .request()
         .thenCompose { response: WebClientResponse ->
             check(!(response.status() !== Http.Status.OK_200)) { "Follow redirection failed!" }
-            response.content().asSingle(String::class.java)
+            response.content().single<String>()
         }
         .thenCompose { string: String? ->
             println("Redirected request successfully followed.")

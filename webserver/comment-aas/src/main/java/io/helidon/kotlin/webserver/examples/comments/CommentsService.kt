@@ -15,9 +15,9 @@
  */
 package io.helidon.kotlin.webserver.examples.comments
 
-import asSingle
 import io.helidon.common.http.MediaType
 import io.helidon.webserver.*
+import single
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.Collectors
@@ -43,7 +43,7 @@ class CommentsService : Service {
         val userName = req.context().get("user", String::class.java)
                 .orElse("anonymous")
         req.content()
-                .asSingle(String::class.java)
+                .single<String>()
                 .thenAccept { msg: String? -> addComment(msg, userName, topic) }
                 .thenRun { resp.send() }
                 .exceptionally { t: Throwable? ->

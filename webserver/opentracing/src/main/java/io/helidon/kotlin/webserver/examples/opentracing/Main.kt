@@ -50,7 +50,7 @@ fun main() {
             get("/test", Handler { _: ServerRequest?, res: ServerResponse -> res.send("Hello World!") })
             post("/hello", Handler { req: ServerRequest, res: ServerResponse ->
                 req.content()
-                    .asSingle(String::class.java)
+                    .single<String>()
                     .thenAccept { s: String -> res.send("Hello: $s") }
                     .exceptionally { t: Throwable? ->
                         req.next(t)

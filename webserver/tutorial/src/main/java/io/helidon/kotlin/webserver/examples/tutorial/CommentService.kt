@@ -17,12 +17,12 @@
 
 package io.helidon.kotlin.webserver.examples.tutorial
 
-import asSingle
 import io.helidon.common.http.DataChunk
 import io.helidon.common.http.MediaType
 import io.helidon.kotlin.webserver.examples.tutorial.user.User
 import io.helidon.media.common.ContentWriters
 import io.helidon.webserver.*
+import single
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -82,7 +82,7 @@ class CommentService : Service {
                 .get(User::class.java)
                 .orElse(User.ANONYMOUS)
         req.content()
-                .asSingle(String::class.java)
+                .single<String>()
                 .thenAccept { msg: String? -> addComment(roomId, user, msg) }
                 .thenRun { resp.send() }
                 .exceptionally { t: Throwable? ->

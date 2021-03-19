@@ -15,10 +15,10 @@
  */
 package io.helidon.kotlin.examples.standalone.quickstart.se
 
-import asSingle
 import io.helidon.common.http.Http
 import io.helidon.config.Config
 import io.helidon.webserver.*
+import single
 import java.util.concurrent.atomic.AtomicReference
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -102,7 +102,7 @@ class GreetService internal constructor(config: Config) : Service {
      */
     private fun updateGreetingHandler(request: ServerRequest,
                                       response: ServerResponse) {
-        request.content().asSingle(JsonObject::class.java)
+        request.content().single<JsonObject>()
                 .thenAccept { jo: JsonObject -> updateGreetingFromJson(jo, response) }
                 .exceptionally { ex: Throwable -> processErrors(ex, response) }
     }
