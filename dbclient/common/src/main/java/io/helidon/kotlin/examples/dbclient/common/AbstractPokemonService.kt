@@ -15,7 +15,7 @@
  */
 package io.helidon.kotlin.examples.dbclient.common
 
-import asType
+import to
 import io.helidon.common.http.Http
 import io.helidon.common.reactive.Single
 import io.helidon.dbclient.DbClient
@@ -131,7 +131,7 @@ abstract class AbstractPokemonService
      */
     private fun listPokemons(response: ServerResponse) {
         val rows = dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all") }
-                .map { it.asType(JsonObject::class.java) }
+                .map { it.to<JsonObject>() }
         response.send(rows, JsonObject::class.java)
     }
 
@@ -202,7 +202,7 @@ abstract class AbstractPokemonService
      * @param response server response
      */
     private fun sendRow(row: DbRow, response: ServerResponse) {
-        response.send(row.asType(JsonObject::class.java))
+        response.send(row.to<JsonObject>())
     }
 
     /**

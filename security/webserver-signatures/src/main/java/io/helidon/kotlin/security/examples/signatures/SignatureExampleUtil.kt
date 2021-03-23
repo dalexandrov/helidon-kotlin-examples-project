@@ -15,12 +15,10 @@
  */
 package io.helidon.kotlin.security.examples.signatures
 
-import asSingle
+
 import io.helidon.common.http.Http
 import io.helidon.common.http.MediaType
 import io.helidon.security.SecurityContext
-import io.helidon.webclient.WebClient
-import io.helidon.webclient.WebClientResponse
 import io.helidon.webclient.security.WebClientSecurity
 import io.helidon.webserver.Routing
 import io.helidon.webserver.ServerRequest

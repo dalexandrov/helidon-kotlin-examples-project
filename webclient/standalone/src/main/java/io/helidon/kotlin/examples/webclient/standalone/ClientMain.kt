@@ -15,7 +15,6 @@
  */
 package io.helidon.kotlin.examples.webclient.standalone
 
-import asSingle
 import io.helidon.common.http.Http
 import io.helidon.config.Config
 import io.helidon.media.common.MessageBodyReadableContent

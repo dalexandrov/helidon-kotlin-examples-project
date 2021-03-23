@@ -1,4 +1,3 @@
-import io.helidon.common.GenericType
 import io.helidon.common.mapper.MapperException
 import io.helidon.common.reactive.Single
 import io.helidon.config.Config
@@ -16,45 +15,24 @@ inline fun <reified T> MessageBodyReadableContent.single(): Single<T> {
     return this.`as`(T::class.java)
 }
 
-fun <T> MessageBodyReadableContent.asSingle(type:Class<T> ): Single<T> {
-    return this.`as`(type)
+inline fun <reified T> DbRow.to(): T {
+    return this.`as`(T::class.java)
 }
 
-fun <T> DbRow.asType(klass:Class<T>):T{
- return this.`as`(klass)
-}
-
-fun <T> DbRow.asType(klass:GenericType<T>):T{
-    return this.`as`(klass)
-}
-
-fun <T> DbRow.asType(klass:Function<DbRow,T>):T {
-    return this.`as`(klass)
-}
-
-
-fun <T> Config.asType(type: GenericType<T>): ConfigValue<T>{
-    return this.`as`(type);
-}
-
-fun <T> Config.asType(type: Class<T>): ConfigValue<T>{
-    return this.`as`(type);
-}
-
-fun <T> Config.asType(type: Function<Config, T>): ConfigValue<T>{
-    return this.`as`(type);
+inline fun <reified T> Config.to(): ConfigValue<T> {
+    return this.`as`(T::class.java);
 }
 
 @Throws(MapperException::class)
-fun <T> DbColumn.asType(type: Class<T>): T{
-    return this.`as`(type)
+inline fun <reified T> DbColumn.to(): T {
+    return this.`as`(T::class.java)
 }
 
-@Throws(MapperException::class)
-fun <T> DbColumn.asType(type: GenericType<T>): T{
-    return this.`as`(type)
+inline fun <reified T> ReadableBodyPart.to(): T {
+    return this.`as`(T::class.java)
 }
 
-fun <T> ReadableBodyPart.asType(clazz:Class<T>):T {
-    return this.`as`(clazz)
+
+fun <T> Config.toType(type: Function<Config, T>): ConfigValue<T> {
+    return this.`as`(type);
 }

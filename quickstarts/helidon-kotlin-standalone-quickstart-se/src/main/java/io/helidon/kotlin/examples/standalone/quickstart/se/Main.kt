@@ -23,6 +23,7 @@ import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import jsonpSupport
 import routing
 import webServer
 import java.io.IOException
@@ -50,10 +51,10 @@ fun startServer(): WebServer {
     val config = Config.create()
 
     // Get webserver config from the "server" section of application.yaml and register JSON support
-    val server = webServer {
+    val server = webServer() {
         routing(createRouting(config))
         config(config["server"])
-        addMediaSupport(JsonpSupport.create())
+        addMediaSupport(jsonpSupport())
     }
 
     // Try to start the server. If successful, print some info and arrange to

@@ -15,15 +15,14 @@
  */
 package io.helidon.kotlin.service.employee
 
-import asType
 import io.helidon.common.reactive.Multi
 import io.helidon.config.Config
 import io.helidon.dbclient.DbClient
 import io.helidon.dbclient.DbExecute
 import io.helidon.dbclient.DbRow
 import io.helidon.dbclient.jdbc.JdbcDbClientProviderBuilder
-import io.helidon.kotlin.service.employee.Employee
 import io.helidon.kotlin.service.employee.Employee.Companion.of
+import to
 import java.util.*
 import java.util.concurrent.CompletionStage
 
@@ -81,7 +80,7 @@ internal class EmployeeRepositoryImplDB(config: Config) : EmployeeRepository {
     override fun getById(id: String?): CompletionStage<Optional<Employee?>?> {
         val queryStr = "SELECT * FROM EMPLOYEE WHERE ID =?"
         return dbClient.execute { exec: DbExecute -> exec[queryStr, id] }
-                .map { optionalRow: Optional<DbRow> -> optionalRow.map { dbRow: DbRow -> dbRow.asType(Employee::class.java) } }
+                .map { optionalRow: Optional<DbRow> -> optionalRow.map { dbRow: DbRow -> dbRow.to<Employee>() } }
     }
 
     override fun update(updatedEmployee: Employee?, id: String?): CompletionStage<Long?> {
@@ -105,14 +104,14 @@ internal class EmployeeRepositoryImplDB(config: Config) : EmployeeRepository {
         fun read(row: DbRow): Employee {
             // map named columns to an object
             return of(
-                    row.column("ID").asType(String::class.java),
-                    row.column("FIRSTNAME").asType(String::class.java),
-                    row.column("LASTNAME").asType(String::class.java),
-                    row.column("EMAIL").asType(String::class.java),
-                    row.column("PHONE").asType(String::class.java),
-                    row.column("BIRTHDATE").asType(String::class.java),
-                    row.column("TITLE").asType(String::class.java),
-                    row.column("DEPARTMENT").asType(String::class.java)
+                    row.column("ID").to<String>(),
+                    row.column("FIRSTNAME").to<String>(),
+                    row.column("LASTNAME").to<String>(),
+                    row.column("EMAIL").to<String>(),
+                    row.column("PHONE").to<String>(),
+                    row.column("BIRTHDATE").to<String>(),
+                    row.column("TITLE").to<String>(),
+                    row.column("DEPARTMENT").to<String>()
             )
         }
     }

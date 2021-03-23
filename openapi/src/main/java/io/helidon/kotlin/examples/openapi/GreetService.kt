@@ -15,10 +15,10 @@
  */
 package io.helidon.kotlin.examples.openapi
 
-import asSingle
 import io.helidon.common.http.Http
 import io.helidon.config.Config
 import io.helidon.webserver.*
+import single
 import javax.json.Json
 import javax.json.JsonObject
 

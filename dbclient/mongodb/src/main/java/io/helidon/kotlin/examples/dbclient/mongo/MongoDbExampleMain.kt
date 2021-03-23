@@ -18,12 +18,10 @@ package io.helidon.kotlin.examples.dbclient.mongo
 import dbClient
 import healthSupport
 import io.helidon.config.Config
-import io.helidon.dbclient.DbClient
 import io.helidon.dbclient.DbStatementType
 import io.helidon.dbclient.health.DbClientHealthCheck
 import io.helidon.dbclient.metrics.DbClientMetrics
 import io.helidon.dbclient.tracing.DbClientTracing
-import io.helidon.health.HealthSupport
 import io.helidon.media.jsonb.JsonbSupport
 import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
@@ -32,13 +30,12 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import routing
 import webServer
-import java.io.IOException
 import java.util.logging.LogManager
 
 /**
  * Simple Hello World rest application.
  */
-fun main(args: Array<String>) {
+fun main() {
     startServer()
 }
 

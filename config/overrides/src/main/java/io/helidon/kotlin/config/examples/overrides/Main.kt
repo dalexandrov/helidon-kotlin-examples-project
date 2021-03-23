@@ -15,6 +15,7 @@
  */
 package io.helidon.kotlin.config.examples.overrides
 
+import config
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.config.OverrideSources
@@ -53,18 +54,17 @@ import java.util.concurrent.TimeUnit
  * `test.*.logging.level` to `FINE`.
  */
 fun main() {
-    val config = Config
-        .builder() // specify config sources
-        .sources(
+    val config = config {
+        sources(
             ConfigSources.file("config/overrides/conf/priority-config.yaml")
                 .pollingStrategy(PollingStrategies.regular(Duration.ofSeconds(1))),
             ConfigSources.classpath("application.yaml")
         ) // specify overrides source
-        .overrides(
+        overrides(
             OverrideSources.file("config/overrides/conf/overrides.properties")
                 .pollingStrategy(PollingStrategies.regular(Duration.ofSeconds(1)))
         )
-        .build()
+    }
 
     // Resolve current runtime context
     val env = config["env"].asString().get()

@@ -15,7 +15,7 @@
  */
 package io.helidon.kotlin.examples.dbclient.pokemons
 
-import asType
+import to
 import io.helidon.common.http.Http
 import io.helidon.dbclient.DbClient
 import io.helidon.dbclient.DbExecute
@@ -32,19 +32,26 @@ import javax.json.JsonObject
  */
 class PokemonService internal constructor(private val dbClient: DbClient) : Service {
     override fun update(rules: Routing.Rules) {
-        rules["/", Handler { request: ServerRequest, response: ServerResponse -> index(request, response) }]["/type", Handler { request: ServerRequest, response: ServerResponse -> listTypes(request, response) }]["/pokemon", Handler { request: ServerRequest, response: ServerResponse -> listPokemons(request, response) }]["/pokemon/name/{name}", Handler { request: ServerRequest, response: ServerResponse -> getPokemonByName(request, response) }]["/pokemon/{id}", Handler { request: ServerRequest, response: ServerResponse -> getPokemonById(request, response) }] // Create new pokemon
-                .post("/pokemon", Handler.create(Pokemon::class.java) { request: ServerRequest, response: ServerResponse, pokemon: Pokemon -> insertPokemon(request, response, pokemon) }) // Update name of existing pokemon
-                .put("/pokemon", Handler.create(Pokemon::class.java) { request: ServerRequest, response: ServerResponse, pokemon: Pokemon -> updatePokemon(request, response, pokemon) }) // Delete pokemon by ID including type relation
+        rules["/", Handler { request: ServerRequest, response: ServerResponse -> index(response) }]["/type", Handler { request: ServerRequest, response: ServerResponse -> listTypes(
+            response
+        ) }]["/pokemon", Handler { request: ServerRequest, response: ServerResponse -> listPokemons(response) }]["/pokemon/name/{name}", Handler { request: ServerRequest, response: ServerResponse -> getPokemonByName(request, response) }]["/pokemon/{id}", Handler { request: ServerRequest, response: ServerResponse -> getPokemonById(request, response) }] // Create new pokemon
+                .post("/pokemon", Handler.create(Pokemon::class.java) { request: ServerRequest, response: ServerResponse, pokemon: Pokemon -> insertPokemon(
+                    response,
+                    pokemon
+                ) }) // Update name of existing pokemon
+                .put("/pokemon", Handler.create(Pokemon::class.java) { request: ServerRequest, response: ServerResponse, pokemon: Pokemon -> updatePokemon(
+                    response,
+                    pokemon
+                ) }) // Delete pokemon by ID including type relation
                 .delete("/pokemon/{id}", Handler { request: ServerRequest, response: ServerResponse -> deletePokemonById(request, response) })
     }
 
     /**
      * Return index page.
      *
-     * @param request  the server request
      * @param response the server response
      */
-    private fun index(request: ServerRequest, response: ServerResponse) {
+    private fun index(response: ServerResponse) {
         response.send("""Pokemon JDBC Example:
      GET /type                - List all pokemon types
      GET /pokemon             - List all pokemons
@@ -63,12 +70,11 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
      * Pokemon object contains list of all type names.
      * This method is abstract because implementation is DB dependent.
      *
-     * @param request  the server request
      * @param response the server response
      */
-    private fun listTypes(request: ServerRequest, response: ServerResponse) {
+    private fun listTypes(response: ServerResponse) {
         response.send(dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all-types") }
-                .map { it: DbRow -> it.asType(JsonObject::class.java) }, JsonObject::class.java)
+                .map { it.to<JsonObject>() }, JsonObject::class.java)
     }
 
     /**
@@ -76,12 +82,11 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
      * Pokemon object contains list of all type names.
      * This method is abstract because implementation is DB dependent.
      *
-     * @param request  the server request
      * @param response the server response
      */
-    private fun listPokemons(request: ServerRequest, response: ServerResponse) {
+    private fun listPokemons(response: ServerResponse) {
         response.send(dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all-pokemons") }
-                .map { it: DbRow -> it.asType(JsonObject::class.java) }, JsonObject::class.java)
+                .map { it.to<JsonObject>() }, JsonObject::class.java)
     }
 
     /**
@@ -120,7 +125,7 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
     private fun getPokemonByName(request: ServerRequest, response: ServerResponse) {
         val pokemonName = request.path().param("name")
         dbClient.execute { exec: DbExecute -> exec.namedGet("select-pokemon-by-name", pokemonName) }
-                .thenAccept { it: Optional<DbRow> ->
+                .thenAccept {
                     if (it.isEmpty) {
                         sendNotFound(response, "Pokemon $pokemonName not found")
                     } else {
@@ -133,10 +138,9 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
     /**
      * Insert new pokemon with specified name.
      *
-     * @param request  the server request
      * @param response the server response
      */
-    private fun insertPokemon(request: ServerRequest, response: ServerResponse, pokemon: Pokemon) {
+    private fun insertPokemon(response: ServerResponse, pokemon: Pokemon) {
         dbClient.execute { exec: DbExecute ->
             exec
                     .createNamedInsert("insert-pokemon")
@@ -151,10 +155,9 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
      * Update a pokemon.
      * Uses a transaction.
      *
-     * @param request  the server request
      * @param response the server response
      */
-    private fun updatePokemon(request: ServerRequest, response: ServerResponse, pokemon: Pokemon) {
+    private fun updatePokemon(response: ServerResponse, pokemon: Pokemon) {
         dbClient.execute { exec: DbExecute ->
             exec
                     .createNamedUpdate("update-pokemon-by-id")
@@ -190,10 +193,9 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
     /**
      * Delete pokemon with specified id (key).
      *
-     * @param request  the server request
      * @param response the server response
      */
-    private fun deleteAllPokemons(request: ServerRequest, response: ServerResponse) {
+    private fun deleteAllPokemons(response: ServerResponse) {
         // Response message contains information about deleted records from both tables
         val sb = StringBuilder()
         // Pokemon must be removed from both PokemonTypes and Pokemons tables in transaction
@@ -224,7 +226,7 @@ class PokemonService internal constructor(private val dbClient: DbClient) : Serv
      * @param response server response
      */
     private fun sendRow(row: DbRow, response: ServerResponse) {
-        response.send(row.asType(JsonObject::class.java))
+        response.send(row.to<JsonObject>())
     }
 
     /**

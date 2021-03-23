@@ -19,19 +19,18 @@ import healthSupport
 import io.helidon.common.LogConfig
 import io.helidon.config.Config
 import io.helidon.health.checks.HealthChecks
-import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import jsonpSupport
 import routing as webRouting
 import webServer
 
 
 /**
  * Application main entry point.
- * @param args command line arguments.
  */
-fun main(args: Array<String>) {
+fun main() {
     startServer()
 }
 
@@ -49,7 +48,7 @@ fun startServer(): WebServer {
     val server = webServer {
         routing(createRouting(config))
         config(config["server"])
-        addMediaSupport(JsonpSupport.create())
+        addMediaSupport(jsonpSupport())
 
     }
 

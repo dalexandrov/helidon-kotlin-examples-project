@@ -44,8 +44,8 @@ open class HelloWorldResource
  * @param config      configuration instance
  * @param logger      logger (from [ResourceProducer]
  * @param requestId   requestId (from [ResourceProducer]
- * @param appName     name from configuration (app.name)
- * @param appUri      URI from configuration (app.uri)
+ * @param applicationName     name from configuration (app.name)
+ * @param applicationUri      URI from configuration (app.uri)
  * @param beanManager bean manager (injected automatically by CDI)
  */ @Inject constructor(private val config: Config,
                         @param:LoggerQualifier private val logger: Logger,

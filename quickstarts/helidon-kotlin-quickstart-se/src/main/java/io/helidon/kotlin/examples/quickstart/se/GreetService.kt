@@ -15,12 +15,10 @@
  */
 package io.helidon.kotlin.examples.quickstart.se
 
-import asSingle
 import io.helidon.common.http.Http
-import io.helidon.common.reactive.Single
 import io.helidon.config.Config
-import io.helidon.media.common.MessageBodyReadableContent
 import io.helidon.webserver.*
+import single
 import java.util.concurrent.atomic.AtomicReference
 import java.util.logging.Level
 import java.util.logging.Logger

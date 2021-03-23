@@ -35,7 +35,7 @@ import javax.ws.rs.core.Response
 @Path("/tables")
 @ApplicationScoped
 open class TablesResource @Inject constructor(@Named("example") dataSource: DataSource) {
-    private val dataSource: DataSource
+    private val dataSource: DataSource = Objects.requireNonNull(dataSource)
 
     /**
      * Returns a [Response] which, if successful, contains a
@@ -68,8 +68,5 @@ open class TablesResource @Inject constructor(@Named("example") dataSource: Data
                 .entity(sb.toString())
                 .build()
     }
-    
-    init {
-        this.dataSource = Objects.requireNonNull(dataSource)
-    }
+
 }

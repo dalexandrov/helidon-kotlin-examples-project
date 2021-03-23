@@ -15,7 +15,6 @@
  */
 package io.helidon.kotlin.webserver.examples.faulttolerance
 
-import asSingle
 import io.helidon.common.http.Http
 import io.helidon.webclient.WebClient
 import io.helidon.webserver.WebServer
@@ -23,6 +22,7 @@ import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import single
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import org.hamcrest.CoreMatchers.`is` as Is

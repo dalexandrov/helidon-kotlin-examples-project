@@ -15,9 +15,9 @@
  */
 package io.helidon.kotlin.config.examples.basics
 
-import asType
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
+import to
 import java.nio.file.Path
 
 /**
@@ -30,7 +30,7 @@ fun main() {
     val pageSize = config["app.page-size"].asInt().get()
     val storageEnabled = config["app.storageEnabled"].asBoolean().orElse(false)
     val basicRange = config["app.basic-range"].asList(Int::class.java).get()
-    val loggingOutputPath = config["logging.outputs.file.name"].asType(Path::class.java).get()
+    val loggingOutputPath = config["logging.outputs.file.name"].to<Path>().get()
     println(pageSize)
     println(storageEnabled)
     println(basicRange)

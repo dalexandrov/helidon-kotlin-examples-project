@@ -15,11 +15,11 @@
  */
 package io.helidon.kotlin.webserver.examples.opentracing
 
-import asSingle
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webserver.*
+import single
 import webServer
 import routing as routingBuilder
 import java.util.logging.LogManager
