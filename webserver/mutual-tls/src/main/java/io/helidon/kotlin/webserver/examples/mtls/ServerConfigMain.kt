@@ -18,6 +18,7 @@ package io.helidon.kotlin.webserver.examples.mtls
 import io.helidon.common.http.Http
 import io.helidon.config.Config
 import io.helidon.webserver.*
+import webServer
 
 
 /**
@@ -39,10 +40,11 @@ fun main() {
 }
 
 fun startServer(config: Config?): WebServer {
-    val webServer = WebServer.builder(createPlainRouting())
-        .config(config)
-        .addNamedRouting("secured", createMtlsRouting())
-        .build()
+    val webServer = webServer {
+        routing(createPlainRouting())
+        config(config)
+        addNamedRouting("secured", createMtlsRouting())
+    }
     webServer.start()
         .thenAccept { ws: WebServer ->
             println("WebServer is up!")

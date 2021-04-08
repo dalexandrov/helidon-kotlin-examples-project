@@ -20,6 +20,7 @@ import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
+import webServer
 import java.util.concurrent.CompletionStage
 
 /**
@@ -48,10 +49,11 @@ fun main() {
 fun startServer(): CompletionStage<WebServer> {
     // By default this will pick up application.yaml from the classpath
     val config = Config.create()
-    val server = WebServer.builder(createRouting(config))
-        .config(config["server"])
-        .addMediaSupport(JsonpSupport.create())
-        .build()
+    val server = webServer {
+        routing(createRouting(config))
+        config(config["server"])
+        addMediaSupport(JsonpSupport.create())
+    }
 
     // Try to start the server. If successful, print some info and arrange to
     // print a message at shutdown. If unsuccessful, print the exception.
