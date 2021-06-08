@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.helidon.kotlin.examples.security</groupId>
         <artifactId>helidon-kotlin-examples-security-project</artifactId>
-        <version>2.1.0</version>
+        <version>2.3.0</version>
     </parent>
     <groupId>io.helidon.kotlin.examples.security</groupId>
     <artifactId>helidon-kotlin-examples-security-jersey</artifactId>
@@ -32,7 +32,7 @@
 
     <description>
         Integration of security with Jersey, shows how to use configuration based approach, builder approach, and programmatic
-        approach. Writen in Kotlin.
+        approach. Written in Kotlin.
     </description>
 
     <properties>

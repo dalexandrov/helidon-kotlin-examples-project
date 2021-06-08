@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.helidon.kotlin.examples.config</groupId>
         <artifactId>helidon-kotlin-examples-config-project</artifactId>
-        <version>2.1.0</version>
+        <version>2.3.0</version>
     </parent>
 
     <artifactId>helidon-kotlin-examples-config-sources</artifactId>

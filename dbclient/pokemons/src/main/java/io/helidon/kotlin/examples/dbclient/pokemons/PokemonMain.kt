@@ -107,7 +107,7 @@ private fun createRouting(config: Config): Routing {
         config(dbConfig)
     }
     val health = healthSupport {
-        addLiveness(DbClientHealthCheck.create(dbClient))
+        addLiveness(DbClientHealthCheck.create(dbClient,null))
     }
 
     // Initialize database schema

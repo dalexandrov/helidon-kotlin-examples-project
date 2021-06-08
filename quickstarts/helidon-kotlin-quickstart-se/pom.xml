@@ -24,11 +24,11 @@
     <parent>
         <groupId>io.helidon.kotlin.examples.quickstarts</groupId>
         <artifactId>examples-kotlin-quickstarts-project</artifactId>
-        <version>2.1.0</version>
+        <version>2.3.0</version>
     </parent>
     <groupId>io.helidon.kotlin.examples</groupId>
     <artifactId>helidon-kotlin-quickstart-se</artifactId>
-    <version>2.1.0</version>
+    <version>2.3.0</version>
     <name>Helidon Quickstart SE Example in Kotlin</name>
 
     <properties>

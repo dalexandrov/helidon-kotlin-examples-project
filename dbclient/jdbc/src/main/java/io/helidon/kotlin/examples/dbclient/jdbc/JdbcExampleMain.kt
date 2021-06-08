@@ -89,8 +89,11 @@ private fun createRouting(config: Config): Routing {
     val dbClient = dbClient {
         config(dbConfig)
     }
+
+    val healthCheck = DbClientHealthCheck.create(dbClient,null)
+
     val health = healthSupport {
-        addLiveness(DbClientHealthCheck.create(dbClient))
+        addLiveness(healthCheck)
     }
     return routing {
         register(health) // Health at "/health"

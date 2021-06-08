@@ -24,7 +24,7 @@
     <groupId>io.helidon.kotlin.examples</groupId>
     <artifactId>helidon-kotlin-examples-project</artifactId>
     <name>Helidon Examples in Kotlin</name>
-    <version>2.1.0</version>
+    <version>2.3.0</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -34,7 +34,7 @@
         <spotbugs.skip>true</spotbugs.skip>
         <dependency-check.skip>true</dependency-check.skip>
 
-        <helidon.version>2.1.0</helidon.version>
+        <helidon.version>2.3.0</helidon.version>
         <mainClass>io.helidon.microprofile.cdi.Main</mainClass>
 
         <maven.compiler.source>11</maven.compiler.source>
@@ -57,7 +57,7 @@
         <version.plugin.protobuf>0.5.1</version.plugin.protobuf>
         <version.plugin.resources>2.7</version.plugin.resources>
         <version.plugin.surefire>3.0.0-M5</version.plugin.surefire>
-        <kotlin.version>1.4.30</kotlin.version>
+        <kotlin.version>1.5.10</kotlin.version>
     </properties>
 
     <modules>
@@ -87,32 +87,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-            <!--Messaging -->
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>5.6.2</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.helidon.messaging.jms</groupId>
-                <artifactId>helidon-messaging-jms</artifactId>
-                <version>2.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-client</artifactId>
-                <version>5.16.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.helidon.messaging.aq</groupId>
-                <artifactId>helidon-messaging-aq</artifactId>
-                <version>2.1.0</version>
-            </dependency>
         </dependencies>
-
-
     </dependencyManagement>
 
 

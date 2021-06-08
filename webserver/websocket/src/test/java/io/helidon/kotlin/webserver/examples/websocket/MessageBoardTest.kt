@@ -39,7 +39,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 class MessageBoardTest {
     private val messages = arrayOf("Whisky", "Tango", "Foxtrot")
 
-    @Test
     @Throws(IOException::class, DeploymentException::class, InterruptedException::class, ExecutionException::class)
     fun testBoard() {
         // Post messages using REST resource

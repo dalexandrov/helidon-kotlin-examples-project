@@ -85,8 +85,7 @@ class EmployeeRepositoryImpl : EmployeeRepository {
         return CompletableFuture.completedFuture(eList.stream()
                 .filter { e: Employee -> e.id == id }
                 .findFirst()
-                .map { o: Employee -> eList.indexOf(o) }
-                .map { o: Int? -> eList.remove(o) }
+                .map { o: Employee -> eList.remove(o) }
                 .map { 1L }
                 .orElse(0L))
     }

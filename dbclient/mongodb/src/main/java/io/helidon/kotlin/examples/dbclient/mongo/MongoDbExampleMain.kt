@@ -93,7 +93,7 @@ private fun createRouting(config: Config): Routing {
         addService(DbClientTracing.create())
     }
     val health = healthSupport {
-        addLiveness(DbClientHealthCheck.create(dbClient))
+        addLiveness(DbClientHealthCheck.create(dbClient, null))
     }
     return routing {
         register(health) // Health at "/health"
