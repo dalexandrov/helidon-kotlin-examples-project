@@ -57,7 +57,7 @@
         <version.plugin.protobuf>0.5.1</version.plugin.protobuf>
         <version.plugin.resources>2.7</version.plugin.resources>
         <version.plugin.surefire>3.0.0-M5</version.plugin.surefire>
-        <kotlin.version>1.5.10</kotlin.version>
+        <kotlin.version>1.5.20-RC</kotlin.version>
     </properties>
 
     <modules>
@@ -102,6 +102,11 @@
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 
@@ -234,6 +239,30 @@
                             <useUniqueVersions>false</useUniqueVersions>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
                 </configuration>
             </plugin>
         </plugins>
