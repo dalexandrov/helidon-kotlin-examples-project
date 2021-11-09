@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.helidon.kotlin.examples.translator</groupId>
         <artifactId>helidon-kotlin-examples-translator-project</artifactId>
-        <version>2.3.3</version>
+        <version>2.4.0</version>
     </parent>
 
     <artifactId>helidon-kotlin-examples-translator-frontend</artifactId>

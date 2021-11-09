@@ -16,8 +16,8 @@
 
 package io.helidon.examples.integrations.micronaut.data.model;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.micronaut.core.annotation.Creator;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.annotation.AutoPopulated;
 
 import java.util.UUID;
@@ -50,6 +50,10 @@ public class Pet {
     public Pet(String name, @Nullable Owner owner) {
         this.name = name;
         this.owner = owner;
+    }
+
+    public Pet() {
+        //No arg constructor
     }
 
     public Owner getOwner() {

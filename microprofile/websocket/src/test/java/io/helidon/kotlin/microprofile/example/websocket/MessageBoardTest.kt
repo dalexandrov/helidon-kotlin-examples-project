@@ -16,7 +16,6 @@
 package io.helidon.kotlin.microprofile.example.websocket
 
 import io.helidon.microprofile.server.Server
-import org.glassfish.tyrus.client.ClientManager
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.AfterAll

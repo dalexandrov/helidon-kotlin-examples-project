@@ -23,11 +23,11 @@
     <parent>
         <groupId>io.helidon.kotlin.examples</groupId>
         <artifactId>helidon-kotlin-examples-project</artifactId>
-        <version>2.3.3</version>
+        <version>2.4.0</version>
     </parent>
     <groupId>io.helidon.kotlin.examples.quickstarts</groupId>
     <artifactId>examples-kotlin-quickstarts-project</artifactId>
-    <version>2.3.3</version>
+    <version>2.4.0</version>
     <name>Helidon Quickstart Examples in Kotlin</name>
     <packaging>pom</packaging>
 
@@ -39,7 +39,7 @@
     </modules>
 
     <properties>
-        <kotlin.version>1.5.30</kotlin.version>
+        <kotlin.version>1.5.31</kotlin.version>
     </properties>
 
     <dependencies>
