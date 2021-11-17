@@ -71,7 +71,7 @@ open class IdcsResource {
     @Path("/scopes")
     @Authenticated // Scopes defined in IDCS in my scope audience (see application.yaml)
     @ScopeValidator.Scope("first_scope")
-    //@ScopeValidator.Scope("second_scope") // A group defined in my IDCS domain !NOT SUPPORTED IN KOTLIN!
+    @ScopeValidator.Scope("second_scope") // A group defined in my IDCS domain
     @RoleValidator.Roles("my_admins")
     open fun scopes(@Context context: SecurityContext): String {
         return context.user().toString()

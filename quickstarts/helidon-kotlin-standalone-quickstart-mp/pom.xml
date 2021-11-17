@@ -49,7 +49,7 @@
         <version.plugin.protobuf>0.5.1</version.plugin.protobuf>
         <version.plugin.resources>2.7</version.plugin.resources>
         <version.plugin.surefire>3.0.0-M5</version.plugin.surefire>
-        <kotlin.version>1.5.31</kotlin.version>
+        <kotlin.version>1.6.0</kotlin.version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +95,11 @@
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 

@@ -31,20 +31,13 @@ import javax.ws.rs.Path
  * Annotation only resource.
  */
 @Path("/attributes")
-@TimeValidator.TimesOfDay(
-    TimeValidator.TimeOfDay(from = "08:15:00", to = "12:00:00"),
-    TimeValidator.TimeOfDay(from = "12:30:00", to = "17:30:00")
-)//!NOT SUPPORTED IN KOTLIN!
+@TimeValidator.TimeOfDay(from = "08:15:00", to = "12:00:00")
+@TimeValidator.TimeOfDay(from = "12:30:00", to = "17:30:00")
 @TimeValidator.DaysOfWeek(DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
-@ScopeValidator.Scopes(
-    ScopeValidator.Scope("calendar_read"),
-    ScopeValidator.Scope("calendar_edit")
-)// !NOT SUPPORTED IN KOTLIN!
-@RoleValidator.RolesContainer(
-    RoleValidator.Roles("user_role"),
-    RoleValidator.Roles(value = ["service_role"], subjectType = SubjectType.SERVICE)
-)
-//!NOT SUPPORTED IN KOTLIN!
+@ScopeValidator.Scope("calendar_read")
+@ScopeValidator.Scope("calendar_edit")
+@RoleValidator.Roles("user_role")
+@RoleValidator.Roles(value = ["service_role"], subjectType = SubjectType.SERVICE)
 @PolicyStatement("\${env.time.year >= 2017}")
 @Authenticated
 open class AbacResource {
@@ -54,15 +47,13 @@ open class AbacResource {
      * @return "hello"
      */
     @GET
-    @Authentications(
-        Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"]),
-        Authentication(
-            value = "service",
-            type = SubjectType.SERVICE,
-            roles = ["service_role"],
-            scopes = ["calendar_read", "calendar_edit"]
-        )
-    )//!NOT SUPPORTED IN KOTLIN!
+    @Authentication(value = "user", roles = ["user_role"], scopes = ["calendar_read", "calendar_edit"])
+    @Authentication(
+        value = "service",
+        type = SubjectType.SERVICE,
+        roles = ["service_role"],
+        scopes = ["calendar_read", "calendar_edit"]
+    )
     open fun process(): String {
         return "hello"
     }
@@ -75,15 +66,13 @@ open class AbacResource {
     @GET
     @Path("/deny")
     @PolicyStatement("\${env.time.year < 2017}")
-    @Authentications(
-        Authentication(value = "user", scopes = ["calendar_read"]),
-        Authentication(
-            value = "service",
-            type = SubjectType.SERVICE,
-            roles = ["service_role"],
-            scopes = ["calendar_read", "calendar_edit"]
-        )
-    )//!NOT SUPPORTED IN KOTLIN!
+    @Authentication(value = "user", scopes = ["calendar_read"])
+    @Authentication(
+        value = "service",
+        type = SubjectType.SERVICE,
+        roles = ["service_role"],
+        scopes = ["calendar_read", "calendar_edit"]
+    )
     open fun deny(): String {
         return "hello"
     }
