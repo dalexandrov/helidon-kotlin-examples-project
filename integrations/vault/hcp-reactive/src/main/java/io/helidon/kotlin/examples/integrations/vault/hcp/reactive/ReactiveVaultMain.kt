@@ -15,19 +15,20 @@
  */
 package io.helidon.kotlin.examples.integrations.vault.hcp.reactive
 
+import config
 import io.helidon.common.LogConfig
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
-import io.helidon.integrations.vault.Vault
 import io.helidon.integrations.vault.secrets.cubbyhole.CubbyholeSecretsRx
 import io.helidon.integrations.vault.secrets.kv1.Kv1SecretsRx
 import io.helidon.integrations.vault.secrets.kv2.Kv2SecretsRx
 import io.helidon.integrations.vault.secrets.transit.TransitSecretsRx
 import io.helidon.integrations.vault.sys.SysRx
 import io.helidon.webclient.WebClient
-import io.helidon.webserver.Routing
-import io.helidon.webserver.WebServer
+import vault
+import webServer
 import java.util.concurrent.TimeUnit
+import routing as doRouting
 
 /**
  * Main class of example.
@@ -50,13 +51,13 @@ object ReactiveVaultMain {
 
         // we have three configurations available
         // 1. Token based authentication
-        val tokenVault = Vault.builder()
-            .config(config["vault.token"])
-            .updateWebClient { it: WebClient.Builder ->
+        val tokenVault = vault {
+            config(config["vault.token"])
+            updateWebClient { it: WebClient.Builder ->
                 it.connectTimeout(5, TimeUnit.SECONDS)
                     .readTimeout(5, TimeUnit.SECONDS)
             }
-            .build()
+        }
 
         // 2. App role based authentication - must be created after we obtain the role id an token
         // 3. Kubernetes (k8s) based authentication (requires to run on k8s) - must be created after we create
@@ -77,16 +78,17 @@ object ReactiveVaultMain {
         val sys = tokenVault.sys(SysRx.API)
         // we use await for webserver, as we do not care if we block the main thread - it is not used
         // for anything
-        val webServer = WebServer.builder()
-            .config(config["server"])
-            .routing(
-                Routing.builder()
-                    .register("/cubbyhole", CubbyholeService(sys, tokenVault.secrets(CubbyholeSecretsRx.ENGINE)))
-                    .register("/kv1", Kv1Service(sys, tokenVault.secrets(Kv1SecretsRx.ENGINE)))
-                    .register("/kv2", Kv2Service(tokenVault.secrets(Kv2SecretsRx.ENGINE)))
-                    .register("/transit", TransitService(sys, tokenVault.secrets(TransitSecretsRx.ENGINE)))
+        val webServer = webServer {
+            config(config["server"])
+            routing(
+                doRouting {
+                    register("/cubbyhole", CubbyholeService(sys, tokenVault.secrets(CubbyholeSecretsRx.ENGINE)))
+                    register("/kv1", Kv1Service(sys, tokenVault.secrets(Kv1SecretsRx.ENGINE)))
+                    register("/kv2", Kv2Service(tokenVault.secrets(Kv2SecretsRx.ENGINE)))
+                    register("/transit", TransitService(sys, tokenVault.secrets(TransitSecretsRx.ENGINE)))
+                }
             )
-            .build()
+        }
             .start()
             .await()
         try {
@@ -130,12 +132,12 @@ object ReactiveVaultMain {
     }
 
     private fun buildConfig(): Config {
-        return Config.builder()
-            .sources( // you can use this file to override the defaults that are built-in
+        return config {
+            sources( // you can use this file to override the defaults that are built-in
                 ConfigSources.file(System.getProperty("user.home") + "/helidon/conf/examples.yaml")
                     .optional(),  // in jar file (see src/main/resources/application.yaml)
                 ConfigSources.classpath("application.yaml")
             )
-            .build()
+        }
     }
 }

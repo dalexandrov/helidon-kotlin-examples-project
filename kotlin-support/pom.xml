@@ -91,6 +91,54 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.auths</groupId>
+            <artifactId>helidon-integrations-vault-auths-token</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.auths</groupId>
+            <artifactId>helidon-integrations-vault-auths-approle</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.auths</groupId>
+            <artifactId>helidon-integrations-vault-auths-k8s</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.secrets</groupId>
+            <artifactId>helidon-integrations-vault-secrets-kv1</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.secrets</groupId>
+            <artifactId>helidon-integrations-vault-secrets-kv2</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.secrets</groupId>
+            <artifactId>helidon-integrations-vault-secrets-cubbyhole</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.secrets</groupId>
+            <artifactId>helidon-integrations-vault-secrets-transit</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.sys</groupId>
+            <artifactId>helidon-integrations-vault-sys</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <properties>
