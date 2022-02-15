@@ -15,16 +15,12 @@
  */
 
 
-/**
- * Common classes for Pokemon examples for DB Client.
- */
 module io.helidon.kotlin.service.wolt {
     requires java.logging;
 
-    //requires jakarta.json;
-    requires transitive io.helidon.dbclient;
+    requires io.helidon.dbclient;
     requires io.helidon.common.http;
-    requires transitive io.helidon.webserver;
+    requires io.helidon.webserver;
     requires java.json;
     requires io.helidon.dbclient.health;
     requires io.helidon.health;
@@ -32,8 +28,19 @@ module io.helidon.kotlin.service.wolt {
     requires io.helidon.media.jsonp;
     requires io.helidon.metrics;
     requires io.helidon.tracing;
+    requires io.helidon.integrations.vault;
+    requires io.helidon.integrations.vault.sys;
+    requires io.helidon.webclient;
+    requires jakarta.websocket.api;
+    requires io.helidon.messaging;
+    requires io.helidon.microprofile.reactive;
+    requires io.helidon.messaging.connectors.kafka;
+    requires io.helidon.webserver.staticcontent;
+    requires io.helidon.webserver.tyrus;
+    requires io.helidon.integrations.vault.secrets.transit;
+    requires kafka.clients;
 
     exports io.helidon.kotlin.service.wolt;
 
-    provides io.helidon.dbclient.spi.DbMapperProvider with io.helidon.kotlin.service.wolt.PokemonMapperProvider;
+    provides io.helidon.dbclient.spi.DbMapperProvider with io.helidon.kotlin.service.wolt.DeliveryMapperProvider;
 }

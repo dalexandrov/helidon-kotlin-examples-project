@@ -70,11 +70,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>io.helidon.microprofile.server</groupId>
-            <artifactId>helidon-microprofile-server</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.helidon.security</groupId>
             <artifactId>helidon-security</artifactId>
             <version>${project.version}</version>

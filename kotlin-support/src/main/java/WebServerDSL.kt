@@ -2,7 +2,6 @@ import io.helidon.common.pki.KeyConfig
 import io.helidon.config.Config
 import io.helidon.health.HealthSupport
 import io.helidon.media.common.MediaContext
-import io.helidon.microprofile.server.Server
 import io.helidon.security.Security
 import io.helidon.security.providers.oidc.common.OidcConfig
 import io.helidon.webserver.*
@@ -37,8 +36,6 @@ fun keystoreBuilder(block: KeyConfig.KeystoreBuilder.() -> Unit = {}): KeyConfig
 fun healthSupport(block: HealthSupport.Builder.() -> Unit = {}): HealthSupport = HealthSupport.builder().apply(block).build()
 
 fun corsSupport(block: CorsSupport.Builder.() -> Unit = {}): CorsSupport = CorsSupport.builder().apply(block).build()
-
-fun server(block: Server.Builder.() -> Unit = {}): Server = Server.builder().apply(block).build()
 
 fun security(block: Security.Builder.() -> Unit = {}): Security = Security.builder().apply(block).build()
 

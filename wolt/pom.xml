@@ -18,8 +18,8 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -37,16 +37,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.helidon.webserver</groupId>
             <artifactId>helidon-webserver</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.helidon.webclient</groupId>
+            <artifactId>helidon-webclient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.helidon.media</groupId>
             <artifactId>helidon-media-jsonb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.dbclient</groupId>
+            <artifactId>helidon-dbclient-jsonp</artifactId>
         </dependency>
         <dependency>
             <groupId>io.helidon.config</groupId>
@@ -72,19 +76,56 @@
             <groupId>io.helidon.dbclient</groupId>
             <artifactId>helidon-dbclient-health</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.helidon.dbclient</groupId>
-            <artifactId>helidon-dbclient-jsonp</artifactId>
-        </dependency>
+
+        <!-- DataBase -->
+
         <dependency>
             <groupId>io.helidon.integrations.db</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+
+        <!-- Vault -->
         <dependency>
-            <groupId>io.helidon.webclient</groupId>
-            <artifactId>helidon-webclient</artifactId>
-            <scope>test</scope>
+            <groupId>io.helidon.integrations.vault</groupId>
+            <artifactId>helidon-integrations-vault</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.secrets</groupId>
+            <artifactId>helidon-integrations-vault-secrets-transit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.sys</groupId>
+            <artifactId>helidon-integrations-vault-sys</artifactId>
+        </dependency>
+
+        <!-- Static -->
+        <dependency>
+            <groupId>io.helidon.webserver</groupId>
+            <artifactId>helidon-webserver-static-content</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.helidon.microprofile.reactive-streams</groupId>
+            <artifactId>helidon-microprofile-reactive-streams</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.messaging</groupId>
+            <artifactId>helidon-messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.messaging.kafka</groupId>
+            <artifactId>helidon-messaging-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.webserver</groupId>
+            <artifactId>helidon-webserver-tyrus</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -106,6 +147,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-libs</id>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -7,7 +7,7 @@ import javax.annotation.Priority;
 import java.util.Optional;
 
 @Priority(1000)
-public class PokemonMapperProvider implements DbMapperProvider {
+public class DeliveryMapperProvider implements DbMapperProvider {
     private static final DeliveryMapper MAPPER = new DeliveryMapper();
 
     @SuppressWarnings("unchecked")

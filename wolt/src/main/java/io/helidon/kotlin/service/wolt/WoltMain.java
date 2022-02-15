@@ -21,12 +21,21 @@ import io.helidon.config.Config;
 import io.helidon.dbclient.DbClient;
 import io.helidon.dbclient.health.DbClientHealthCheck;
 import io.helidon.health.HealthSupport;
+import io.helidon.integrations.vault.Vault;
+import io.helidon.integrations.vault.secrets.transit.TransitSecretsRx;
+import io.helidon.integrations.vault.sys.SysRx;
 import io.helidon.media.jsonb.JsonbSupport;
 import io.helidon.media.jsonp.JsonpSupport;
 import io.helidon.metrics.MetricsSupport;
 import io.helidon.tracing.TracerBuilder;
 import io.helidon.webserver.Routing;
 import io.helidon.webserver.WebServer;
+import io.helidon.webserver.staticcontent.StaticContentSupport;
+import io.helidon.webserver.tyrus.TyrusSupport;
+import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
+
+import javax.websocket.server.ServerEndpointConfig;
+import java.util.concurrent.TimeUnit;
 
 public final class WoltMain {
 
@@ -43,6 +52,7 @@ public final class WoltMain {
      */
     public static void main(final String[] args) {
         startServer();
+        //ReactiveStreams.of(5).ignore().run();
     }
 
     /**
@@ -93,6 +103,22 @@ public final class WoltMain {
         DbClient dbClient = DbClient.builder(dbConfig)
                 .build();
 
+        // Initialize Vault Crypto services
+        Vault tokenVault = Vault.builder()
+                .config(config.get("vault.token"))
+                .updateWebClient(it -> it.connectTimeout(5, TimeUnit.SECONDS)
+                        .readTimeout(5, TimeUnit.SECONDS))
+                .build();
+        SysRx sys = tokenVault.sys(SysRx.API);
+        TransitSecretsRx secrets = tokenVault.secrets(TransitSecretsRx.ENGINE);
+
+
+        CryptoServiceRx cryptoService = new CryptoServiceRx(sys, secrets);
+
+
+        SendingServiceRx sendingService = new SendingServiceRx(config);
+
+
         // Some relational databases do not support DML statement as ping so using query which works for all of them
         HealthSupport health = HealthSupport.builder()
                 .addLiveness(
@@ -100,10 +126,16 @@ public final class WoltMain {
                 .build();
 
         return Routing.builder()
+                .register(StaticContentSupport.builder("/WEB").welcomeFileName("index.html"))
                 .register(health)                   // Health at "/health"
                 .register(MetricsSupport.create())  // Metrics at "/metrics"
-                .register("/db", new DeliveryService(dbClient) {
-                })
+                .register("/db", new DeliveryService(dbClient, cryptoService, sendingService))
+                .register("/ws",
+                        TyrusSupport.builder().register(
+                                        ServerEndpointConfig.Builder.create(
+                                                        WebSocketEndpoint.class, "/messages")
+                                                .build())
+                                .build())
                 .build();
     }
 }

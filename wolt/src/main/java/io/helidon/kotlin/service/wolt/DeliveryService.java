@@ -24,22 +24,26 @@ import io.helidon.webserver.*;
 
 import javax.json.JsonObject;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Common methods that do not differ between JDBC and MongoDB.
- */
-public abstract class DeliveryService implements Service {
+class DeliveryService implements Service {
 
     private static final Logger LOGGER = Logger.getLogger(DeliveryService.class.getName());
 
     private final DbClient dbClient;
 
+    private final CryptoServiceRx cryptoService;
 
-    protected DeliveryService(DbClient dbClient) {
+    private final SendingServiceRx sendingService;
+
+
+    DeliveryService(DbClient dbClient, CryptoServiceRx cryptoService, SendingServiceRx sendingService) {
         this.dbClient = dbClient;
-        // MySQL init
+        this.cryptoService = cryptoService;
+        this.sendingService = sendingService;
+
         dbClient.execute(handle -> handle.namedDml("create-table"))
                 .thenAccept(System.out::println)
                 .exceptionally(throwable -> {
@@ -99,6 +103,11 @@ public abstract class DeliveryService implements Service {
                 request.path().param("food"),
                 request.path().param("address"),
                 DeliveryStatus.valueOf(request.path().param("status")));
+
+
+        cryptoService.encryptSecret(delivery.toString()).thenAccept(e -> sendingService.emitMessage(e));
+
+
 
         dbClient.execute(exec -> exec
                 .createNamedInsert("insert2")

@@ -10,11 +10,19 @@ app:
   # switch to "Database" to use database. Uses in-memory structure otherwise
   drivertype: Array
 
+  kafka:
+    bootstrap.servers: localhost:9092
+    topic: messaging-test-topic-1
+
 server:
   port: 8080
   host: 0.0.0.0
   features:
     print-details: true
+  static:
+    classpath:
+      location: /WEB
+      welcome: index.html
 
 
 tracing:
@@ -82,3 +90,27 @@ db:
     select-for-update: "SELECT * FROM deliveries WHERE id = :id for UPDATE"
     update: "UPDATE deliveries SET type = :id WHERE name = :id"
     delete: "DELETE FROM deliveries WHERE id = ?"
+
+vault:
+  properties:
+    address: "http://localhost:8200"
+  token:
+    token: "myroot"
+    address: "${vault.properties.address}"
+    auth:
+      k8s:
+        enabled: false
+      app-role:
+        enabled: false
+      token:
+        enabled: true
+  approle:
+    address: "${vault.properties.address}"
+    auth:
+      k8s:
+        enabled: false
+      app-role:
+        path: "customapprole"
+        enabled: true
+      token:
+        enabled: false
