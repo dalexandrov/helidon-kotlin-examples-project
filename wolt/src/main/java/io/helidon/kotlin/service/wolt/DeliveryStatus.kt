@@ -1,5 +1,5 @@
-package io.helidon.kotlin.service.wolt;
+package io.helidon.kotlin.service.wolt
 
-public enum DeliveryStatus {
-    NEW, PREPARE, DELIVERY, COMPLETED;
+enum class DeliveryStatus {
+    NEW, PREPARE, DELIVERY, COMPLETED
 }

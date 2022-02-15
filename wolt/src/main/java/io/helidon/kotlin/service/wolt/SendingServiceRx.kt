@@ -13,66 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.helidon.kotlin.service.wolt
 
-package io.helidon.kotlin.service.wolt;
+import io.helidon.config.Config
+import io.helidon.messaging.Channel
+import io.helidon.messaging.Emitter
+import io.helidon.messaging.Messaging
+import io.helidon.messaging.connectors.kafka.KafkaConnector
+import org.apache.kafka.common.serialization.StringSerializer
+import java.util.Locale
 
-import io.helidon.config.Config;
-import io.helidon.messaging.Channel;
-import io.helidon.messaging.Emitter;
-import io.helidon.messaging.Messaging;
-import io.helidon.messaging.connectors.kafka.KafkaConnector;
-import org.apache.kafka.common.serialization.StringSerializer;
+class SendingServiceRx(config: Config) {
+    private val emitter: Emitter<String>
+    private val messaging: Messaging
 
-public class SendingServiceRx {
-
-    private final Emitter<String> emitter;
-    private final Messaging messaging;
-
-    public SendingServiceRx(Config config) {
-
-        String kafkaServer = config.get("app.kafka.bootstrap.servers").asString().get();
-        String topic = config.get("app.kafka.topic").asString().get();
+    init {
+        val kafkaServer = config["app.kafka.bootstrap.servers"].asString().get()
+        val topic = config["app.kafka.topic"].asString().get()
 
         // Prepare channel for connecting processor -> kafka connector with specific subscriber configuration,
         // channel -> connector mapping is automatic when using KafkaConnector.configBuilder()
-        Channel<String> toKafka = Channel.<String>builder()
-                .subscriberConfig(KafkaConnector.configBuilder()
-                        .bootstrapServers(kafkaServer)
-                        .topic(topic)
-                        .keySerializer(StringSerializer.class)
-                        .valueSerializer(StringSerializer.class)
-                        .build()
-                ).build();
+        val toKafka = Channel.builder<String>()
+            .subscriberConfig(
+                KafkaConnector.configBuilder()
+                    .bootstrapServers(kafkaServer)
+                    .topic(topic)
+                    .keySerializer(StringSerializer::class.java)
+                    .valueSerializer(StringSerializer::class.java)
+                    .build()
+            ).build()
 
         // Prepare channel for connecting emitter -> processor
-        Channel<String> toProcessor = Channel.create();
+        val toProcessor = Channel.create<String>()
 
         // Prepare Kafka connector, can be used by any channel
-        KafkaConnector kafkaConnector = KafkaConnector.create();
+        val kafkaConnector = KafkaConnector.create()
 
         // Prepare emitter for manual publishing to channel
-        emitter = Emitter.create(toProcessor);
-
+        emitter = Emitter.create(toProcessor)
         messaging = Messaging.builder()
-                .emitter(emitter)
-                // Processor connect two channels together
-                .processor(toProcessor, toKafka, payload -> {
-                    // Transforming to upper-case before sending to kafka
-                    return payload.toUpperCase();
-                })
-                .connector(kafkaConnector)
-                .build()
-                .start();
-     }
+            .emitter(emitter) // Processor connect two channels together
+            .processor(toProcessor, toKafka) { payload: String -> payload.uppercase(Locale.getDefault()) }
+            .connector(kafkaConnector)
+            .build()
+            .start()
+    }
 
-    public void emitMessage(String message){
-        emitter.send(message);
+    fun emitMessage(message: String) {
+        emitter.send(message)
     }
 
     /**
      * Gracefully terminate messaging.
      */
-    public void shutdown() {
-        messaging.stop();
+    fun shutdown() {
+        messaging.stop()
     }
 }

@@ -13,93 +13,86 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.helidon.kotlin.service.wolt
 
-package io.helidon.kotlin.service.wolt;
-
-import io.helidon.config.Config;
-import io.helidon.messaging.Channel;
-import io.helidon.messaging.Messaging;
-import io.helidon.messaging.connectors.kafka.KafkaConfigBuilder;
-import io.helidon.messaging.connectors.kafka.KafkaConnector;
-import javax.websocket.CloseReason;
-import javax.websocket.Endpoint;
-import javax.websocket.EndpointConfig;
-import javax.websocket.Session;
-import org.apache.kafka.common.serialization.StringDeserializer;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import io.helidon.config.Config
+import io.helidon.messaging.Messaging
+import io.helidon.messaging.connectors.kafka.KafkaConnector
+import io.helidon.messaging.connectors.kafka.KafkaConfigBuilder
+import io.helidon.kotlin.service.wolt.WebSocketEndpoint
+import io.helidon.messaging.Channel
+import org.apache.kafka.common.serialization.StringDeserializer
+import java.io.IOException
+import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
+import javax.websocket.CloseReason
+import javax.websocket.Endpoint
+import javax.websocket.EndpointConfig
+import javax.websocket.Session
 
 /**
  * Web socket endpoint.
  */
-public class WebSocketEndpoint extends Endpoint {
-
-    private static final Logger LOGGER = Logger.getLogger(WebSocketEndpoint.class.getName());
-
-    private final Map<String, Messaging> messagingRegister = new HashMap<>();
-    private final Config config = Config.create();
-
-    @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
-
-        System.out.println("Session " + session.getId());
-
-        String kafkaServer = config.get("app.kafka.bootstrap.servers").asString().get();
-        String topic = config.get("app.kafka.topic").asString().get();
+class WebSocketEndpoint : Endpoint() {
+    private val messagingRegister: MutableMap<String, Messaging> = HashMap()
+    private val config = Config.create()
+    override fun onOpen(session: Session, endpointConfig: EndpointConfig) {
+        println("Session " + session.id)
+        val kafkaServer = config["app.kafka.bootstrap.servers"].asString().get()
+        val topic = config["app.kafka.topic"].asString().get()
 
         // Prepare channel for connecting kafka connector with specific publisher configuration -> listener,
         // channel -> connector mapping is automatic when using KafkaConnector.configBuilder()
-        Channel<String> fromKafka = Channel.<String>builder()
-                .name("from-kafka")
-                .publisherConfig(KafkaConnector.configBuilder()
-                        .bootstrapServers(kafkaServer)
-                        .groupId("example-group-" + session.getId())
-                        .topic(topic)
-                        .autoOffsetReset(KafkaConfigBuilder.AutoOffsetReset.LATEST)
-                        .enableAutoCommit(true)
-                        .keyDeserializer(StringDeserializer.class)
-                        .valueDeserializer(StringDeserializer.class)
-                        .build()
-                )
-                .build();
+        val fromKafka = Channel.builder<String>()
+            .name("from-kafka")
+            .publisherConfig(
+                KafkaConnector.configBuilder()
+                    .bootstrapServers(kafkaServer)
+                    .groupId("example-group-" + session.id)
+                    .topic(topic)
+                    .autoOffsetReset(KafkaConfigBuilder.AutoOffsetReset.LATEST)
+                    .enableAutoCommit(true)
+                    .keyDeserializer(StringDeserializer::class.java)
+                    .valueDeserializer(StringDeserializer::class.java)
+                    .build()
+            )
+            .build()
 
         // Prepare Kafka connector, can be used by any channel
-        KafkaConnector kafkaConnector = KafkaConnector.create();
-
-        Messaging messaging = Messaging.builder()
-                .connector(kafkaConnector)
-                .listener(fromKafka, payload -> {
-                    System.out.println("Kafka says: " + payload);
-                    // Send message received from Kafka over websocket
-                    sendTextMessage(session, payload);
-                })
-                .build()
-                .start();
+        val kafkaConnector = KafkaConnector.create()
+        val messaging = Messaging.builder()
+            .connector(kafkaConnector)
+            .listener(fromKafka) { payload: String ->
+                println("Kafka says: $payload")
+                // Send message received from Kafka over websocket
+                sendTextMessage(session, payload)
+            }
+            .build()
+            .start()
 
         //Save the messaging instance for proper shutdown
         // when websocket connection is terminated
-        messagingRegister.put(session.getId(), messaging);
+        messagingRegister[session.id] = messaging
     }
 
-    @Override
-    public void onClose(final Session session, final CloseReason closeReason) {
-        super.onClose(session, closeReason);
-        LOGGER.info("Closing session " + session.getId());
+    override fun onClose(session: Session, closeReason: CloseReason) {
+        super.onClose(session, closeReason)
+        LOGGER.info("Closing session " + session.id)
         // Properly stop messaging when websocket connection is terminated
-        Optional.ofNullable(messagingRegister.remove(session.getId()))
-                .ifPresent(Messaging::stop);
+        Optional.ofNullable(messagingRegister.remove(session.id))
+            .ifPresent { obj: Messaging -> obj.stop() }
     }
 
-    private void sendTextMessage(Session session, String msg) {
+    private fun sendTextMessage(session: Session, msg: String) {
         try {
-            session.getBasicRemote().sendText(msg);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Message sending failed", e);
+            session.basicRemote.sendText(msg)
+        } catch (e: IOException) {
+            LOGGER.log(Level.SEVERE, "Message sending failed", e)
         }
+    }
+
+    companion object {
+        private val LOGGER = Logger.getLogger(WebSocketEndpoint::class.java.name)
     }
 }

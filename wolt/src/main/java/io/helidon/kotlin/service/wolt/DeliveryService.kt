@@ -13,191 +13,231 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.kotlin.service.wolt;
+package io.helidon.kotlin.service.wolt
 
-import io.helidon.common.http.Http;
-import io.helidon.common.reactive.Multi;
-import io.helidon.common.reactive.Single;
-import io.helidon.dbclient.DbClient;
-import io.helidon.dbclient.DbRow;
-import io.helidon.webserver.*;
+import io.helidon.common.http.Http
+import io.helidon.common.reactive.Single
+import io.helidon.dbclient.DbClient
+import io.helidon.dbclient.DbExecute
+import io.helidon.dbclient.DbRow
+import io.helidon.dbclient.DbTransaction
+import io.helidon.webserver.Handler
+import io.helidon.webserver.Routing
+import io.helidon.webserver.ServerRequest
+import io.helidon.webserver.ServerResponse
+import io.helidon.webserver.Service
+import java.lang.Runnable
+import java.util.*
+import java.util.concurrent.CompletionException
+import java.util.logging.Level
+import java.util.logging.Logger
+import javax.json.JsonObject
 
-import javax.json.JsonObject;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-class DeliveryService implements Service {
-
-    private static final Logger LOGGER = Logger.getLogger(DeliveryService.class.getName());
-
-    private final DbClient dbClient;
-
-    private final CryptoServiceRx cryptoService;
-
-    private final SendingServiceRx sendingService;
-
-
-    DeliveryService(DbClient dbClient, CryptoServiceRx cryptoService, SendingServiceRx sendingService) {
-        this.dbClient = dbClient;
-        this.cryptoService = cryptoService;
-        this.sendingService = sendingService;
-
-        dbClient.execute(handle -> handle.namedDml("create-table"))
-                .thenAccept(System.out::println)
-                .exceptionally(throwable -> {
-                    LOGGER.log(Level.WARNING, "Failed to create table, maybe it already exists?", throwable);
-                    return null;
-                });
+internal class DeliveryService(
+    private val dbClient: DbClient,
+    private val cryptoService: CryptoServiceRx,
+    private val sendingService: SendingServiceRx
+) : Service {
+    init {
+        dbClient.execute { handle: DbExecute -> handle.namedDml("create-table") }
+            .thenAccept { x: Long? -> println(x) }
+            .exceptionally { throwable: Throwable? ->
+                LOGGER.log(Level.WARNING, "Failed to create table, maybe it already exists?", throwable)
+                null
+            }
     }
 
-    @Override
-    public void update(Routing.Rules rules) {
-        rules
-                .get("/", this::listDeliveries)
-                // create new
-                .put("/", Handler.create(Delivery.class, this::insertDelivery))
-                // update existing
-                .post("/{id}/{food}/{address}/{status}", this::insertDeliverySimple)
-                // delete all
-                .delete("/", this::deleteAllDeliveries)
-                // get one
-                .get("/{address}", this::getDelivery)
-                // delete one
-                .delete("/{id}", this::deleteDelivery)
-                // example of transactional API (local transaction only!)
-                .put("/transactional", Handler.create(Delivery.class, this::transactional))
-                // update one (TODO this is intentionally wrong - should use JSON request, just to make it simple we use path)
-                .put("/{id}/{food}/{address}/{status}", this::updateDelivery);
+    override fun update(rules: Routing.Rules) {
+        rules["/", Handler { request: ServerRequest, response: ServerResponse ->
+            listDeliveries(
+                request,
+                response
+            )
+        }] // create new
+            .put(
+                "/",
+                Handler.create(Delivery::class.java) { request: ServerRequest, response: ServerResponse, delivery: Delivery ->
+                    insertDelivery(
+                        request,
+                        response,
+                        delivery
+                    )
+                }) // update existing
+            .post(
+                "/{id}/{food}/{address}/{status}",
+                Handler { request: ServerRequest, response: ServerResponse ->
+                    insertDeliverySimple(
+                        request,
+                        response
+                    )
+                }) // delete all
+            .delete(
+                "/",
+                Handler { request: ServerRequest, response: ServerResponse ->
+                    deleteAllDeliveries(
+                        request,
+                        response
+                    )
+                })["/{address}", Handler { request: ServerRequest, response: ServerResponse ->
+            getDelivery(
+                request,
+                response
+            )
+        }] // delete one
+            .delete(
+                "/{id}",
+                Handler { request: ServerRequest, response: ServerResponse ->
+                    deleteDelivery(
+                        request,
+                        response
+                    )
+                }) // example of transactional API (local transaction only!)
+            .put(
+                "/transactional",
+                Handler.create(Delivery::class.java) { request: ServerRequest, response: ServerResponse, delivery: Delivery ->
+                    transactional(
+                        request,
+                        response,
+                        delivery
+                    )
+                }) // update one (TODO this is intentionally wrong - should use JSON request, just to make it simple we use path)
+            .put(
+                "/{id}/{food}/{address}/{status}",
+                Handler { request: ServerRequest, response: ServerResponse -> updateDelivery(request, response) })
     }
 
-
-    protected DbClient dbClient() {
-        return dbClient;
+    private fun dbClient(): DbClient {
+        return dbClient
     }
 
-    private void deleteAllDeliveries(ServerRequest request, ServerResponse response){
-        dbClient().execute(exec -> exec
-                        // this is to show how ad-hoc statements can be executed (and their naming in Tracing and Metrics)
-                        .createDelete("DELETE FROM deliveries")
-                        .execute())
-                .thenAccept(count -> response.send("Deleted: " + count + " values"))
-                .exceptionally(throwable -> sendError(throwable, response));
+    private fun deleteAllDeliveries(request: ServerRequest, response: ServerResponse) {
+        dbClient().execute { exec: DbExecute ->
+            exec // this is to show how ad-hoc statements can be executed (and their naming in Tracing and Metrics)
+                .createDelete("DELETE FROM deliveries")
+                .execute()
+        }
+            .thenAccept { count: Long -> response.send("Deleted: $count values") }
+            .exceptionally { throwable: Throwable -> sendError(throwable, response) }
     }
 
-
-    private void insertDelivery(ServerRequest request, ServerResponse response, Delivery delivery) {
-        dbClient.execute(exec -> exec
+    private fun insertDelivery(request: ServerRequest, response: ServerResponse, delivery: Delivery) {
+        dbClient.execute { exec: DbExecute ->
+            exec
                 .createNamedInsert("insert2")
                 .namedParam(delivery)
-                .execute())
-                .thenAccept(count -> response.send("Inserted: " + count + " values"))
-                .exceptionally(throwable -> sendError(throwable, response));
+                .execute()
+        }
+            .thenAccept { count: Long -> response.send("Inserted: $count values") }
+            .exceptionally { throwable: Throwable -> sendError(throwable, response) }
     }
 
-
-    private void insertDeliverySimple(ServerRequest request, ServerResponse response) {
-
-        Delivery delivery = new Delivery(request.path().param("id"),
-                request.path().param("food"),
-                request.path().param("address"),
-                DeliveryStatus.valueOf(request.path().param("status")));
-
-
-        cryptoService.encryptSecret(delivery.toString()).thenAccept(e -> sendingService.emitMessage(e));
-
-
-
-        dbClient.execute(exec -> exec
+    private fun insertDeliverySimple(request: ServerRequest, response: ServerResponse) {
+        val delivery = Delivery(
+            request.path().param("id"),
+            request.path().param("food"),
+            request.path().param("address"),
+            DeliveryStatus.valueOf(request.path().param("status"))
+        )
+        cryptoService.encryptSecret(delivery.toString()).thenAccept { e: String -> sendingService.emitMessage(e) }
+        dbClient.execute { exec: DbExecute ->
+            exec
                 .createNamedInsert("insert2")
                 .namedParam(delivery)
-                .execute())
-                .thenAccept(count -> response.send("Inserted: " + count + " values"))
-                .exceptionally(throwable -> sendError(throwable, response));
+                .execute()
+        }
+            .thenAccept { count: Long -> response.send("Inserted: $count values") }
+            .exceptionally { throwable: Throwable -> sendError(throwable, response) }
     }
 
-
-    private void getDelivery(ServerRequest request, ServerResponse response) {
-        String delivery = request.path().param("address");
-
-        dbClient.execute(exec -> exec.namedGet("select-one", delivery))
-                .thenAccept(opt -> opt.ifPresentOrElse(it -> sendRow(it, response),
-                                                       () -> sendNotFound(response, "Delivery to "
-                                                               + delivery
-                                                               + " not found")))
-                .exceptionally(throwable -> sendError(throwable, response));
+    private fun getDelivery(request: ServerRequest, response: ServerResponse) {
+        val delivery = request.path().param("address")
+        dbClient.execute { exec: DbExecute -> exec.namedGet("select-one", delivery) }
+            .thenAccept { opt: Optional<DbRow> ->
+                opt.ifPresentOrElse(
+                    { it: DbRow -> sendRow(it, response) }
+                ) {
+                    sendNotFound(
+                        response, "Delivery to "
+                                + delivery
+                                + " not found"
+                    )
+                }
+            }
+            .exceptionally { throwable: Throwable -> sendError(throwable, response) }
     }
 
-
-    private void listDeliveries(ServerRequest request, ServerResponse response) {
-        Multi<JsonObject> rows = dbClient.execute(exec -> exec.namedQuery("select-all"))
-                .map(it -> it.as(JsonObject.class));
-
-        response.send(rows, JsonObject.class);
+    private fun listDeliveries(request: ServerRequest, response: ServerResponse) {
+        val rows = dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all") }
+            .map { it: DbRow ->
+                it.`as`(
+                    JsonObject::class.java
+                )
+            }
+        response.send(rows, JsonObject::class.java)
     }
 
-
-    private void updateDelivery(ServerRequest request, ServerResponse response) {
-        final String id = request.path().param("id");
-        final String food = request.path().param("food");
-        final String address = request.path().param("address");
-        final String status = request.path().param("address");
-
-        dbClient.execute(exec -> exec
+    private fun updateDelivery(request: ServerRequest, response: ServerResponse) {
+        val id = request.path().param("id")
+        val food = request.path().param("food")
+        val address = request.path().param("address")
+        val status = request.path().param("address")
+        dbClient.execute { exec: DbExecute ->
+            exec
                 .createNamedUpdate("update")
                 .addParam("id", id)
                 .addParam("food", food)
                 .addParam("address", address)
                 .addParam("status", status)
-                .execute())
-                .thenAccept(count -> response.send("Updated: " + count + " values"))
-                .exceptionally(throwable -> sendError(throwable, response));
+                .execute()
+        }
+            .thenAccept { count: Long -> response.send("Updated: $count values") }
+            .exceptionally { throwable: Throwable -> sendError(throwable, response) }
     }
 
-    private void transactional(ServerRequest request, ServerResponse response, Delivery delivery) {
-
-        dbClient.inTransaction(tx -> tx
+    private fun transactional(request: ServerRequest, response: ServerResponse, delivery: Delivery) {
+        dbClient.inTransaction { tx: DbTransaction ->
+            tx
                 .createNamedGet("select-for-update")
                 .namedParam(delivery)
                 .execute()
-                .flatMapSingle(maybeRow -> maybeRow.map(dbRow -> tx.createNamedUpdate("update")
-                        .namedParam(delivery).execute())
-                        .orElseGet(() -> Single.just(0L)))
-        ).thenAccept(count -> response.send("Updated " + count + " records"));
-
+                .flatMapSingle { maybeRow: Optional<DbRow?> ->
+                    maybeRow.map { dbRow: DbRow? ->
+                        tx.createNamedUpdate("update")
+                            .namedParam(delivery).execute()
+                    }
+                        .orElseGet { Single.just(0L) }
+                }
+        }.thenAccept { count: Long -> response.send("Updated $count records") }
     }
 
-
-    private void deleteDelivery(ServerRequest request, ServerResponse response) {
-        final String id = request.path().param("id");
-
-        dbClient.execute(exec -> exec.namedDelete("delete", id))
-                .thenAccept(count -> response.send("Deleted: " + count + " values"))
-                .exceptionally(throwable -> sendError(throwable, response));
+    private fun deleteDelivery(request: ServerRequest, response: ServerResponse) {
+        val id = request.path().param("id")
+        dbClient.execute { exec: DbExecute -> exec.namedDelete("delete", id) }
+            .thenAccept { count: Long -> response.send("Deleted: $count values") }
+            .exceptionally { throwable: Throwable -> sendError(throwable, response) }
     }
 
-
-    protected void sendNotFound(ServerResponse response, String message) {
-        response.status(Http.Status.NOT_FOUND_404);
-        response.send(message);
+    protected fun sendNotFound(response: ServerResponse, message: String) {
+        response.status(Http.Status.NOT_FOUND_404)
+        response.send(message)
     }
 
-
-    protected void sendRow(DbRow row, ServerResponse response) {
-        response.send(row.as(JsonObject.class));
+    protected fun sendRow(row: DbRow, response: ServerResponse) {
+        response.send(row.`as`(JsonObject::class.java))
     }
 
-
-    protected <T> T sendError(Throwable throwable, ServerResponse response) {
-        Throwable realCause = throwable;
-        if (throwable instanceof CompletionException) {
-            realCause = throwable.getCause();
+    protected fun <T> sendError(throwable: Throwable, response: ServerResponse): T? {
+        var realCause: Throwable? = throwable
+        if (throwable is CompletionException) {
+            realCause = throwable.cause
         }
-        response.status(Http.Status.INTERNAL_SERVER_ERROR_500);
-        response.send("Failed to process request: " + realCause.getClass().getName() + "(" + realCause.getMessage() + ")");
-        LOGGER.log(Level.WARNING, "Failed to process request", throwable);
-        return null;
+        response.status(Http.Status.INTERNAL_SERVER_ERROR_500)
+        response.send("Failed to process request: " + realCause!!.javaClass.name + "(" + realCause.message + ")")
+        LOGGER.log(Level.WARNING, "Failed to process request", throwable)
+        return null
     }
 
+    companion object {
+        private val LOGGER = Logger.getLogger(DeliveryService::class.java.name)
+    }
 }

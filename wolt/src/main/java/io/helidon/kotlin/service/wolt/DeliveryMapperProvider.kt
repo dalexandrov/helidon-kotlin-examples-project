@@ -1,21 +1,22 @@
-package io.helidon.kotlin.service.wolt;
+package io.helidon.kotlin.service.wolt
 
-import io.helidon.dbclient.DbMapper;
-import io.helidon.dbclient.spi.DbMapperProvider;
-
-import javax.annotation.Priority;
-import java.util.Optional;
+import io.helidon.dbclient.DbMapper
+import io.helidon.dbclient.spi.DbMapperProvider
+import io.helidon.kotlin.service.wolt.Delivery
+import io.helidon.kotlin.service.wolt.DeliveryMapperProvider
+import io.helidon.kotlin.service.wolt.DeliveryMapper
+import java.util.*
+import javax.annotation.Priority
 
 @Priority(1000)
-public class DeliveryMapperProvider implements DbMapperProvider {
-    private static final DeliveryMapper MAPPER = new DeliveryMapper();
+class DeliveryMapperProvider : DbMapperProvider {
+    override fun <T> mapper(type: Class<T>): Optional<DbMapper<T>> {
+        return if (type == Delivery::class.java) {
+            Optional.of(MAPPER as DbMapper<T>)
+        } else Optional.empty()
+    }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> Optional<DbMapper<T>> mapper(Class<T> type) {
-        if (type.equals(Delivery.class)) {
-            return Optional.of((DbMapper<T>) MAPPER);
-        }
-        return Optional.empty();
+    companion object {
+        private val MAPPER = DeliveryMapper()
     }
 }

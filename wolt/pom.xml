@@ -32,7 +32,7 @@
     <name>Helidon Wolt demo in Kotlin</name>
 
     <properties>
-        <mainClass>io.helidon.kotlin.service.wolt.WoltMain</mainClass>
+        <mainClass>io.helidon.kotlin.service.wolt.WoltMainKt</mainClass>
     </properties>
 
     <dependencies>
