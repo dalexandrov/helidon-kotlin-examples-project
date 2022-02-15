@@ -76,6 +76,7 @@
         <module>microprofile</module>
         <module>security</module>
         <module>integrations</module>
+        <module>wolt</module>
     </modules>
 
     <dependencyManagement>

@@ -1,0 +1,84 @@
+
+
+app:
+  # database user, such as "system"
+  user: <user-db>
+  # database password
+  password: <password-user-db>
+  # host url - remove to use the default of Oracle XE (localhost:1521/XE)
+  hosturl: <hostname>:<port>/<database_unique_name>.<host_domain_name>
+  # switch to "Database" to use database. Uses in-memory structure otherwise
+  drivertype: Array
+
+server:
+  port: 8080
+  host: 0.0.0.0
+  features:
+    print-details: true
+
+
+tracing:
+  service: jdbc-db
+
+db:
+  source: jdbc
+  connection:
+    #
+    # H2 configuration
+    #
+    # Embedded mode (does not work with native image)
+    url: jdbc:h2:~/test
+    username: sa
+    password:
+    poolName: h2
+
+    helidon:
+      pool-metrics:
+        enabled: true
+        # name prefix defaults to "db.pool." - if you have more than one client within a JVM, you may want to distinguish between them
+        name-prefix: "hikari."
+  health-check:
+    type: "query"
+    statementName: "health-check"
+  services:
+    tracing:
+      # would trace all statement names that start with select-
+      - statement-names: ["select-.*"]
+      # would trace all delete statements
+      - statement-types: ["DELETE"]
+    metrics:
+      - type: METER
+        name-format: "db.meter.overall"
+      - type: METER
+        # meter per statement name (default name format)
+      - type: METER
+        # meter per statement type
+        name-format: "db.meter.%1$s"
+      - type: TIMER
+        errors: false
+        statement-names: ["select-.*"]
+        description: "Timer for successful selects"
+      - type: COUNTER
+        errors: false
+        statement-types: ["DELETE", "UPDATE", "INSERT", "DML"]
+        name-format: "db.counter.%s.success"
+        description: "Counter of successful DML statements"
+      - type: COUNTER
+        statement-types: ["DELETE", "UPDATE", "INSERT", "DML"]
+        success: false
+        name-format: "db.counter.%s.error"
+        description: "Counter of failed DML statements"
+  statements:
+    # Health check query statement for MySQL and H2 databases
+    health-check: "SELECT 0"
+
+    # Insert new delivery
+    create-table: "CREATE TABLE deliveries (id VARCHAR(32) NOT NULL PRIMARY KEY, food VARCHAR(32), address VARCHAR(32), status VARCHAR(32))"
+    insert1: "INSERT INTO deliveries VALUES(?, ?, ?, ?)"
+    insert2: "INSERT INTO deliveries VALUES(:id, :food, :address, :status)"
+    select-by-address: "SELECT * FROM deliveries WHERE address = ?"
+    select-one: "SELECT * FROM deliveries WHERE address = ?"
+    select-all: "SELECT * FROM deliveries"
+    select-for-update: "SELECT * FROM deliveries WHERE id = :id for UPDATE"
+    update: "UPDATE deliveries SET type = :id WHERE name = :id"
+    delete: "DELETE FROM deliveries WHERE id = ?"
