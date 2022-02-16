@@ -123,7 +123,7 @@ internal class DeliveryService(
     private fun insertDelivery(request: ServerRequest, response: ServerResponse, delivery: Delivery) {
         dbClient.execute { exec: DbExecute ->
             exec
-                .createNamedInsert("insert2")
+                .createNamedInsert("insert")
                 .namedParam(delivery)
                 .execute()
         }
@@ -138,7 +138,8 @@ internal class DeliveryService(
             request.path().param("address"),
             DeliveryStatus.valueOf(request.path().param("status"))
         )
-        cryptoService.encryptSecret(delivery.toString()).thenAccept { e: String -> sendingService.emitMessage(e) }
+        val encryptSecret = cryptoService.encryptSecret(delivery.toString()).get()
+        sendingService.emitMessage(encryptSecret);
         dbClient.execute { exec: DbExecute ->
             exec
                 .createNamedInsert("insert2")

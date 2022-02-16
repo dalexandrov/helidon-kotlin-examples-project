@@ -11,8 +11,9 @@ import io.helidon.kotlin.service.wolt.CryptoServiceRx
 
 class CryptoServiceRx internal constructor(private val sys: SysRx, private val secrets: TransitSecretsRx) {
     init {
-        sys.enableEngine(TransitSecretsRx.ENGINE)
-            .thenAccept { e: EnableEngine.Response? -> println("Transit Secret engine enabled") }
+//        sys.enableEngine(TransitSecretsRx.ENGINE)
+//            .thenAccept { e: EnableEngine.Response? -> println("Transit Secret engine enabled") }
+//            .exceptionallyAccept{ e-> println(e.toString()) }
     }
 
     fun decryptSecret(encrypted: String?): Single<String> {

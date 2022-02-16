@@ -32,6 +32,10 @@ import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.staticcontent.StaticContentSupport
 import io.helidon.webserver.tyrus.TyrusSupport
+import support.routing
+import support.tyrusSupport
+import support.vault
+import support.webServer
 import java.util.concurrent.TimeUnit
 import javax.websocket.server.ServerEndpointConfig
 
@@ -54,13 +58,13 @@ fun startServer(): WebServer {
     val config = Config.create()
 
     // Prepare routing for the server
-    val server = WebServer.builder()
-        .routing(createRouting(config)) // Get webserver config from the "server" section of application.yaml
-        .config(config["server"])
-        .tracer(TracerBuilder.create(config["tracing"]))
-        .addMediaSupport(JsonpSupport.create())
-        .addMediaSupport(JsonbSupport.create())
-        .build()
+    val server = webServer {
+        routing(createRouting(config)) // Get webserver config from the "server" section of application.yaml
+        config(config["server"])
+        tracer(TracerBuilder.create(config["tracing"]))
+        addMediaSupport(JsonpSupport.create())
+        addMediaSupport(JsonbSupport.create())
+    }
 
     // Start the server and print some info.
     server.start().thenAccept { ws: WebServer ->
@@ -88,13 +92,13 @@ private fun createRouting(config: Config): Routing {
         .build()
 
     // Initialize Vault Crypto services
-    val tokenVault = Vault.builder()
-        .config(config["vault.token"])
-        .updateWebClient { it: WebClient.Builder ->
+    val tokenVault = vault {
+        config(config["vault.token"])
+        updateWebClient { it: WebClient.Builder ->
             it.connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
         }
-        .build()
+    }
     val sys = tokenVault.sys(SysRx.API)
     val secrets = tokenVault.secrets(TransitSecretsRx.ENGINE)
     val cryptoService = CryptoServiceRx(sys, secrets)
@@ -107,20 +111,21 @@ private fun createRouting(config: Config): Routing {
             DbClientHealthCheck.create(dbClient, dbConfig["health-check"])
         )
         .build()
-    return Routing.builder()
-        .register(StaticContentSupport.builder("/WEB").welcomeFileName("index.html"))
-        .register(health) // Health at "/health"
-        .register(MetricsSupport.create()) // Metrics at "/metrics"
-        .register("/db", DeliveryService(dbClient, cryptoService, sendingService))
-        .register(
+    return routing {
+        register(StaticContentSupport.builder("/WEB").welcomeFileName("index.html"))
+        register(health) // Health at "/health"
+        register(MetricsSupport.create()) // Metrics at "/metrics"
+        register("/db", DeliveryService(dbClient, cryptoService, sendingService))
+        register(
             "/ws",
-            TyrusSupport.builder().register(
-                ServerEndpointConfig.Builder.create(
-                    WebSocketEndpoint::class.java, "/messages"
+            tyrusSupport {
+                register(
+                    ServerEndpointConfig.Builder.create(
+                        WebSocketEndpoint::class.java, "/messages"
+                    )
+                        .build()
                 )
-                    .build()
-            )
-                .build()
-        )
-        .build()
+            }
+                )
+            }
 }

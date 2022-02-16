@@ -27,7 +27,6 @@ module io.helidon.kotlin.service.wolt {
     requires io.helidon.media.jsonb;
     requires io.helidon.media.jsonp;
     requires io.helidon.metrics;
-    requires io.helidon.tracing;
     requires io.helidon.integrations.vault;
     requires io.helidon.integrations.vault.sys;
     requires io.helidon.webclient;
@@ -40,6 +39,11 @@ module io.helidon.kotlin.service.wolt {
     requires io.helidon.integrations.vault.secrets.transit;
     requires kafka.clients;
     requires kotlin.stdlib;
+
+    requires io.helidon.integrations.common.rest;
+    requires io.helidon.servicecommon.rest;
+    requires io.helidon.security;
+    requires io.helidon.tracing;
 
     exports io.helidon.kotlin.service.wolt;
 

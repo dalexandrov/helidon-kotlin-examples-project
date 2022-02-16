@@ -104,13 +104,3 @@ vault:
         enabled: false
       token:
         enabled: true
-  approle:
-    address: "${vault.properties.address}"
-    auth:
-      k8s:
-        enabled: false
-      app-role:
-        path: "customapprole"
-        enabled: true
-      token:
-        enabled: false

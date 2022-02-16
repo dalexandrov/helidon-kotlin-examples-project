@@ -2,9 +2,6 @@ package io.helidon.kotlin.service.wolt
 
 import io.helidon.dbclient.DbMapper
 import io.helidon.dbclient.spi.DbMapperProvider
-import io.helidon.kotlin.service.wolt.Delivery
-import io.helidon.kotlin.service.wolt.DeliveryMapperProvider
-import io.helidon.kotlin.service.wolt.DeliveryMapper
 import java.util.*
 import javax.annotation.Priority
 
