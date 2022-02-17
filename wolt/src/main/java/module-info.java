@@ -39,6 +39,7 @@ module io.helidon.kotlin.service.wolt {
     requires io.helidon.integrations.vault.secrets.transit;
     requires kafka.clients;
     requires kotlin.stdlib;
+    requires io.helidon.integrations.vault.auths.token;
 
     requires io.helidon.integrations.common.rest;
     requires io.helidon.servicecommon.rest;

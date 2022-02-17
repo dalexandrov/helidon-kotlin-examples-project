@@ -24,12 +24,14 @@ inline fun <reified T> Config.to(): ConfigValue<T> {
     return this.`as`(T::class.java);
 }
 
+fun <T> DbRow.toType(clazz: Class<T>):T{
+    return this.`as`(clazz);
+}
+
 @Throws(MapperException::class)
 inline fun <reified T> DbColumn.to(): T {
     return this.`as`(T::class.java)
 }
-
-
 
 fun <T> Config.toType(type: Function<Config, T>): ConfigValue<T> {
     return this.`as`(type);

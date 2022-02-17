@@ -20,9 +20,11 @@ import io.helidon.config.Config
 import io.helidon.dbclient.DbClient
 import io.helidon.dbclient.health.DbClientHealthCheck
 import io.helidon.health.HealthSupport
+import io.helidon.integrations.vault.Vault
 import io.helidon.integrations.vault.secrets.transit.TransitSecretsRx
 import io.helidon.integrations.vault.sys.SysRx
 import io.helidon.media.jsonb.JsonbSupport
+import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webclient.WebClient
@@ -31,7 +33,6 @@ import io.helidon.webserver.WebServer
 import io.helidon.webserver.staticcontent.StaticContentSupport
 import support.routing
 import support.tyrusSupport
-import support.vault
 import support.webServer
 import java.util.concurrent.TimeUnit
 import javax.websocket.server.ServerEndpointConfig
@@ -60,6 +61,7 @@ fun startServer(): WebServer {
         config(config["server"])
         tracer(TracerBuilder.create(config["tracing"]))
         addMediaSupport(JsonbSupport.create())
+        addMediaSupport(JsonpSupport.create())
     }
 
     // Start the server and print some info.
@@ -88,13 +90,16 @@ private fun createRouting(config: Config): Routing {
         .build()
 
     // Initialize Vault Crypto services
-    val tokenVault = vault {
-        config(config["vault.token"])
-        updateWebClient { it: WebClient.Builder ->
+
+    // we have three configurations available
+    // 1. Token based authentication
+    val tokenVault = Vault.builder()
+        .config(config["vault"])
+        .updateWebClient { it: WebClient.Builder ->
             it.connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
         }
-    }
+        .build()
     val sys = tokenVault.sys(SysRx.API)
     val secrets = tokenVault.secrets(TransitSecretsRx.ENGINE)
     val cryptoService = CryptoServiceRx(sys, secrets)

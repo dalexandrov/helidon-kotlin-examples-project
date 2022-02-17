@@ -8,6 +8,7 @@ import java.util.HashMap
 
 
 class DeliveryMapper : DbMapper<Delivery> {
+
     override fun read(row: DbRow): Delivery {
         val id = row.column("id").to<String>()
         val food = row.column("food").to<String>()

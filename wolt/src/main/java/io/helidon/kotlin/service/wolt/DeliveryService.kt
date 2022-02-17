@@ -22,6 +22,7 @@ import io.helidon.dbclient.DbExecute
 import io.helidon.dbclient.DbRow
 import io.helidon.dbclient.DbTransaction
 import io.helidon.webserver.*
+import support.toType
 import java.util.*
 import java.util.concurrent.CompletionException
 import java.util.logging.Level
@@ -40,17 +41,17 @@ internal open class DeliveryService(
             exec
                 .createDelete("DROP ALL OBJECTS")
                 .execute()
+        }.exceptionally { throwable: Throwable? ->
+            LOGGER.log(Level.WARNING, "Failed to Drop Database", throwable)
+            null
+        }.thenRun {
+            dbClient.execute { handle: DbExecute -> handle.namedDml("create-table") }
+                .exceptionally { throwable: Throwable? ->
+                    LOGGER.log(Level.WARNING, "Failed to create table, maybe it already exists?", throwable)
+                    null
+                }
         }
-            .exceptionally { throwable: Throwable? ->
-                LOGGER.log(Level.WARNING, "Failed to create table, maybe it already exists?", throwable)
-                null
-            }
-        // Recreate the table
-        dbClient.execute { handle: DbExecute -> handle.namedDml("create-table") }
-            .exceptionally { throwable: Throwable? ->
-                LOGGER.log(Level.WARNING, "Failed to create table, maybe it already exists?", throwable)
-                null
-            }
+
     }
 
     override fun update(rules: Routing.Rules) {
@@ -89,7 +90,7 @@ internal open class DeliveryService(
                         request,
                         response
                     )
-            }) // delete one
+                }) // delete one
             .delete(
                 "/{id}",
                 Handler { request: ServerRequest, response: ServerResponse ->
@@ -144,8 +145,7 @@ internal open class DeliveryService(
             DeliveryStatus.valueOf(request.path().param("status"))
         )
         cryptoService.encryptSecret(delivery.toString()).thenAccept { e-> sendingService.emitMessage(e) }
-//        val encryptSecret = cryptoService.encryptSecret(delivery.toString()).get()
-//        sendingService.emitMessage(encryptSecret)
+
         dbClient.execute { exec: DbExecute ->
             exec
                 .createNamedInsert("insert2")
@@ -176,7 +176,7 @@ internal open class DeliveryService(
     private fun listDeliveries(response: ServerResponse) {
         val rows = dbClient.execute { exec: DbExecute -> exec.namedQuery("select-all") }
             .map {
-                it.`as`(
+                it.toType(
                     JsonObject::class.java
                 )
             }

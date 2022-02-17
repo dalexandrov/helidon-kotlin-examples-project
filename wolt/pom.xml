@@ -91,11 +91,19 @@
             <groupId>io.helidon.dbclient</groupId>
             <artifactId>helidon-dbclient-health</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.helidon.dbclient</groupId>
+            <artifactId>helidon-dbclient-jsonp</artifactId>
+        </dependency>
 
         <!-- Vault -->
         <dependency>
             <groupId>io.helidon.integrations.vault</groupId>
             <artifactId>helidon-integrations-vault</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.integrations.vault.auths</groupId>
+            <artifactId>helidon-integrations-vault-auths-token</artifactId>
         </dependency>
         <dependency>
             <groupId>io.helidon.integrations.vault.secrets</groupId>

@@ -78,13 +78,5 @@ db:
 vault:
   properties:
     address: "http://localhost:8200"
-  token:
-    token: "myroot"
-    address: "${vault.properties.address}"
-    auth:
-      k8s:
-        enabled: false
-      app-role:
-        enabled: false
-      token:
-        enabled: true
+  token: "myroot"
+  address: "${vault.properties.address}"
