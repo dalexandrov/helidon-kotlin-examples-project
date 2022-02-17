@@ -16,15 +16,13 @@
 package io.helidon.kotlin.examples.translator.frontend
 
 import config
-import io.helidon.config.Config
 import io.helidon.config.ConfigSources
 import io.helidon.tracing.TracerBuilder
-import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import webServer
-import routing as routingBuilder
 import java.util.concurrent.CompletionStage
 import java.util.logging.LogManager
+import routing as routingBuilder
 
 /**
  * Translator application frontend main class.

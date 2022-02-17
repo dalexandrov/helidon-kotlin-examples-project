@@ -18,7 +18,7 @@ package io.helidon.kotlin.demo.todos.backend
 import config
 import io.helidon.config.Config
 import io.helidon.config.ConfigSources
-import server
+import io.helidon.microprofile.server.Server
 import java.util.logging.LogManager
 
 /**
@@ -36,10 +36,10 @@ fun main() {
 
     // as we need to use custom filter
     // we need to build Server with custom config
-    val server = server {
-        config(config)
-    }
-    server.start()
+    val server = Server.builder()
+        .config(config)
+        .build()
+        .start()
 }
 
 /**

@@ -17,7 +17,7 @@ package io.helidon.kotlin.security.examples.abac
 
 import io.helidon.config.Config
 import io.helidon.microprofile.server.Server
-import server
+
 
 /**
  * Jersey example for Attribute based access control.
@@ -26,11 +26,12 @@ import server
 
 fun main() {
     val config = Config.create()
-    val server = server {
-        config(config)
-        port(8080)
-    }
+    val server = Server.builder()
+        .config(config)
+        .port(8080)
+        .build()
         .start()
+
     System.out.printf("Started server on localhost:%d%n", server.port())
     println()
     println("***********************")
