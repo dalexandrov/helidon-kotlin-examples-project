@@ -16,11 +16,10 @@
 package io.helidon.kotlin.service.wolt
 
 import io.helidon.config.Config
-import io.helidon.messaging.Messaging
-import io.helidon.messaging.connectors.kafka.KafkaConnector
-import io.helidon.messaging.connectors.kafka.KafkaConfigBuilder
-import io.helidon.kotlin.service.wolt.WebSocketEndpoint
 import io.helidon.messaging.Channel
+import io.helidon.messaging.Messaging
+import io.helidon.messaging.connectors.kafka.KafkaConfigBuilder
+import io.helidon.messaging.connectors.kafka.KafkaConnector
 import org.apache.kafka.common.serialization.StringDeserializer
 import java.io.IOException
 import java.util.*
@@ -93,6 +92,6 @@ class WebSocketEndpoint : Endpoint() {
     }
 
     companion object {
-        private val LOGGER = Logger.getLogger(WebSocketEndpoint::class.java.name)
+        private val LOGGER = Logger.getLogger(WebSocketEndpoint::class.qualifiedName)
     }
 }

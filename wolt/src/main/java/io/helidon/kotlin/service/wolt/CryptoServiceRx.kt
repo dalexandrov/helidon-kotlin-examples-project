@@ -7,16 +7,16 @@ import io.helidon.integrations.vault.secrets.transit.Encrypt
 import io.helidon.integrations.vault.secrets.transit.TransitSecretsRx
 import io.helidon.integrations.vault.sys.EnableEngine
 import io.helidon.integrations.vault.sys.SysRx
-import io.helidon.kotlin.service.wolt.CryptoServiceRx
 
 class CryptoServiceRx internal constructor(private val sys: SysRx, private val secrets: TransitSecretsRx) {
+
     init {
-//        sys.enableEngine(TransitSecretsRx.ENGINE)
-//            .thenAccept { e: EnableEngine.Response? -> println("Transit Secret engine enabled") }
-//            .exceptionallyAccept{ e-> println(e.toString()) }
+        sys.enableEngine(TransitSecretsRx.ENGINE)
+            .thenAccept { e: EnableEngine.Response -> println("Transit Secret engine enabled") }
+            .exceptionallyAccept{ e-> println(e.toString()) }
     }
 
-    fun decryptSecret(encrypted: String?): Single<String> {
+    fun decryptSecret(encrypted: String): Single<String> {
         return secrets.decrypt(
             Decrypt.Request.builder()
                 .encryptionKeyName(ENCRYPTION_KEY)
@@ -25,7 +25,7 @@ class CryptoServiceRx internal constructor(private val sys: SysRx, private val s
             .map { response: Decrypt.Response -> response.decrypted().toDecodedString().toString() }
     }
 
-    fun encryptSecret(secret: String?): Single<String> {
+    fun encryptSecret(secret: String): Single<String> {
         return secrets.encrypt(
             Encrypt.Request.builder()
                 .encryptionKeyName(ENCRYPTION_KEY)

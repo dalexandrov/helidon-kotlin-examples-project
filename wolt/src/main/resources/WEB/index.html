@@ -45,7 +45,6 @@
 
 <script>
 
-    const snippet = $('.java');
     const helidon = $('#helidon');
     const messageBox = $('#msgBox');
     const input = $("#input");
@@ -80,12 +79,6 @@
                     cleanQueue();
                 });
         }
-    }
-
-    function onSubmit() {
-        fetch("/rest/messages/send/" + input.val());
-        template_idx = template_idx < templates.length - 1 ? template_idx + 1 : 0;
-        input.val(templates[template_idx]);
     }
 
     function fly() {

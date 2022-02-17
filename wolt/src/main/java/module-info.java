@@ -45,6 +45,7 @@ module io.helidon.kotlin.service.wolt {
     requires io.helidon.security;
     requires io.helidon.tracing;
 
+    exports io.helidon.kotlin.service.wolt;
 
-    //provides io.helidon.dbclient.spi.DbMapperProvider with io.helidon.kotlin.service.wolt.DeliveryMapperProvider;
+    provides io.helidon.dbclient.spi.DbMapperProvider with io.helidon.kotlin.service.wolt.DeliveryMapperProvider;
 }

@@ -63,9 +63,7 @@ class SendingServiceRx(config: Config) {
         emitter.send(message)
     }
 
-    /**
-     * Gracefully terminate messaging.
-     */
+
     fun shutdown() {
         messaging.stop()
     }

@@ -41,6 +41,10 @@
             <artifactId>helidon-webserver</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.helidon.webserver</groupId>
+            <artifactId>helidon-webserver-static-content</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.helidon.webclient</groupId>
             <artifactId>helidon-webclient</artifactId>
         </dependency>
@@ -49,8 +53,8 @@
             <artifactId>helidon-media-jsonb</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.helidon.dbclient</groupId>
-            <artifactId>helidon-dbclient-jsonp</artifactId>
+            <groupId>io.helidon.media</groupId>
+            <artifactId>helidon-media-jsonp</artifactId>
         </dependency>
         <dependency>
             <groupId>io.helidon.config</groupId>
@@ -69,6 +73,12 @@
             <groupId>io.helidon.metrics</groupId>
             <artifactId>helidon-metrics</artifactId>
         </dependency>
+
+        <!-- DataBase -->
+        <dependency>
+            <groupId>io.helidon.integrations.db</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.helidon.dbclient</groupId>
             <artifactId>helidon-dbclient</artifactId>
@@ -80,13 +90,6 @@
         <dependency>
             <groupId>io.helidon.dbclient</groupId>
             <artifactId>helidon-dbclient-health</artifactId>
-        </dependency>
-
-        <!-- DataBase -->
-
-        <dependency>
-            <groupId>io.helidon.integrations.db</groupId>
-            <artifactId>h2</artifactId>
         </dependency>
 
         <!-- Vault -->
@@ -103,13 +106,7 @@
             <artifactId>helidon-integrations-vault-sys</artifactId>
         </dependency>
 
-        <!-- Static -->
-        <dependency>
-            <groupId>io.helidon.webserver</groupId>
-            <artifactId>helidon-webserver-static-content</artifactId>
-        </dependency>
-
-
+        <!--reactive streams -->
         <dependency>
             <groupId>io.helidon.microprofile.reactive-streams</groupId>
             <artifactId>helidon-microprofile-reactive-streams</artifactId>

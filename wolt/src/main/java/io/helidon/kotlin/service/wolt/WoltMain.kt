@@ -20,18 +20,15 @@ import io.helidon.config.Config
 import io.helidon.dbclient.DbClient
 import io.helidon.dbclient.health.DbClientHealthCheck
 import io.helidon.health.HealthSupport
-import io.helidon.integrations.vault.Vault
 import io.helidon.integrations.vault.secrets.transit.TransitSecretsRx
 import io.helidon.integrations.vault.sys.SysRx
 import io.helidon.media.jsonb.JsonbSupport
-import io.helidon.media.jsonp.JsonpSupport
 import io.helidon.metrics.MetricsSupport
 import io.helidon.tracing.TracerBuilder
 import io.helidon.webclient.WebClient
 import io.helidon.webserver.Routing
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.staticcontent.StaticContentSupport
-import io.helidon.webserver.tyrus.TyrusSupport
 import support.routing
 import support.tyrusSupport
 import support.vault
@@ -62,7 +59,6 @@ fun startServer(): WebServer {
         routing(createRouting(config)) // Get webserver config from the "server" section of application.yaml
         config(config["server"])
         tracer(TracerBuilder.create(config["tracing"]))
-        addMediaSupport(JsonpSupport.create())
         addMediaSupport(JsonbSupport.create())
     }
 
