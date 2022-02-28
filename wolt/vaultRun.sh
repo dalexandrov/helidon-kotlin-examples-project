@@ -15,4 +15,16 @@
 # limitations under the License.
 #
 
-docker run --cap-add=IPC_LOCK -e VAULT_DEV_ROOT_TOKEN_ID=myroot -d --name=vault -p8200:8200 vault
+if [ ! "$(docker ps -q -f name=vault)" ]; then
+  if [ "$(docker ps -aq -f status=exited -f name=vault)" ]; then
+    # Clean up exited container
+    docker rm vault
+  fi
+  # Run test Vault in new container, stop it by pressing Ctrl+C
+   docker run -it \
+   --cap-add=IPC_LOCK \
+   -e VAULT_DEV_ROOT_TOKEN_ID=myroot \
+   -d --name=vault \
+   -p8200:8200 \
+   vault
+fi

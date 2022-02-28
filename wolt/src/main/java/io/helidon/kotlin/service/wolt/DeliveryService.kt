@@ -46,10 +46,6 @@ internal open class DeliveryService(
             null
         }.thenRun {
             dbClient.execute { handle: DbExecute -> handle.namedDml("create-table") }
-                .exceptionally { throwable: Throwable? ->
-                    LOGGER.log(Level.WARNING, "Failed to create table, maybe it already exists?", throwable)
-                    null
-                }
         }
 
     }
